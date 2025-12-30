@@ -1,0 +1,165 @@
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const Content = require('./models/Content');
+const Banner = require('./models/Banner');
+const Hero = require('./models/Hero');
+const Setting = require('./models/Setting');
+
+// Load env vars
+dotenv.config();
+
+const contentSeed = [
+    {
+        slug: 'contact',
+        sections: {
+            intro: "We're Here to Help",
+            address: "MANSARA FOODS\nNo. 15, Government Hospital Opposite,\nTimiri Road, Kalavai, Ranipet,\nTamil Nadu – 632506, India",
+            email: "mansarafoods@gmail.com",
+            phone: "+91 88388 87064",
+            commitment: "🌿 Our Commitment: Every message matters to us. We respond with the same care, honesty, and responsibility that define MANSARA."
+        }
+    },
+    {
+        slug: 'about',
+        sections: {
+            story: "Constructed from the finest ingredients, our products represent the pinnacle of purity and tradition. We believe in the power of natural food to heal and nourish.",
+            mission: "To bring authentic, preservative-free South Indian flavors to every household.",
+            vision: "To become the most trusted name in traditional health foods.",
+            founder_note: "Mansara was born out of a desire to see my own family eat better. That passion has now grown into a promise to you."
+        }
+    },
+    {
+        slug: 'home_highlights',
+        sections: {
+            offers_title: "Seasonal Offers",
+            offers_description: "Don't miss out on our limited-time seasonal specials.",
+            combos_title: "Value Combos",
+            combos_description: "Perfectly paired products for your daily needs.",
+            new_arrivals_title: "Just In",
+            new_arrivals_description: "Be the first to try our latest creations."
+        }
+    }
+];
+
+const bannerSeed = [
+    {
+        page: 'home',
+        title: 'Summer Refresh',
+        subtitle: 'Cool down with our natural drink mixes',
+        image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+        link: '/products?category=beverages',
+        active: true,
+        id: 'banner-1'
+    },
+    {
+        page: 'products',
+        title: 'Spices of India',
+        subtitle: 'Authentic blends for your kitchen',
+        image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+        link: '/products?category=spices',
+        active: true,
+        id: 'banner-2'
+    }
+];
+
+const settingSeed = {
+    key: 'site_settings',
+    website_name: "MANSARA Foods",
+    contact_email: "mansarafoods@gmail.com",
+    phone_number: "+91 88388 87064",
+    address: "No. 15, Government Hospital Opposite, Timiri Road, Kalavai, Ranipet, Tamil Nadu – 632506, India",
+    facebook_url: "https://facebook.com",
+    instagram_url: "https://instagram.com",
+    twitter_url: "https://twitter.com"
+};
+
+const heroSeed = [
+    {
+        key: 'home',
+        data: [
+            {
+                id: '1',
+                image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+                title: 'Pure Tradition, Modern Wellness',
+                subtitle: 'Experience the authentic taste of South India with our handcrafted, preservative-free foods.',
+                ctaText: 'Shop Now',
+                ctaLink: '/products'
+            },
+            {
+                id: '2',
+                image: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+                title: 'Nourish Your Family',
+                subtitle: 'Wholesome porridge mixes and essentials made with care for your loved ones.',
+                ctaText: 'View Products',
+                ctaLink: '/products'
+            }
+        ]
+    },
+    {
+        key: 'newArrivals',
+        data: {
+            image: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+            title: 'New Arrivals',
+            subtitle: 'Discover our latest additions to the MANSARA family.'
+        }
+    },
+    {
+        key: 'offers',
+        data: {
+            image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
+            title: 'Special Offers',
+            subtitle: 'Grab these amazing deals on your favorite MANSARA products.'
+        }
+    },
+    {
+        key: 'homeSettings',
+        data: { interval: 5000 }
+    }
+];
+
+const seedDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mansara-db');
+        console.log('MongoDB Connected');
+
+        // Seed Content
+        for (const page of contentSeed) {
+            await Content.findOneAndUpdate(
+                { slug: page.slug },
+                { $set: { sections: page.sections } },
+                { upsert: true, new: true }
+            );
+        }
+        console.log('Content seeded');
+
+        // Seed Banners
+        await Banner.deleteMany({}); // Clear existing to avoid dups if run multiple times without unique keys
+        await Banner.insertMany(bannerSeed);
+        console.log('Banners seeded');
+
+        // Seed Settings
+        await Setting.findOneAndUpdate(
+            { key: settingSeed.key },
+            { $set: settingSeed },
+            { upsert: true, new: true }
+        );
+        console.log('Settings seeded');
+
+        // Seed Hero
+        for (const item of heroSeed) {
+            await Hero.findOneAndUpdate(
+                { key: item.key },
+                { $set: { data: item.data } },
+                { upsert: true, new: true }
+            );
+        }
+        console.log('Hero seeded');
+
+        process.exit(0);
+    } catch (error) {
+        console.error('Error seeding database:', error);
+        process.exit(1);
+    }
+};
+
+seedDB();
