@@ -51,19 +51,24 @@ router.post('/register', async (req, res) => {
                 <p>This OTP expires in 10 minutes.</p>
             `;
 
-            console.log(`[DEBUG] Attempting to send OTP email to: ${user.email}`);
-            try {
-                await sendEmail({
-                    email: user.email,
-                    subject: 'Email Verification OTP',
-                    message: `Your OTP is ${otp}`,
-                    html: message
-                });
+            // Send OTP Email asynchronously
+            const message = `
+                <h1>Email Verification</h1>
+                <p>Your OTP for email verification is: <strong>${otp}</strong></p>
+                <p>This OTP expires in 10 minutes.</p>
+            `;
+
+            console.log(`[DEBUG] Attempting to send OTP email to: ${user.email} (Async)`);
+            sendEmail({
+                email: user.email,
+                subject: 'Email Verification OTP',
+                message: `Your OTP is ${otp}`,
+                html: message
+            }).then(() => {
                 console.log(`[DEBUG] OTP email sent successfully to: ${user.email}`);
-            } catch (error) {
+            }).catch(error => {
                 console.error("[DEBUG] Failed to send OTP email", error);
-                // We still create the user, they can ask for resend
-            }
+            });
 
             res.status(201).json({
                 _id: user._id,
@@ -180,18 +185,22 @@ router.post('/resend-otp', async (req, res) => {
          <p>This OTP expires in 10 minutes.</p>
      `;
 
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Email Verification OTP (Resend)',
-                message: `Your OTP is ${otp}`,
-                html: message
-            });
-            res.json({ message: "OTP resent successfully" });
-        } catch (error) {
-            console.error("Failed to send OTP", error);
-            res.status(500).json({ message: "Failed to send OTP email" });
-        }
+        // Send OTP Email asynchronously
+        const message = `
+         <h1>Email Verification</h1>
+         <p>Your new OTP for email verification is: <strong>${otp}</strong></p>
+         <p>This OTP expires in 10 minutes.</p>
+     `;
+
+        console.log(`[DEBUG] Resending OTP to: ${user.email} (Async)`);
+        sendEmail({
+            email: user.email,
+            subject: 'Email Verification OTP (Resend)',
+            message: `Your OTP is ${otp}`,
+            html: message
+        }).catch(err => console.error("Failed to send OTP", err));
+
+        res.json({ message: "OTP resent successfully" });
 
     } catch (error) {
         res.status(500).json({ message: error.message });
