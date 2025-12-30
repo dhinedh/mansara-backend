@@ -9,6 +9,8 @@ const notificationService = require('../utils/notificationService');
 router.post('/', protect, async (req, res) => {
     try {
         const { items, total, paymentMethod, deliveryAddress } = req.body;
+        console.log('DEBUG: Creating Order. Body:', JSON.stringify(req.body, null, 2));
+        console.log('DEBUG: Delivery Address:', JSON.stringify(deliveryAddress, null, 2));
 
         // Basic validation
         if (!items || items.length === 0) {

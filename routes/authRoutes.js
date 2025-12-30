@@ -231,6 +231,9 @@ router.put('/profile', protect, async (req, res) => {
             user.phone = req.body.phone || user.phone;
             user.whatsapp = req.body.whatsapp || user.whatsapp;
 
+            console.log('DEBUG: Updating Profile. Body:', req.body);
+            console.log('DEBUG: Updated User Object:', { phone: user.phone, whatsapp: user.whatsapp });
+
             // Check if email is being updated and if it's already taken
             if (req.body.email && req.body.email !== user.email) {
                 const emailExists = await User.findOne({ email: req.body.email });
