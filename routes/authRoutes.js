@@ -51,6 +51,7 @@ router.post('/register', async (req, res) => {
                 <p>This OTP expires in 10 minutes.</p>
             `;
 
+            console.log(`[DEBUG] Attempting to send OTP email to: ${user.email}`);
             try {
                 await sendEmail({
                     email: user.email,
@@ -58,8 +59,9 @@ router.post('/register', async (req, res) => {
                     message: `Your OTP is ${otp}`,
                     html: message
                 });
+                console.log(`[DEBUG] OTP email sent successfully to: ${user.email}`);
             } catch (error) {
-                console.error("Failed to send OTP email", error);
+                console.error("[DEBUG] Failed to send OTP email", error);
                 // We still create the user, they can ask for resend
             }
 
