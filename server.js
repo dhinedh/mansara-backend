@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 console.log('[DEBUG] Environment Config Loaded');
 console.log(`[DEBUG] EMAIL_USER: ${process.env.EMAIL_USER}`);
+// Last Reset: New Credentials Applied
 console.log(`[DEBUG] PORT: ${process.env.PORT}`);
 
 const app = express();

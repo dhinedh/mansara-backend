@@ -16,15 +16,23 @@ const generateToken = (id) => {
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
+const TempUser = require('../models/TempUser');
+
+// @desc    Register a new user
+// @route   POST /api/auth/register
+// @access  Public
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
+        // 1. Check if user already exists in MAIN User collection
         const userExists = await User.findOne({ email });
-
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
+
+        // 2. Check if user exists in TEMP collection (overwrite if so)
+        await TempUser.findOneAndDelete({ email });
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
@@ -34,16 +42,16 @@ router.post('/register', async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-        const user = await User.create({
+        // 3. Create Temp User
+        const tempUser = await TempUser.create({
             name,
             email,
             password: hashedPassword,
             otp,
             otpExpire,
-            isVerified: false // Default is false
         });
 
-        if (user) {
+        if (tempUser) {
             // Send OTP Email
             const message = `
                 <h1>Email Verification</h1>
@@ -51,28 +59,29 @@ router.post('/register', async (req, res) => {
                 <p>This OTP expires in 10 minutes.</p>
             `;
 
-            // Send OTP Email asynchronously (using existing message variable)
-            console.log(`[DEBUG] Attempting to send OTP email to: ${user.email} (Async)`);
-            sendEmail({
-                email: user.email,
-                subject: 'Email Verification OTP',
-                message: `Your OTP is ${otp}`,
-                html: message
-            }).then(() => {
-                console.log(`[DEBUG] OTP email sent successfully to: ${user.email}`);
-            }).catch(error => {
-                console.error("[DEBUG] Failed to send OTP email", error);
-            });
+            try {
+                // Send OTP Email synchronously (await it)
+                console.log(`[DEBUG] Attempting to send OTP email to: ${tempUser.email} (Sync)`);
+                await sendEmail({
+                    email: tempUser.email,
+                    subject: 'Email Verification OTP',
+                    message: `Your OTP is ${otp}`,
+                    html: message
+                });
+                console.log(`[DEBUG] OTP email sent successfully to: ${tempUser.email}`);
 
-            res.status(201).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                isVerified: user.isVerified,
-                // No token returned - user must verify first
-                message: "Registration successful. Please verify your email."
-            });
+                res.status(201).json({
+                    email: tempUser.email,
+                    message: "Registration successful. Please verify your email."
+                });
+            } catch (emailError) {
+                console.error("[DEBUG] Failed to send OTP email", emailError);
+                // Rollback: Delete the temp user if email sending fails
+                await TempUser.findByIdAndDelete(tempUser._id);
+                return res.status(500).json({
+                    message: 'Failed to send OTP email. Registration cancelled. ' + (emailError.message || "Please check server logs.")
+                });
+            }
         } else {
             res.status(400).json({ message: 'Invalid user data' });
         }
@@ -120,28 +129,36 @@ router.post('/verify-email', async (req, res) => {
     const { email, otp } = req.body;
 
     try {
-        const user = await User.findOne({
+        // 1. Find in TempUser
+        const tempUser = await TempUser.findOne({
             email,
             otp,
             otpExpire: { $gt: Date.now() }
         });
 
-        if (!user) {
+        if (!tempUser) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 
-        user.isVerified = true;
-        user.otp = undefined;
-        user.otpExpire = undefined;
-        await user.save();
+        // 2. Move to Real User Collection
+        const newUser = await User.create({
+            name: tempUser.name,
+            email: tempUser.email,
+            password: tempUser.password, // Already hashed
+            isVerified: true,
+            role: 'user' // Default role
+        });
+
+        // 3. Delete from TempUser
+        await TempUser.findByIdAndDelete(tempUser._id);
 
         res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id),
-            message: "Email verified successfully"
+            _id: newUser._id,
+            name: newUser.name,
+            email: newUser.email,
+            role: newUser.role,
+            token: generateToken(newUser._id),
+            message: "Email verified successfully. Account created."
         });
 
     } catch (error) {
@@ -155,22 +172,25 @@ router.post('/verify-email', async (req, res) => {
 router.post('/resend-otp', async (req, res) => {
     const { email } = req.body;
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        // 1. Check if user is already in Main DB
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already registered and verified.' });
         }
 
-        if (user.isVerified) {
-            return res.status(400).json({ message: 'User already verified' });
+        // 2. Check TempUser
+        const tempUser = await TempUser.findOne({ email });
+        if (!tempUser) {
+            return res.status(404).json({ message: 'User not found. Please register again.' });
         }
 
-        // Generate OTP
+        // Generate new OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-        user.otp = otp;
-        user.otpExpire = otpExpire;
-        await user.save();
+        tempUser.otp = otp;
+        tempUser.otpExpire = otpExpire;
+        await tempUser.save();
 
         // Send OTP Email
         const message = `
@@ -179,18 +199,21 @@ router.post('/resend-otp', async (req, res) => {
          <p>This OTP expires in 10 minutes.</p>
      `;
 
-        // Send OTP Email asynchronously
-
-
-        console.log(`[DEBUG] Resending OTP to: ${user.email} (Async)`);
-        sendEmail({
-            email: user.email,
-            subject: 'Email Verification OTP (Resend)',
-            message: `Your OTP is ${otp}`,
-            html: message
-        }).catch(err => console.error("Failed to send OTP", err));
-
-        res.json({ message: "OTP resent successfully" });
+        console.log(`[DEBUG] Resending OTP to: ${tempUser.email}`);
+        try {
+            await sendEmail({
+                email: tempUser.email,
+                subject: 'Email Verification OTP (Resend)',
+                message: `Your OTP is ${otp}`,
+                html: message
+            });
+            res.json({ message: "OTP resent successfully" });
+        } catch (err) {
+            console.error("Failed to send OTP:", err);
+            res.status(500).json({
+                message: "Failed to send OTP email. " + (err.message || "Please check server logs.")
+            });
+        }
 
     } catch (error) {
         res.status(500).json({ message: error.message });

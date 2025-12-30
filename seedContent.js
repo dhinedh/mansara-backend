@@ -22,10 +22,13 @@ const contentSeed = [
     {
         slug: 'about',
         sections: {
-            story: "Constructed from the finest ingredients, our products represent the pinnacle of purity and tradition. We believe in the power of natural food to heal and nourish.",
-            mission: "To bring authentic, preservative-free South Indian flavors to every household.",
-            vision: "To become the most trusted name in traditional health foods.",
-            founder_note: "Mansara was born out of a desire to see my own family eat better. That passion has now grown into a promise to you."
+            intro: "MANSARA was founded in December 2020 with a deep personal purpose — to make pure, nourishing food a part of everyday life, especially for those seeking better balance, wellness, and long-term health.\nThe brand was born from lived experience, care, and conviction — not just an idea.",
+            story: "MANSARA began its journey with a focus on pure, traditionally prepared cooking essentials — Groundnut oil, Sesame oil, Coconut oil, and Ghee — made with an uncompromising commitment to quality, purity, and honesty.\nAs trust grew, so did our offerings. We expanded into nutritious porridge mixes such as Urad Porridge Mix and Kavuni Porridge Mix, and later introduced authentic millet idly podi — combining traditional recipes with modern-day convenience.\nEach product is designed to be easy to cook, clean in ingredients, and gentle in processing, making healthy eating practical for today’s lifestyle.",
+            founder_note: "Founder – Deepika Harikrishnan\nMANSARA was founded by Deepika Harikrishnan, driven by her personal journey and lived experience with hormonal health challenges.\nThrough this journey, she realized the powerful role that clean, balanced, and traditional foods play in supporting overall well-being. Her aim was never to create “special diet food,” but to make everyday food better, purer, and more nourishing — so families can support their health naturally through what they eat daily.\nMANSARA reflects this belief — that food should support the body, not burden it, and that long-term wellness begins with mindful, honest nourishment.",
+            values: "M – Modern, Cloud-Enabled Quality: Using modern systems to ensure transparency, consistency, and trust.\nA – Authentic, Heart-Centered Nutrition: Products created with genuine care for family health.\nN – Naturally Clean Ingredients: Pure, safe, and wholesome — free from unnecessary additives.\nS – Smart, Sustainable Systems: Responsible processes that respect people, resources, and the planet.\nA – Advanced, Light Processing: Gentle methods that help retain natural nutrients and freshness.\nR – Reliable & Responsible: A brand that stands by its values at every step.\nA – Always Pure: An unwavering commitment to honesty and purity.",
+            vision: "To become a trusted wellness food brand that supports healthier lifestyles by offering pure, nourishing food rooted in tradition and enhanced by modern practices.",
+            mission: "• To provide clean, wholesome foods inspired by traditional wisdom\n• To support everyday wellness through simple, nourishing ingredients\n• To create easy-to-cook products suited for modern living\n• To maintain purity, transparency, and responsibility across all processes",
+            promise: "At MANSARA, we believe true nourishment starts from within.\nEvery product we create is a step toward better balance, mindful eating, and long-term well-being."
         }
     },
     {
