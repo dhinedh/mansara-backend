@@ -51,7 +51,7 @@ router.get('/user/:userId', async (req, res) => {
 
 router.get('/', protect, admin, async (req, res) => {
     try {
-        const orders = await Order.find({}).sort({ createdAt: -1 }).populate('user', 'id name email');
+        const orders = await Order.find({}).sort({ createdAt: -1 }).populate('user', 'id name email phone whatsapp');
         res.json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
