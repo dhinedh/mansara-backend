@@ -1,111 +1,60 @@
 const express = require('express');
 const router = express.Router();
-const Content = require('../models/Content');
-const Banner = require('../models/Banner');
-const Hero = require('../models/Hero');
+const Order = require('../models/Order');
+const { protect, admin } = require('../middleware/authMiddleware');
 
-// --- Content Routes ---
+const notificationService = require('../utils/notificationService');
 
-// Get all content pages
-router.get('/pages', async (req, res) => {
+// Create new order
+router.post('/', protect, async (req, res) => {
     try {
-        const pages = await Content.find();
-        res.json(pages);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+        const { items, total, paymentMethod, deliveryAddress } = req.body;
 
-// Update content page
-router.put('/pages/:slug', async (req, res) => {
-    try {
-        const { slug } = req.params;
-        const { sections } = req.body;
+        // Basic validation
+        if (!items || items.length === 0) {
+            return res.status(400).json({ message: 'No order items' });
+        }
 
-        const content = await Content.findOneAndUpdate(
-            { slug },
-            { slug, sections },
-            { new: true, upsert: true }
-        );
-        res.json(content);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
+        // Generate a custom Order ID
+        const orderId = `#ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-// --- Banner Routes ---
-
-// Get all banners
-router.get('/banners', async (req, res) => {
-    try {
-        const banners = await Banner.find();
-        res.json(banners);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// Create banner
-router.post('/banners', async (req, res) => {
-    try {
-        const banner = new Banner(req.body);
-        const savedBanner = await banner.save();
-        res.status(201).json(savedBanner);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
-// Update banner
-router.put('/banners/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const banner = await Banner.findByIdAndUpdate(id, req.body, { new: true });
-        res.json(banner);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
-// Delete banner
-router.delete('/banners/:id', async (req, res) => {
-    try {
-        await Banner.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Banner deleted' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// --- Hero Routes ---
-
-// Get all hero configs
-router.get('/hero', async (req, res) => {
-    try {
-        const heroes = await Hero.find();
-        // Convert array to object format used by frontend
-        const config = {};
-        heroes.forEach(h => {
-            config[h.key] = h.data;
+        const order = new Order({
+            user: req.user._id,
+            orderId, // Add generated ID
+            items,
+            total,
+            paymentMethod,
+            deliveryAddress
         });
-        res.json(config);
+
+        const createdOrder = await order.save();
+
+        // Send Notifications (Async - don't await/block response)
+        notificationService.sendOrderConfirmation(createdOrder, req.user);
+
+        res.status(201).json(createdOrder);
+    } catch (error) {
+        console.error('Order Creation Error:', error);
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Get user orders
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.params.userId }).sort({ date: -1 });
+        res.json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
-// Update hero config
-router.put('/hero/:key', async (req, res) => {
+router.get('/', protect, admin, async (req, res) => {
     try {
-        const { key } = req.params;
-        const hero = await Hero.findOneAndUpdate(
-            { key },
-            { key, data: req.body },
-            { new: true, upsert: true }
-        );
-        res.json(hero);
+        const orders = await Order.find({}).sort({ createdAt: -1 }).populate('user', 'id name email phone whatsapp');
+        res.json(orders);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 });
 
