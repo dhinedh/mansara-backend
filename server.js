@@ -4,6 +4,9 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 
 dotenv.config();
+console.log('[DEBUG] Environment Config Loaded');
+console.log(`[DEBUG] EMAIL_USER: ${process.env.EMAIL_USER}`);
+console.log(`[DEBUG] PORT: ${process.env.PORT}`);
 
 const app = express();
 const PORT = process.env.PORT || 5000;

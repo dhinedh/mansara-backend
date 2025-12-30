@@ -1,10 +1,14 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
+    console.log(`[DEBUG] sendEmail called for: ${options.email}`);
+
     // Check for email credentials
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
         console.log('----------------------------------------------------');
         console.log('WARNING: Email credentials not found in .env');
+        console.log(`Current User: ${process.env.EMAIL_USER}`);
+        console.log(`Current Pass length: ${process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0}`);
         console.log('Skipping email send. Here is the message:');
         console.log(`To: ${options.email}`);
         console.log(`Subject: ${options.subject}`);
