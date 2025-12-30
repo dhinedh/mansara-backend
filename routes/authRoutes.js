@@ -91,9 +91,9 @@ router.post('/login', async (req, res) => {
 
         if (user && (await bcrypt.compare(password, user.password))) {
 
-            // if (!user.isVerified) {
-            //     return res.status(401).json({ message: 'Please verify your email address' });
-            // }
+            if (!user.isVerified) {
+                return res.status(401).json({ message: 'Please verify your email address' });
+            }
 
             res.json({
                 _id: user._id,
