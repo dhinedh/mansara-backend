@@ -23,10 +23,14 @@ const orderSchema = new mongoose.Schema({
     orderStatus: { type: String, enum: ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'], default: 'Ordered' },
     items: [orderItemSchema],
     deliveryAddress: {
+        firstName: String,
+        lastName: String,
         street: String,
         city: String,
         state: String,
-        zip: String
+        zip: String,
+        phone: String,
+        whatsapp: String
     },
     paymentMethod: String,
     trackingSteps: [trackingStepSchema]

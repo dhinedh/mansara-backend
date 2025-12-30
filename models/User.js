@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String }, // For future auth
     phone: String,
+    whatsapp: String,
     avatar: String,
     addresses: [addressSchema],
     cart: [cartItemSchema],

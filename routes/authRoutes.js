@@ -99,6 +99,8 @@ router.post('/login', async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
+                whatsapp: user.whatsapp,
                 role: user.role,
                 token: generateToken(user._id),
             });
@@ -226,6 +228,8 @@ router.put('/profile', protect, async (req, res) => {
 
         if (user) {
             user.name = req.body.name || user.name;
+            user.phone = req.body.phone || user.phone;
+            user.whatsapp = req.body.whatsapp || user.whatsapp;
 
             // Check if email is being updated and if it's already taken
             if (req.body.email && req.body.email !== user.email) {
@@ -242,6 +246,8 @@ router.put('/profile', protect, async (req, res) => {
                 _id: updatedUser._id,
                 name: updatedUser.name,
                 email: updatedUser.email,
+                phone: updatedUser.phone,
+                whatsapp: updatedUser.whatsapp,
                 role: updatedUser.role,
                 token: generateToken(updatedUser._id),
             });
