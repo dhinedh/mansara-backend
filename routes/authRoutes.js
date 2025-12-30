@@ -51,13 +51,7 @@ router.post('/register', async (req, res) => {
                 <p>This OTP expires in 10 minutes.</p>
             `;
 
-            // Send OTP Email asynchronously
-            const message = `
-                <h1>Email Verification</h1>
-                <p>Your OTP for email verification is: <strong>${otp}</strong></p>
-                <p>This OTP expires in 10 minutes.</p>
-            `;
-
+            // Send OTP Email asynchronously (using existing message variable)
             console.log(`[DEBUG] Attempting to send OTP email to: ${user.email} (Async)`);
             sendEmail({
                 email: user.email,
