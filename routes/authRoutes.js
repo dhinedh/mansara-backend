@@ -180,11 +180,7 @@ router.post('/resend-otp', async (req, res) => {
      `;
 
         // Send OTP Email asynchronously
-        const message = `
-         <h1>Email Verification</h1>
-         <p>Your new OTP for email verification is: <strong>${otp}</strong></p>
-         <p>This OTP expires in 10 minutes.</p>
-     `;
+
 
         console.log(`[DEBUG] Resending OTP to: ${user.email} (Async)`);
         sendEmail({
