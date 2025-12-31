@@ -7,20 +7,25 @@ const sendEmail = async (options) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
         console.log('----------------------------------------------------');
         console.log('WARNING: Email credentials not found in .env');
-        console.log(`Current User: ${process.env.EMAIL_USER}`);
-        console.log(`Current Pass length: ${process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0}`);
-        console.log('Skipping email send. Here is the message:');
+
+        if (process.env.NODE_ENV === 'production') {
+            console.error('CRITICAL: Email sending attempted in PRODUCTION without credentials!');
+            throw new Error('Missing EMAIL_USER or EMAIL_PASS in production environment');
+        }
+
+        console.log('Skipping email send (Dev Mode). Message preview:');
         console.log(`To: ${options.email}`);
-        console.log(`Subject: ${options.subject}`);
-        console.log(`Message: ${options.message}`);
         console.log('----------------------------------------------------');
-        return; // Treat as success for dev
+        return;
     }
 
     const transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST || 'smtp.gmail.com',
         port: process.env.EMAIL_PORT || 587,
         secure: false, // true for 465, false for other ports
+        pool: true, // Reuse connections for speed
+        maxConnections: 1, // Limit connections (Gmail strict rate limits)
+        rateLimit: 3, // Max 3 messages per second
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,

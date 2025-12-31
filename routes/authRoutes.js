@@ -286,7 +286,7 @@ router.put('/profile', protect, async (req, res) => {
     }
 });
 
-module.exports = router;
+
 
 // @desc    Forgot Password (OTP)
 // @route   POST /api/auth/forgot-password
@@ -338,7 +338,7 @@ router.post('/forgot-password', async (req, res) => {
 
             await user.save();
 
-            return res.status(500).json({ message: 'Email could not be sent' });
+            return res.status(500).json({ message: 'Email could not be sent. Error: ' + error.message });
         }
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -387,3 +387,5 @@ router.put('/reset-password', async (req, res) => {
         res.status(500).json({ message: 'Server error during password reset' });
     }
 });
+
+module.exports = router;
