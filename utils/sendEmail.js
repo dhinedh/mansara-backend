@@ -1,32 +1,51 @@
-const nodemailer = require('nodemailer');
+const axios = require("axios");
 
 const sendEmail = async (options) => {
-    console.log(`[DEBUG] sendEmail called for: ${options.email}`);
+  console.log(`[DEBUG] sendEmail called for: ${options.email}`);
 
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        throw new Error('Missing EMAIL_USER or EMAIL_PASS');
-    }
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.EMAIL_FROM;
 
-    const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: Number(process.env.EMAIL_PORT),
-        secure: false,
-        auth: {
-            user: process.env.EMAIL_USER, // SMTP login only
-            pass: process.env.EMAIL_PASS,
+  if (!apiKey || !senderEmail) {
+    console.error("CRITICAL: Missing BREVO_API_KEY or EMAIL_FROM");
+    return;
+  }
+
+  try {
+    const res = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "Mansara Foods",
+          email: senderEmail,
         },
-    });
-
-    const message = {
-        from: `"Mansarafoods" <${process.env.EMAIL_FROM}>`, // ✅ FIX
-        to: options.email,
+        to: [
+          {
+            email: options.email,
+            name: options.name || options.email,
+          },
+        ],
         subject: options.subject,
-        text: options.message,
-        html: options.html,
-    };
+        textContent: options.message,
+        htmlContent: options.html || options.message,
+      },
+      {
+        headers: {
+          "api-key": apiKey,
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        timeout: 5000, // fast fail
+      }
+    );
 
-    const info = await transporter.sendMail(message);
-    console.log('Message sent:', info.messageId);
+    console.log("Brevo API Email Sent. MessageId:", res.data.messageId);
+  } catch (err) {
+    console.error(
+      "Brevo Email Error:",
+      err.response?.data || err.message
+    );
+  }
 };
 
 module.exports = sendEmail;
