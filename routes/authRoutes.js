@@ -23,7 +23,7 @@ const TempUser = require('../models/TempUser');
 // @access  Public
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, phone } = req.body;
 
         // 1. Check if user already exists in MAIN User collection
         const userExists = await User.findOne({ email });
@@ -47,6 +47,7 @@ router.post('/register', async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            phone,
             otp,
             otpExpire,
         });
@@ -145,6 +146,8 @@ router.post('/verify-email', async (req, res) => {
             name: tempUser.name,
             email: tempUser.email,
             password: tempUser.password, // Already hashed
+            phone: tempUser.phone, // Add phone
+            whatsapp: tempUser.phone, // Auto-populate WhatsApp too
             isVerified: true,
             role: 'user' // Default role
         });

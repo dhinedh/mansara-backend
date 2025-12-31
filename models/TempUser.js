@@ -14,6 +14,10 @@ const tempUserSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    phone: {
+        type: String,
+        required: true,
+    },
     otp: {
         type: String,
         required: true,

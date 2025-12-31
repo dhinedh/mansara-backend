@@ -3,37 +3,22 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (options) => {
     console.log(`[DEBUG] sendEmail called for: ${options.email}`);
 
-    // Check for email credentials
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.log('----------------------------------------------------');
-        console.log('WARNING: Email credentials not found in .env');
-
-        if (process.env.NODE_ENV === 'production') {
-            console.error('CRITICAL: Email sending attempted in PRODUCTION without credentials!');
-            throw new Error('Missing EMAIL_USER or EMAIL_PASS in production environment');
-        }
-
-        console.log('Skipping email send (Dev Mode). Message preview:');
-        console.log(`To: ${options.email}`);
-        console.log('----------------------------------------------------');
-        return;
+        throw new Error('Missing EMAIL_USER or EMAIL_PASS');
     }
 
     const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-        port: process.env.EMAIL_PORT || 587,
-        secure: false, // true for 465, false for other ports
-        pool: true, // Reuse connections for speed
-        maxConnections: 1, // Limit connections (Gmail strict rate limits)
-        rateLimit: 3, // Max 3 messages per second
+        host: process.env.EMAIL_HOST,
+        port: Number(process.env.EMAIL_PORT),
+        secure: false,
         auth: {
-            user: process.env.EMAIL_USER,
+            user: process.env.EMAIL_USER, // SMTP login only
             pass: process.env.EMAIL_PASS,
         },
     });
 
     const message = {
-        from: `${process.env.FROM_NAME || 'Support'} <${process.env.EMAIL_USER}>`,
+        from: `"Mansarafoods" <${process.env.EMAIL_FROM}>`, // ✅ FIX
         to: options.email,
         subject: options.subject,
         text: options.message,
@@ -41,8 +26,7 @@ const sendEmail = async (options) => {
     };
 
     const info = await transporter.sendMail(message);
-
-    console.log('Message sent: %s', info.messageId);
+    console.log('Message sent:', info.messageId);
 };
 
 module.exports = sendEmail;

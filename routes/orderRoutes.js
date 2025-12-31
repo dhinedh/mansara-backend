@@ -32,6 +32,7 @@ router.post('/', protect, async (req, res) => {
         const createdOrder = await order.save();
 
         // Send Notifications (Async - don't await/block response)
+        console.log(`[DEBUG] Attempting to send notification to User Email: ${req.user.email}`);
         notificationService.sendOrderConfirmation(createdOrder, req.user);
 
         res.status(201).json(createdOrder);
