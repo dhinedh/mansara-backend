@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-
+// ========================================
 const bannerSchema = new mongoose.Schema({
     page: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     image: {
         type: String,
@@ -11,20 +12,34 @@ const bannerSchema = new mongoose.Schema({
     },
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     subtitle: {
         type: String,
-        default: ''
+        default: '',
+        trim: true
     },
     link: {
         type: String,
-        default: ''
+        default: '',
+        trim: true
     },
     active: {
         type: Boolean,
-        default: true
+        default: true,
+        index: true
+    },
+    order: {
+        type: Number,
+        default: 0,
+        index: true
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Banner', bannerSchema);
+// Compound index for active banners by page
+bannerSchema.index({ page: 1, active: 1, order: 1 });
+
+const Banner = mongoose.model('Banner', bannerSchema);
+
+module.exports = Banner;

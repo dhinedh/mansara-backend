@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
-
 const contactSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        index: true
     },
     email: {
         type: String,
         required: true,
         trim: true,
-        lowercase: true
+        lowercase: true,
+        index: true
     },
     phone: {
         type: String,
@@ -22,11 +23,22 @@ const contactSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['new', 'read', 'replied'],
-        default: 'new'
-    }
+        enum: ['new', 'read', 'responded', 'archived'],
+        default: 'new',
+        index: true
+    },
+    respondedAt: Date,
+    respondedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    response: String
 }, {
     timestamps: true
 });
 
-module.exports = mongoose.model('Contact', contactSchema);
+// Compound indexes
+contactSchema.index({ status: 1, createdAt: -1 });
+contactSchema.index({ email: 1, createdAt: -1 });
+
+const Contact = mongoose.model('Contact', contactSchema);

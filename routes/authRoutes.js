@@ -3,8 +3,9 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const TempUser = require('../models/TempUser');
 const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');
+const { protect } = require('../middleware/authMiddleware');
 
 // Generate JWT
 const generateToken = (id) => {
@@ -13,25 +14,24 @@ const generateToken = (id) => {
     });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
-const TempUser = require('../models/TempUser');
-
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
+// ========================================
+// REGISTER USER (OPTIMIZED)
+// ========================================
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone, whatsapp } = req.body;
 
-        // 1. Check if user already exists in MAIN User collection
-        const userExists = await User.findOne({ email });
+        if (!whatsapp) {
+            return res.status(400).json({ message: 'WhatsApp number is required' });
+        }
+
+        // Use lean() for faster query
+        const userExists = await User.findOne({ email }).lean().exec();
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // 2. Check if user exists in TEMP collection (overwrite if so)
+        // Clear previous temp data
         await TempUser.findOneAndDelete({ email });
 
         // Hash password
@@ -40,119 +40,118 @@ router.post('/register', async (req, res) => {
 
         // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+        const otpExpire = Date.now() + 10 * 60 * 1000;
 
-        // 3. Create Temp User
         const tempUser = await TempUser.create({
             name,
             email,
             password: hashedPassword,
             phone,
+            whatsapp,
             otp,
             otpExpire,
         });
 
         if (tempUser) {
-            // Send OTP Email
-            const message = `
-                <h1>Email Verification</h1>
-                <p>Your OTP for email verification is: <strong>${otp}</strong></p>
-                <p>This OTP expires in 10 minutes.</p>
-            `;
+            const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
 
             try {
-                // Send OTP Email synchronously (await it)
-                console.log(`[DEBUG] Attempting to send OTP email to: ${tempUser.email} (Sync)`);
-                await sendEmail({
-                    email: tempUser.email,
-                    subject: 'Email Verification OTP',
-                    message: `Your OTP is ${otp}`,
-                    html: message
+                const sendWhatsApp = require('../utils/sendWhatsApp');
+                // Send WhatsApp asynchronously
+                setImmediate(() => {
+                    sendWhatsApp(whatsapp, message).catch(err => 
+                        console.error('[ERROR] WhatsApp send failed:', err)
+                    );
                 });
-                console.log(`[DEBUG] OTP email sent successfully to: ${tempUser.email}`);
 
                 res.status(201).json({
                     email: tempUser.email,
-                    message: "Registration successful. Please verify your email."
+                    whatsapp: tempUser.whatsapp,
+                    message: "Registration successful. Please check WhatsApp for OTP."
                 });
-            } catch (emailError) {
-                console.error("[DEBUG] Failed to send OTP email", emailError);
-                // Rollback: Delete the temp user if email sending fails
+            } catch (waError) {
+                console.error("[ERROR] WhatsApp setup failed", waError);
                 await TempUser.findByIdAndDelete(tempUser._id);
                 return res.status(500).json({
-                    message: 'Failed to send OTP email. Registration cancelled. ' + (emailError.message || "Please check server logs.")
+                    message: 'Failed to send WhatsApp OTP. ' + (waError.message || "Please check number.")
                 });
             }
         } else {
             res.status(400).json({ message: 'Invalid user data' });
         }
     } catch (error) {
+        console.error('[ERROR] Registration:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-// @access  Public
+// ========================================
+// LOGIN (OPTIMIZED)
+// ========================================
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email });
+        // Use select to only get needed fields
+        const user = await User.findOne({ email })
+            .select('+password') // Explicitly include password
+            .lean()
+            .exec();
 
-        if (user && (await bcrypt.compare(password, user.password))) {
-
-            if (!user.isVerified) {
-                return res.status(401).json({ message: 'Please verify your email address' });
-            }
-
-            res.json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                whatsapp: user.whatsapp,
-                role: user.role,
-                token: generateToken(user._id),
-            });
-        } else {
-            res.status(401).json({ message: 'Invalid email or password' });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        if (!user.isVerified) {
+            return res.status(401).json({ message: 'Please verify your email address' });
+        }
+
+        // Don't send password back
+        delete user.password;
+
+        res.json({
+            ...user,
+            token: generateToken(user._id),
+        });
     } catch (error) {
+        console.error('[ERROR] Login:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
-// @desc    Verify Email OTP
-// @route   POST /api/auth/verify-email
-// @access  Public
+// ========================================
+// VERIFY EMAIL OTP (OPTIMIZED)
+// ========================================
 router.post('/verify-email', async (req, res) => {
     const { email, otp } = req.body;
 
     try {
-        // 1. Find in TempUser
         const tempUser = await TempUser.findOne({
             email,
             otp,
             otpExpire: { $gt: Date.now() }
-        });
+        }).lean().exec();
 
         if (!tempUser) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 
-        // 2. Move to Real User Collection
         const newUser = await User.create({
             name: tempUser.name,
             email: tempUser.email,
-            password: tempUser.password, // Already hashed
-            phone: tempUser.phone, // Add phone
-            whatsapp: tempUser.phone, // Auto-populate WhatsApp too
+            password: tempUser.password,
+            phone: tempUser.phone,
+            whatsapp: tempUser.whatsapp,
             isVerified: true,
-            role: 'user' // Default role
+            role: 'user'
         });
 
-        // 3. Delete from TempUser
         await TempUser.findByIdAndDelete(tempUser._id);
 
         res.json({
@@ -160,205 +159,212 @@ router.post('/verify-email', async (req, res) => {
             name: newUser.name,
             email: newUser.email,
             role: newUser.role,
+            whatsapp: newUser.whatsapp,
             token: generateToken(newUser._id),
-            message: "Email verified successfully. Account created."
+            message: "Account verified successfully."
         });
 
     } catch (error) {
+        console.error('[ERROR] Verify email:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
-// @desc    Resend OTP
-// @route   POST /api/auth/resend-otp
-// @access  Public
+// ========================================
+// RESEND OTP (OPTIMIZED)
+// ========================================
 router.post('/resend-otp', async (req, res) => {
     const { email } = req.body;
     try {
-        // 1. Check if user is already in Main DB
-        const existingUser = await User.findOne({ email });
+        const [existingUser, tempUser] = await Promise.all([
+            User.findOne({ email }).lean().exec(),
+            TempUser.findOne({ email })
+        ]);
+
         if (existingUser) {
             return res.status(400).json({ message: 'User already registered and verified.' });
         }
 
-        // 2. Check TempUser
-        const tempUser = await TempUser.findOne({ email });
         if (!tempUser) {
             return res.status(404).json({ message: 'User not found. Please register again.' });
         }
 
-        // Generate new OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+        const otpExpire = Date.now() + 10 * 60 * 1000;
 
         tempUser.otp = otp;
         tempUser.otpExpire = otpExpire;
         await tempUser.save();
 
-        // Send OTP Email
-        const message = `
-         <h1>Email Verification</h1>
-         <p>Your new OTP for email verification is: <strong>${otp}</strong></p>
-         <p>This OTP expires in 10 minutes.</p>
-     `;
+        const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
 
-        console.log(`[DEBUG] Resending OTP to: ${tempUser.email}`);
-        try {
-            await sendEmail({
-                email: tempUser.email,
-                subject: 'Email Verification OTP (Resend)',
-                message: `Your OTP is ${otp}`,
-                html: message
-            });
-            res.json({ message: "OTP resent successfully" });
-        } catch (err) {
-            console.error("Failed to send OTP:", err);
-            res.status(500).json({
-                message: "Failed to send OTP email. " + (err.message || "Please check server logs.")
-            });
-        }
+        // Send WhatsApp asynchronously
+        setImmediate(() => {
+            const sendWhatsApp = require('../utils/sendWhatsApp');
+            sendWhatsApp(tempUser.whatsapp, message).catch(err => 
+                console.error('[ERROR] WhatsApp send failed:', err)
+            );
+        });
+
+        res.json({ message: "OTP resent successfully to WhatsApp" });
 
     } catch (error) {
+        console.error('[ERROR] Resend OTP:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
-const { protect } = require('../middleware/authMiddleware');
-
-// @desc    Change user password
-// @route   PUT /api/auth/change-password
-// @access  Private
+// ========================================
+// CHANGE PASSWORD (OPTIMIZED)
+// ========================================
 router.put('/change-password', protect, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        const user = await User.findById(req.user._id);
 
-        if (user && (await bcrypt.compare(currentPassword, user.password))) {
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(newPassword, salt);
-            await user.save();
-            res.json({ message: 'Password updated successfully' });
-        } else {
-            res.status(401).json({ message: 'Invalid current password' });
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Please provide current and new password' });
         }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
 
-// @desc    Update user profile
-// @route   PUT /api/auth/profile
-// @access  Private
-router.put('/profile', protect, async (req, res) => {
-    try {
-        const user = await User.findById(req.user._id);
-
-        if (user) {
-            user.name = req.body.name || user.name;
-            user.phone = req.body.phone || user.phone;
-            user.whatsapp = req.body.whatsapp || user.whatsapp;
-
-            console.log('DEBUG: Updating Profile. Body:', req.body);
-            console.log('DEBUG: Updated User Object:', { phone: user.phone, whatsapp: user.whatsapp });
-
-            // Check if email is being updated and if it's already taken
-            if (req.body.email && req.body.email !== user.email) {
-                const emailExists = await User.findOne({ email: req.body.email });
-                if (emailExists) {
-                    return res.status(400).json({ message: 'Email already in use' });
-                }
-                user.email = req.body.email;
-            }
-
-            const updatedUser = await user.save();
-
-            res.json({
-                _id: updatedUser._id,
-                name: updatedUser.name,
-                email: updatedUser.email,
-                phone: updatedUser.phone,
-                whatsapp: updatedUser.whatsapp,
-                role: updatedUser.role,
-                token: generateToken(updatedUser._id),
-            });
-        } else {
-            res.status(404).json({ message: 'User not found' });
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'New password must be at least 6 characters long' });
         }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
 
-
-
-// @desc    Forgot Password (OTP)
-// @route   POST /api/auth/forgot-password
-// @access  Public
-router.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        const user = await User.findOne({ email });
+        const user = await User.findById(req.user._id).select('+password');
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Generate OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-        // Hash OTP and store in resetPasswordToken (reusing field)
-        const resetPasswordToken = crypto
-            .createHash('sha256')
-            .update(otp)
-            .digest('hex');
-
-        // Set expire
-        user.resetPasswordToken = resetPasswordToken;
-        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-        await user.save();
-
-        const message = `
-            <h1>Password Reset OTP</h1>
-            <p>Your OTP to reset your password is: <strong>${otp}</strong></p>
-            <p>This OTP expires in 10 minutes.</p>
-        `;
-
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Password Reset OTP',
-                message: `Your OTP is ${otp}`,
-                html: message
-            });
-
-            res.status(200).json({ success: true, data: 'OTP sent to email' });
-        } catch (error) {
-            console.error(error);
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpire = undefined;
-
-            await user.save();
-
-            return res.status(500).json({ message: 'Email could not be sent. Error: ' + error.message });
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid current password' });
         }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+        
+        res.json({ message: 'Password updated successfully' });
     } catch (error) {
+        console.error('[ERROR] Change password:', error);
         res.status(500).json({ message: error.message });
     }
 });
 
-// @desc    Reset Password (verify OTP)
-// @route   PUT /api/auth/reset-password
-// @access  Public
+// ========================================
+// UPDATE PROFILE (OPTIMIZED)
+// ========================================
+router.put('/profile', protect, async (req, res) => {
+    try {
+        const updateData = {};
+        
+        if (req.body.name) updateData.name = req.body.name;
+        if (req.body.phone) updateData.phone = req.body.phone;
+        if (req.body.whatsapp) updateData.whatsapp = req.body.whatsapp;
+
+        // Check if email is being updated
+        if (req.body.email && req.body.email !== req.user.email) {
+            const emailExists = await User.findOne({ email: req.body.email }).lean().exec();
+            if (emailExists) {
+                return res.status(400).json({ message: 'Email already in use' });
+            }
+            updateData.email = req.body.email;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { $set: updateData },
+            { new: true, select: '-password' }
+        ).lean().exec();
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({
+            ...updatedUser,
+            token: generateToken(updatedUser._id),
+        });
+    } catch (error) {
+        console.error('[ERROR] Update profile:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// ========================================
+// FORGOT PASSWORD (OPTIMIZED)
+// ========================================
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        if (!email) {
+            return res.status(400).json({ message: 'Please provide an email address' });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'No account found with this email address' });
+        }
+
+        if (!user.whatsapp) {
+            return res.status(400).json({ 
+                message: 'No WhatsApp number registered with this account. Please contact support.' 
+            });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
+
+        user.resetPasswordToken = resetPasswordToken;
+        user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+        await user.save();
+
+        const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
+
+        // Send WhatsApp asynchronously
+        setImmediate(() => {
+            const sendWhatsApp = require('../utils/sendWhatsApp');
+            sendWhatsApp(user.whatsapp, message).catch(err => {
+                console.error('[ERROR] WhatsApp send failed:', err);
+                // Clear token if send fails
+                User.findByIdAndUpdate(user._id, {
+                    $unset: { resetPasswordToken: 1, resetPasswordExpire: 1 }
+                }).exec();
+            });
+        });
+
+        res.status(200).json({ 
+            success: true, 
+            message: 'Password reset OTP has been sent to your registered WhatsApp number' 
+        });
+    } catch (error) {
+        console.error('[ERROR] Forgot password:', error);
+        res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+});
+
+// ========================================
+// RESET PASSWORD (OPTIMIZED)
+// ========================================
 router.put('/reset-password', async (req, res) => {
     const { email, otp, password } = req.body;
 
-    // Hash the entered OTP to compare
-    const resetPasswordToken = crypto
-        .createHash('sha256')
-        .update(otp)
-        .digest('hex');
+    if (!email || !otp || !password) {
+        return res.status(400).json({ 
+            message: 'Please provide email, OTP, and new password' 
+        });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ 
+            message: 'Password must be at least 6 characters long' 
+        });
+    }
+
+    const resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
 
     try {
         const user = await User.findOne({
@@ -368,26 +374,46 @@ router.put('/reset-password', async (req, res) => {
         });
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid OTP or expired' });
+            return res.status(400).json({ 
+                message: 'Invalid or expired OTP. Please request a new one.' 
+            });
         }
 
-        // Set new password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
-
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
-
         await user.save();
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
-            data: 'Password Updated Success',
+            message: 'Password updated successfully. You can now login with your new password.',
             token: generateToken(user._id)
         });
     } catch (error) {
-        console.error('Reset Password Error:', error);
-        res.status(500).json({ message: 'Server error during password reset' });
+        console.error('[ERROR] Reset password:', error);
+        res.status(500).json({ message: 'Server error during password reset. Please try again.' });
+    }
+});
+
+// ========================================
+// GET PROFILE (OPTIMIZED)
+// ========================================
+router.get('/profile', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+            .select('-password -__v')
+            .lean()
+            .exec();
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error('[ERROR] Get profile:', error);
+        res.status(500).json({ message: error.message });
     }
 });
 

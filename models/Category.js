@@ -5,18 +5,43 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        trim: true
+        trim: true,
+        index: true
     },
     slug: {
         type: String,
         required: true,
         unique: true,
-        lowercase: true
+        lowercase: true,
+        trim: true,
+        index: true
     },
     description: {
-        type: String
+        type: String,
+        trim: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+        index: true
+    },
+    productCount: {
+        type: Number,
+        default: 0
     }
-    // Image field intentionally omitted as per user request
 }, { timestamps: true });
 
-module.exports = mongoose.model('Category', categorySchema);
+// Auto-generate slug
+categorySchema.pre('save', function (next) {
+    if (!this.slug && this.name) {
+        this.slug = this.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+    }
+    next();
+});
+
+const Category = mongoose.model('Category', categorySchema);
+
+module.exports = Category;

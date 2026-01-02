@@ -1,15 +1,22 @@
 const mongoose = require('mongoose');
-
 const heroSchema = new mongoose.Schema({
-    key: { // 'home', 'newArrivals', 'homeSettings', etc.
+    key: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index: true
     },
     data: {
         type: mongoose.Schema.Types.Mixed,
         required: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+        index: true
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Hero', heroSchema);
+const Hero = mongoose.model('Hero', heroSchema);
+
+module.exports = Hero;
