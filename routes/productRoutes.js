@@ -197,20 +197,14 @@ router.get('/category/:category', cacheMiddleware(300000), async (req, res) => {
 // ========================================
 router.post('/', protect, admin, async (req, res) => {
     try {
-        console.log('[DEBUG] Creating product:', req.body.name);
         const product = new Product(req.body);
-        console.log('[DEBUG] Product instance created, saving...');
         const createdProduct = await product.save();
-        console.log('[DEBUG] Product saved:', createdProduct._id);
 
         // Clear cache after creating product
         clearProductCache();
-        console.log('[DEBUG] Cache cleared');
 
         res.status(201).json(createdProduct);
     } catch (error) {
-        console.error('[ERROR] Product creation failed:', error);
-        console.error('[ERROR] Stack:', error.stack);
         res.status(400).json({ message: error.message });
     }
 });
