@@ -37,6 +37,7 @@ const productSchema = new mongoose.Schema({
         index: true
     },
     image: String,
+    images: [String],
     description: String,
     ingredients: String,
     howToUse: String,

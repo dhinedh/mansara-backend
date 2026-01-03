@@ -104,7 +104,7 @@ router.get('/featured', cacheMiddleware(600000), async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
 
         const products = await Product.find({ featured: true })
-            .select('name slug price images category featured')
+            .select('name slug price image images category featured')
             .limit(limit)
             .sort({ createdAt: -1 })
             .lean()

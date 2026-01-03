@@ -6,6 +6,14 @@ const User = require('../models/User');
 const TempUser = require('../models/TempUser');
 const crypto = require('crypto');
 const { protect } = require('../middleware/authMiddleware');
+const { OAuth2Client } = require('google-auth-library');
+
+// Initialize Google OAuth client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
 
 // Generate JWT
 const generateToken = (id) => {
@@ -15,7 +23,7 @@ const generateToken = (id) => {
 };
 
 // ========================================
-// REGISTER USER (OPTIMIZED)
+// REGISTER USER
 // ========================================
 router.post('/register', async (req, res) => {
     try {
@@ -25,20 +33,16 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'WhatsApp number is required' });
         }
 
-        // Use lean() for faster query
         const userExists = await User.findOne({ email }).lean().exec();
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Clear previous temp data
         await TempUser.findOneAndDelete({ email });
 
-        // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpire = Date.now() + 10 * 60 * 1000;
 
@@ -57,9 +61,8 @@ router.post('/register', async (req, res) => {
 
             try {
                 const sendWhatsApp = require('../utils/sendWhatsApp');
-                // Send WhatsApp asynchronously
                 setImmediate(() => {
-                    sendWhatsApp(whatsapp, message).catch(err => 
+                    sendWhatsApp(whatsapp, message).catch(err =>
                         console.error('[ERROR] WhatsApp send failed:', err)
                     );
                 });
@@ -86,15 +89,14 @@ router.post('/register', async (req, res) => {
 });
 
 // ========================================
-// LOGIN (OPTIMIZED)
+// LOGIN
 // ========================================
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Use select to only get needed fields
         const user = await User.findOne({ email })
-            .select('+password') // Explicitly include password
+            .select('+password')
             .lean()
             .exec();
 
@@ -103,7 +105,7 @@ router.post('/login', async (req, res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        
+
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -112,7 +114,6 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Please verify your email address' });
         }
 
-        // Don't send password back
         delete user.password;
 
         res.json({
@@ -126,7 +127,149 @@ router.post('/login', async (req, res) => {
 });
 
 // ========================================
-// VERIFY EMAIL OTP (OPTIMIZED)
+// GOOGLE OAUTH (FIXED!)
+// ========================================
+// ========================================
+// GOOGLE OAUTH (FULLY FIXED VERSION)
+// ========================================
+router.post('/google', async (req, res) => {
+    try {
+        const { credential, email: bodyEmail, name: bodyName, mode } = req.body;
+
+        console.log('[Google Auth] Request received:', { email: bodyEmail, name: bodyName, mode });
+
+        // Verify the Google token
+        let ticket;
+        try {
+            ticket = await googleClient.verifyIdToken({
+                idToken: credential,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+        } catch (verifyError) {
+            console.error('[Google Auth] Token verification failed:', verifyError);
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid Google token'
+            });
+        }
+
+        const payload = ticket.getPayload();
+
+        // Strict Audience Check
+        if (payload.aud !== process.env.GOOGLE_CLIENT_ID) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid token audience'
+            });
+        }
+
+        // Use verified values from payload
+        const email = payload.email;
+        const name = payload.name;
+        const picture = payload.picture;
+        const googleId = payload.sub;
+
+        console.log('[Google Auth] Payload verified:', { email, googleId });
+
+        // 1. Check if user with this Google ID exists (PRIORITY)
+        let user = await User.findOne({ googleId });
+
+        if (user) {
+            console.log('[Google Auth] Existing Google user signed in:', user.email);
+        } else {
+            // 2. Check if user with this email exists
+            user = await User.findOne({ email });
+
+            if (user) {
+                console.log('[Google Auth] Existing email user signing in:', email);
+                // ✅ FIXED: Update without triggering password middleware
+                await User.updateOne(
+                    { _id: user._id },
+                    { 
+                        $set: { 
+                            googleId,
+                            picture,
+                            authProvider: 'google',
+                            isVerified: true,
+                            avatar: picture || user.avatar,
+                            lastLogin: new Date()
+                        }
+                    }
+                );
+                // Refresh user object
+                user = await User.findById(user._id);
+            } else {
+                // 3. Create new Google user (NO PASSWORD)
+                console.log('[Google Auth] Creating new Google user:', email);
+                user = new User({
+                    email,
+                    name,
+                    picture,
+                    avatar: picture,
+                    googleId,
+                    authProvider: 'google',
+                    isVerified: true,
+                    role: 'user',
+                    status: 'Active',
+                    lastLogin: new Date()
+                });
+
+                // ✅ FIXED: Save new user (no password = middleware skips)
+                await user.save();
+                console.log('[Google Auth] New user created:', email);
+            }
+        }
+
+        // Update last login (safe - no password field touched)
+        await User.updateOne(
+            { _id: user._id },
+            { lastLogin: new Date() }
+        );
+
+        // Generate JWT token
+        const token = jwt.sign(
+            {
+                id: user._id,
+                userId: user._id,
+                email: user.email,
+                role: user.role
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '30d' }
+        );
+
+        // Return success response
+        res.json({
+            success: true,
+            message: 'Authentication successful',
+            token,
+            user: {
+                _id: user._id,
+                id: user._id,
+                email: user.email,
+                name: user.name,
+                phone: user.phone || '',
+                whatsapp: user.whatsapp || '',
+                picture: user.picture,
+                avatar: user.picture || user.avatar,
+                role: user.role,
+                isVerified: user.isVerified,
+            },
+        });
+
+    } catch (error) {
+        console.error('[Google Auth] Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Authentication failed',
+            error: error.message
+        });
+    }
+});
+
+
+// ========================================
+// VERIFY EMAIL OTP
 // ========================================
 router.post('/verify-email', async (req, res) => {
     const { email, otp } = req.body;
@@ -171,7 +314,7 @@ router.post('/verify-email', async (req, res) => {
 });
 
 // ========================================
-// RESEND OTP (OPTIMIZED)
+// RESEND OTP
 // ========================================
 router.post('/resend-otp', async (req, res) => {
     const { email } = req.body;
@@ -198,10 +341,9 @@ router.post('/resend-otp', async (req, res) => {
 
         const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
 
-        // Send WhatsApp asynchronously
         setImmediate(() => {
             const sendWhatsApp = require('../utils/sendWhatsApp');
-            sendWhatsApp(tempUser.whatsapp, message).catch(err => 
+            sendWhatsApp(tempUser.whatsapp, message).catch(err =>
                 console.error('[ERROR] WhatsApp send failed:', err)
             );
         });
@@ -215,7 +357,7 @@ router.post('/resend-otp', async (req, res) => {
 });
 
 // ========================================
-// CHANGE PASSWORD (OPTIMIZED)
+// CHANGE PASSWORD
 // ========================================
 router.put('/change-password', protect, async (req, res) => {
     try {
@@ -236,7 +378,7 @@ router.put('/change-password', protect, async (req, res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-        
+
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid current password' });
         }
@@ -244,7 +386,7 @@ router.put('/change-password', protect, async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
         await user.save();
-        
+
         res.json({ message: 'Password updated successfully' });
     } catch (error) {
         console.error('[ERROR] Change password:', error);
@@ -253,17 +395,16 @@ router.put('/change-password', protect, async (req, res) => {
 });
 
 // ========================================
-// UPDATE PROFILE (OPTIMIZED)
+// UPDATE PROFILE
 // ========================================
 router.put('/profile', protect, async (req, res) => {
     try {
         const updateData = {};
-        
+
         if (req.body.name) updateData.name = req.body.name;
         if (req.body.phone) updateData.phone = req.body.phone;
         if (req.body.whatsapp) updateData.whatsapp = req.body.whatsapp;
 
-        // Check if email is being updated
         if (req.body.email && req.body.email !== req.user.email) {
             const emailExists = await User.findOne({ email: req.body.email }).lean().exec();
             if (emailExists) {
@@ -293,7 +434,7 @@ router.put('/profile', protect, async (req, res) => {
 });
 
 // ========================================
-// FORGOT PASSWORD (OPTIMIZED)
+// FORGOT PASSWORD
 // ========================================
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
@@ -310,8 +451,8 @@ router.post('/forgot-password', async (req, res) => {
         }
 
         if (!user.whatsapp) {
-            return res.status(400).json({ 
-                message: 'No WhatsApp number registered with this account. Please contact support.' 
+            return res.status(400).json({
+                message: 'No WhatsApp number registered with this account. Please contact support.'
             });
         }
 
@@ -324,21 +465,19 @@ router.post('/forgot-password', async (req, res) => {
 
         const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
 
-        // Send WhatsApp asynchronously
         setImmediate(() => {
             const sendWhatsApp = require('../utils/sendWhatsApp');
             sendWhatsApp(user.whatsapp, message).catch(err => {
                 console.error('[ERROR] WhatsApp send failed:', err);
-                // Clear token if send fails
                 User.findByIdAndUpdate(user._id, {
                     $unset: { resetPasswordToken: 1, resetPasswordExpire: 1 }
                 }).exec();
             });
         });
 
-        res.status(200).json({ 
-            success: true, 
-            message: 'Password reset OTP has been sent to your registered WhatsApp number' 
+        res.status(200).json({
+            success: true,
+            message: 'Password reset OTP has been sent to your registered WhatsApp number'
         });
     } catch (error) {
         console.error('[ERROR] Forgot password:', error);
@@ -347,20 +486,20 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 // ========================================
-// RESET PASSWORD (OPTIMIZED)
+// RESET PASSWORD
 // ========================================
 router.put('/reset-password', async (req, res) => {
     const { email, otp, password } = req.body;
 
     if (!email || !otp || !password) {
-        return res.status(400).json({ 
-            message: 'Please provide email, OTP, and new password' 
+        return res.status(400).json({
+            message: 'Please provide email, OTP, and new password'
         });
     }
 
     if (password.length < 6) {
-        return res.status(400).json({ 
-            message: 'Password must be at least 6 characters long' 
+        return res.status(400).json({
+            message: 'Password must be at least 6 characters long'
         });
     }
 
@@ -374,8 +513,8 @@ router.put('/reset-password', async (req, res) => {
         });
 
         if (!user) {
-            return res.status(400).json({ 
-                message: 'Invalid or expired OTP. Please request a new one.' 
+            return res.status(400).json({
+                message: 'Invalid or expired OTP. Please request a new one.'
             });
         }
 
@@ -397,7 +536,7 @@ router.put('/reset-password', async (req, res) => {
 });
 
 // ========================================
-// GET PROFILE (OPTIMIZED)
+// GET PROFILE
 // ========================================
 router.get('/profile', protect, async (req, res) => {
     try {
@@ -405,7 +544,7 @@ router.get('/profile', protect, async (req, res) => {
             .select('-password -__v')
             .lean()
             .exec();
-        
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }

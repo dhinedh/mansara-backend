@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // ========================================
-// OPTIMIZED AUTH MIDDLEWARE
+// OPTIMIZED AUTH MIDDLEWARE WITH GOOGLE SUPPORT
 // ========================================
 
 /**
@@ -29,9 +29,19 @@ const protect = async (req, res, next) => {
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+            // UPDATED: Support both 'id' and 'userId' in token payload
+            // This supports both traditional login and Google OAuth
+            const userId = decoded.id || decoded.userId;
+
+            if (!userId) {
+                return res.status(401).json({ 
+                    message: 'Invalid token payload' 
+                });
+            }
+
             // Get user from token (exclude password for security)
             // Use lean() for better performance since we just need user data
-            const user = await User.findById(decoded.id)
+            const user = await User.findById(userId)
                 .select('-password -__v')
                 .lean()
                 .exec();
@@ -116,13 +126,19 @@ const optionalAuth = async (req, res, next) => {
         if (token) {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                const user = await User.findById(decoded.id)
-                    .select('-password -__v')
-                    .lean()
-                    .exec();
+                
+                // UPDATED: Support both 'id' and 'userId' in token payload
+                const userId = decoded.id || decoded.userId;
+                
+                if (userId) {
+                    const user = await User.findById(userId)
+                        .select('-password -__v')
+                        .lean()
+                        .exec();
 
-                if (user && user.status === 'Active') {
-                    req.user = user;
+                    if (user && user.status === 'Active') {
+                        req.user = user;
+                    }
                 }
             } catch (error) {
                 // Silently fail - user remains undefined
@@ -154,6 +170,48 @@ const verified = (req, res, next) => {
     } else {
         return res.status(403).json({ 
             message: 'Email verification required. Please verify your email.' 
+        });
+    }
+};
+
+/**
+ * Check if user is authenticated via Google
+ * @middleware
+ * @requires protect middleware to be called first
+ */
+const isGoogleUser = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ 
+            message: 'Not authorized' 
+        });
+    }
+
+    if (req.user.authProvider === 'google') {
+        next();
+    } else {
+        return res.status(403).json({ 
+            message: 'This action is only available for Google authenticated users' 
+        });
+    }
+};
+
+/**
+ * Check if user is authenticated via local (email/password)
+ * @middleware
+ * @requires protect middleware to be called first
+ */
+const isLocalUser = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ 
+            message: 'Not authorized' 
+        });
+    }
+
+    if (req.user.authProvider === 'local') {
+        next();
+    } else {
+        return res.status(403).json({ 
+            message: 'This action is only available for email/password users' 
         });
     }
 };
@@ -212,10 +270,65 @@ const rateLimit = (maxRequests = 100, windowMs = 15 * 60 * 1000) => {
     };
 };
 
+/**
+ * Validate user ownership - Check if user is accessing their own resources
+ * @middleware
+ * @requires protect middleware to be called first
+ */
+const validateOwnership = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ 
+            message: 'Not authorized' 
+        });
+    }
+
+    // Check if user is admin or accessing their own resource
+    const resourceUserId = req.params.userId || req.params.id;
+    
+    if (req.user.role === 'admin' || req.user._id.toString() === resourceUserId) {
+        next();
+    } else {
+        return res.status(403).json({ 
+            message: 'Access denied. You can only access your own resources.' 
+        });
+    }
+};
+
+/**
+ * Log user activity
+ * @middleware
+ */
+const logActivity = (action) => {
+    return async (req, res, next) => {
+        if (req.user) {
+            try {
+                // You can implement activity logging here
+                console.log(`[ACTIVITY] User ${req.user._id} performed: ${action}`);
+                
+                // Optional: Save to database
+                // await ActivityLog.create({
+                //     user: req.user._id,
+                //     action,
+                //     timestamp: new Date(),
+                //     ip: req.ip,
+                //     userAgent: req.get('user-agent')
+                // });
+            } catch (error) {
+                console.error('[AUTH] Activity logging failed:', error);
+            }
+        }
+        next();
+    };
+};
+
 module.exports = { 
     protect, 
     admin, 
     optionalAuth, 
     verified,
-    rateLimit
+    isGoogleUser,
+    isLocalUser,
+    rateLimit,
+    validateOwnership,
+    logActivity
 };

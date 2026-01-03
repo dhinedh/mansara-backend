@@ -53,3 +53,5 @@ const tempUserSchema = mongoose.Schema({
 tempUserSchema.index({ email: 1, otp: 1, otpExpire: 1 });
 
 const TempUser = mongoose.model('TempUser', tempUserSchema);
+
+module.exports = TempUser;
