@@ -214,6 +214,7 @@ const comboSchema = new mongoose.Schema({
         index: true
     },
     image: String,
+    images: [String],
     description: String,
     isActive: {
         type: Boolean,
