@@ -38,6 +38,7 @@ const productSchema = new mongoose.Schema({
     },
     image: String,
     images: [String],
+    video: String, // URL to product video
     description: String,
     ingredients: String,
     howToUse: String,

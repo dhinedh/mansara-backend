@@ -13,17 +13,18 @@ cloudinary.config({
 
 // Configure Multer (memory storage)
 const storage = multer.memoryStorage();
-const upload = multer({ 
+const upload = multer({
     storage,
     limits: {
         fileSize: 10 * 1024 * 1024 // 10MB max file size
     },
     fileFilter: (req, file, cb) => {
-        // Accept images only
-        if (!file.mimetype.startsWith('image/')) {
-            return cb(new Error('Only image files are allowed!'), false);
+        // Accept images and videos
+        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image and video files are allowed!'), false);
         }
-        cb(null, true);
     }
 });
 
@@ -36,7 +37,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        console.log(`[UPLOAD] Processing image: ${req.file.originalname} (${(req.file.size / 1024).toFixed(2)} KB)`);
+        console.log(`[UPLOAD] Processing file: ${req.file.originalname} (${(req.file.size / 1024).toFixed(2)} KB) Type: ${req.file.mimetype}`);
 
         // ========================================
         // IMAGE OPTIMIZATION WITH SHARP
@@ -52,11 +53,11 @@ router.post('/', upload.single('image'), async (req, res) => {
             if (isWebP) {
                 // Optimize WebP
                 optimizedBuffer = await sharp(req.file.buffer)
-                    .resize(1920, 1920, { 
-                        fit: 'inside', 
-                        withoutEnlargement: true 
+                    .resize(1920, 1920, {
+                        fit: 'inside',
+                        withoutEnlargement: true
                     })
-                    .webp({ 
+                    .webp({
                         quality: 85,
                         effort: 4 // Balance between speed and compression
                     })
@@ -64,11 +65,11 @@ router.post('/', upload.single('image'), async (req, res) => {
             } else if (isPNG) {
                 // Optimize PNG (convert to WebP for better compression)
                 optimizedBuffer = await sharp(req.file.buffer)
-                    .resize(1920, 1920, { 
-                        fit: 'inside', 
-                        withoutEnlargement: true 
+                    .resize(1920, 1920, {
+                        fit: 'inside',
+                        withoutEnlargement: true
                     })
-                    .webp({ 
+                    .webp({
                         quality: 90,
                         lossless: false
                     })
@@ -76,11 +77,11 @@ router.post('/', upload.single('image'), async (req, res) => {
             } else {
                 // Optimize JPEG
                 optimizedBuffer = await sharp(req.file.buffer)
-                    .resize(1920, 1920, { 
-                        fit: 'inside', 
-                        withoutEnlargement: true 
+                    .resize(1920, 1920, {
+                        fit: 'inside',
+                        withoutEnlargement: true
                     })
-                    .jpeg({ 
+                    .jpeg({
                         quality: 85,
                         progressive: true,
                         mozjpeg: true
@@ -105,18 +106,21 @@ router.post('/', upload.single('image'), async (req, res) => {
         // UPLOAD TO CLOUDINARY WITH OPTIMIZATION
         // ========================================
         const uploadPromise = new Promise((resolve, reject) => {
+            const isVideo = req.file.mimetype.startsWith('video/');
+
             const uploadStream = cloudinary.uploader.upload_stream(
-                { 
+                {
                     folder: 'mansara',
+                    resource_type: isVideo ? 'video' : 'image',
                     // Cloudinary transformations for additional optimization
-                    transformation: [
+                    transformation: isVideo ? [] : [
                         {
                             quality: 'auto:good', // Auto quality optimization
                             fetch_format: 'auto' // Auto format (WebP for supported browsers)
                         }
                     ],
-                    // Generate responsive image variants
-                    responsive_breakpoints: {
+                    // Generate responsive image variants (only for images)
+                    responsive_breakpoints: isVideo ? undefined : {
                         create_derived: true,
                         bytes_step: 20000,
                         min_width: 200,
@@ -164,9 +168,9 @@ router.post('/', upload.single('image'), async (req, res) => {
 
     } catch (error) {
         console.error('[UPLOAD ERROR]', error);
-        res.status(500).json({ 
+        res.status(500).json({
             message: 'Server error during upload',
-            error: error.message 
+            error: error.message
         });
     }
 });
@@ -193,7 +197,7 @@ router.post('/bulk', upload.array('images', 10), async (req, res) => {
                 // Upload to Cloudinary
                 return new Promise((resolve, reject) => {
                     const uploadStream = cloudinary.uploader.upload_stream(
-                        { 
+                        {
                             folder: 'mansara',
                             transformation: [
                                 { quality: 'auto:good', fetch_format: 'auto' }
@@ -237,9 +241,9 @@ router.post('/bulk', upload.array('images', 10), async (req, res) => {
 router.delete('/:publicId', async (req, res) => {
     try {
         const publicId = req.params.publicId.replace(/--/g, '/');
-        
+
         const result = await cloudinary.uploader.destroy(publicId);
-        
+
         if (result.result === 'ok') {
             res.json({ message: 'Image deleted successfully' });
         } else {
