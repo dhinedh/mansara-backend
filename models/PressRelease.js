@@ -8,24 +8,25 @@ const pressReleaseSchema = new mongoose.Schema({
     },
     slug: {
         type: String,
-        required: true,
         unique: true,
-        lowercase: true,
-        index: true
+        sparse: true,
+        lowercase: true
     },
     summary: {
         type: String,
         required: true
     },
     content: {
-        type: String, // Full content or external link description
+        type: String
     },
     externalLink: {
-        type: String // Link to original source if applicable
+        type: String
     },
     image: {
         type: String
     },
+    images: [String],
+    video: String,
     date: {
         type: Date,
         default: Date.now,
@@ -47,15 +48,46 @@ const pressReleaseSchema = new mongoose.Schema({
     }
 });
 
-// Auto-generate slug
-pressReleaseSchema.pre('save', function (next) {
-    if (!this.slug && this.title) {
-        this.slug = this.title
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
+// Helper to generate slug
+const generateSlug = (title, counter) => {
+    let slug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    return counter > 0 ? `${slug}-${counter}` : slug;
+};
+
+// Pre-save hook to generate unique slug
+pressReleaseSchema.pre('save', async function () {
+    // Only generate if new or title changed
+    if (!this.isNew && !this.isModified('title')) {
+        return;
     }
-    next();
+
+    try {
+        let counter = 0;
+        let slug = generateSlug(this.title, counter);
+
+        // Check for duplicates
+        while (counter < 100) {
+            const existing = await this.constructor.findOne({
+                slug: slug,
+                _id: { $ne: this._id }
+            });
+
+            if (!existing) {
+                this.slug = slug;
+                return;
+            }
+
+            counter++;
+            slug = generateSlug(this.title, counter);
+        }
+
+        throw new Error('Could not generate unique slug');
+    } catch (error) {
+        throw error;
+    }
 });
 
 module.exports = mongoose.model('PressRelease', pressReleaseSchema);

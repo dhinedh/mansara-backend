@@ -49,6 +49,15 @@ const productSchema = new mongoose.Schema({
         default: false,
         index: true // Index for offer filtering
     },
+    rating: {
+        type: Number,
+        default: 0,
+        index: true
+    },
+    numReviews: {
+        type: Number,
+        default: 0
+    },
     isNewArrival: {
         type: Boolean,
         default: false,

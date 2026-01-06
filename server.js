@@ -202,6 +202,7 @@ app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/blog', require('./routes/blogRoutes'));
 app.use('/api/press', require('./routes/pressRoutes'));
 app.use('/api/careers', require('./routes/careerRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
 
 app.get('/', (req, res) => {
     res.json({

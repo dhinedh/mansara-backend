@@ -164,12 +164,14 @@ userSchema.index({ authProvider: 1 });
 // VIRTUALS
 // ========================================
 userSchema.virtual('cartTotal').get(function () {
+    if (!this.cart || !Array.isArray(this.cart)) return 0;
     return this.cart.reduce((total, item) => {
         return total + (item.price * item.quantity);
     }, 0);
 });
 
 userSchema.virtual('cartItemCount').get(function () {
+    if (!this.cart || !Array.isArray(this.cart)) return 0;
     return this.cart.reduce((count, item) => count + item.quantity, 0);
 });
 

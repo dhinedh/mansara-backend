@@ -267,28 +267,69 @@ Thank you for choosing Mansara Foods! 🙏`;
             };
 
             const emoji = statusEmojis[newStatus] || '📋';
-            const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
 
-            if (!whatsappNumber) return;
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
 
-            try {
-                let message = `*Mansara Foods* 🌿\n\n${emoji} *Order Status Update*\n\nHi ${user.name},\n\nOrder ID: ${order.orderId}\nNew Status: *${newStatus}*\n\n`;
+                const emailMessage = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                        <h1 style="color: #2980b9; text-align: center;">Order Status Updated ${emoji}</h1>
+                        <p>Hi ${user.name},</p>
+                        <p>The status of your order <strong>#${order.orderId}</strong> has been updated.</p>
+                        
+                        <div style="background-color: #eaf2f8; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2980b9; text-align: center;">
+                            <h2 style="margin: 0; color: #2c3e50;">${newStatus}</h2>
+                        </div>
 
-                if (newStatus === 'Shipped') {
-                    message += `Your order is on its way! 📦\n\n`;
-                } else if (newStatus === 'Out for Delivery') {
-                    message += `Your order will be delivered today! 🚚\n\n`;
-                } else if (newStatus === 'Delivered') {
-                    message += `Your order has been delivered! Thank you for shopping with us! ✅\n\n`;
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${trackingLink}" style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Track Order</a>
+                        </div>
+                        
+                        <p>If you have any questions, simply reply to this email.</p>
+                        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+                        <p style="font-size: 12px; color: #7f8c8d; text-align: center;">Mansara Foods</p>
+                    </div>
+                `;
+
+                try {
+                    await sendEmail({
+                        email: user.email,
+                        subject: `Order Update: ${order.orderId} is ${newStatus}`,
+                        html: emailMessage
+                    });
+                    console.log(`[✓] Status update email sent: ${newStatus}`);
+                } catch (err) {
+                    console.error('[✗] Email failed:', err.message);
                 }
+            })();
 
-                message += `📦 Track: ${trackingLink}\n\nThank you! 🙏`;
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                if (!whatsappNumber) return;
 
-                await sendWhatsApp(whatsappNumber, message);
-                console.log(`[✓] Status update WhatsApp sent: ${newStatus}`);
-            } catch (err) {
-                console.error('[✗] WhatsApp failed:', err.message);
-            }
+                try {
+                    let message = `*Mansara Foods* 🌿\n\n${emoji} *Order Status Update*\n\nHi ${user.name},\n\nOrder ID: ${order.orderId}\nNew Status: *${newStatus}*\n\n`;
+
+                    if (newStatus === 'Shipped') {
+                        message += `Your order is on its way! 📦\n\n`;
+                    } else if (newStatus === 'Out for Delivery') {
+                        message += `Your order will be delivered today! 🚚\n\n`;
+                    } else if (newStatus === 'Delivered') {
+                        message += `Your order has been delivered! Thank you for shopping with us! ✅\n\n`;
+                    }
+
+                    message += `📦 Track: ${trackingLink}\n\nThank you! 🙏`;
+
+                    await sendWhatsApp(whatsappNumber, message);
+                    console.log(`[✓] Status update WhatsApp sent: ${newStatus}`);
+                } catch (err) {
+                    console.error('[✗] WhatsApp failed:', err.message);
+                }
+            })();
+
+            await Promise.allSettled([emailPromise, whatsappPromise]);
 
         } catch (error) {
             console.error('[ERROR] sendOrderStatusUpdate:', error.message);
@@ -298,21 +339,94 @@ Thank you for choosing Mansara Foods! 🙏`;
     // 4. Order Cancelled
     sendOrderCancelled: async (order, user) => {
         try {
-            const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
 
-            if (!whatsappNumber) return;
+                const emailMessage = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                        <h1 style="color: #c0392b; text-align: center;">Order Cancelled ❌</h1>
+                        <p>Hi ${user.name},</p>
+                        <p>Your order <strong>#${order.orderId}</strong> has been cancelled.</p>
+                        
+                        <p>If you did not request this cancellation or have any questions, please contact our support team immediately.</p>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${process.env.FRONTEND_URL}/contact" style="background-color: #95a5a6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Contact Support</a>
+                        </div>
+                        
+                        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+                        <p style="font-size: 12px; color: #7f8c8d; text-align: center;">Mansara Foods</p>
+                    </div>
+                `;
 
-            try {
-                const message = `*Mansara Foods* 🌿\n\n❌ *Order Cancelled*\n\nHi ${user.name},\n\nYour order ${order.orderId} has been cancelled.\n\nIf you have any questions, please contact our support.\n\nThank you! 🙏`;
+                try {
+                    await sendEmail({
+                        email: user.email,
+                        subject: `Order Cancelled: ${order.orderId}`,
+                        html: emailMessage
+                    });
+                    console.log('[✓] Cancellation email sent');
+                } catch (err) {
+                    console.error('[✗] Email failed:', err.message);
+                }
+            })();
 
-                await sendWhatsApp(whatsappNumber, message);
-                console.log('[✓] Cancellation WhatsApp sent');
-            } catch (err) {
-                console.error('[✗] WhatsApp failed:', err.message);
-            }
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                if (!whatsappNumber) return;
+
+                try {
+                    const message = `*Mansara Foods* 🌿\n\n❌ *Order Cancelled*\n\nHi ${user.name},\n\nYour order ${order.orderId} has been cancelled.\n\nIf you have any questions, please contact our support.\n\nThank you! 🙏`;
+
+                    await sendWhatsApp(whatsappNumber, message);
+                    console.log('[✓] Cancellation WhatsApp sent');
+                } catch (err) {
+                    console.error('[✗] WhatsApp failed:', err.message);
+                }
+            })();
+
+            await Promise.allSettled([emailPromise, whatsappPromise]);
 
         } catch (error) {
             console.error('[ERROR] sendOrderCancelled:', error.message);
+        }
+    },
+
+    // 5. Review Alert (Admin)
+    sendReviewAlert: async (review, product, user) => {
+        try {
+            const adminEmail = process.env.EMAIL_FEEDBACK_TO || process.env.EMAIL_FROM;
+
+            const emailMessage = `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #f39c12; text-align: center;">New Product Review ⭐</h2>
+                    <p><strong>Product:</strong> ${product.name}</p>
+                    <p><strong>User:</strong> ${user.name} (${user.email})</p>
+                    <p><strong>Rating:</strong> ${review.rating} / 5</p>
+                    
+                    <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; font-style: italic;">
+                        "${review.comment}"
+                    </div>
+
+                    <p>This review is currently <strong>Pending</strong>.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.FRONTEND_URL}/admin/reviews" style="background-color: #34495e; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Moderate Review</a>
+                    </div>
+                </div>
+            `;
+
+            await sendEmail({
+                email: adminEmail,
+                subject: `New Review for ${product.name}`,
+                html: emailMessage
+            });
+            console.log('[✓] Review alert sent to admin');
+
+        } catch (error) {
+            console.error('[ERROR] sendReviewAlert:', error.message);
         }
     }
 };

@@ -1,163 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const Contact = require('../models/Contact');
-const { protect, admin } = require('../middleware/authMiddleware');
+const sendEmail = require('../utils/sendEmail');
 
-// ========================================
-// POST CONTACT MESSAGE (OPTIMIZED)
-// ========================================
+// @desc    Send contact form email
+// @route   POST /api/contact
+// @access  Public
 router.post('/', async (req, res) => {
     try {
-        const { name, email, phone, message } = req.body;
+        const { name, email, subject, message } = req.body;
 
         if (!name || !email || !message) {
-            return res.status(400).json({ 
-                message: 'Name, email, and message are required' 
-            });
+            return res.status(400).json({ message: 'Please fill in all required fields' });
         }
 
-        const newContact = await Contact.create({
-            name,
-            email,
-            phone,
-            message
+        const adminEmail = process.env.EMAIL_FEEDBACK_TO || process.env.EMAIL_FROM;
+
+        const emailContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                <h2 style="color: #2c3e50;">New Contact Form Submission</h2>
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Subject:</strong> ${subject || 'General Inquiry'}</p>
+                </div>
+                <h3 style="color: #2c3e50; margin-top: 20px;">Message:</h3>
+                <p style="background-color: #fff; padding: 15px; border: 1px solid #eee; border-radius: 5px; white-space: pre-wrap;">${message}</p>
+                <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+                <p style="font-size: 12px; color: #7f8c8d;">Received from Mansara Foods Website</p>
+            </div>
+        `;
+
+        await sendEmail({
+            email: adminEmail,
+            subject: `New Message from ${name}: ${subject || 'Contact Form'}`,
+            html: emailContent,
+            replyTo: email
         });
 
-        // Send confirmation email asynchronously (non-blocking)
-        setImmediate(() => {
-            try {
-                const sendEmail = require('../utils/sendEmail');
-                sendEmail({
-                    to: email,
-                    subject: 'We received your message - Mansara Foods',
-                    text: `Dear ${name},\n\nThank you for contacting us. We have received your message and will get back to you shortly.\n\nBest regards,\nMansara Foods Team`
-                }).catch(err => console.error('[ERROR] Contact email failed:', err));
-            } catch (err) {
-                console.error('[ERROR] Email setup failed:', err);
-            }
-        });
-
-        res.status(201).json({ 
-            message: 'Message sent successfully', 
-            contact: newContact 
-        });
+        res.status(200).json({ message: 'Message sent successfully' });
     } catch (error) {
-        console.error('[ERROR] Submit contact form:', error);
-        res.status(500).json({ message: 'Server error, please try again later' });
-    }
-});
-
-// ========================================
-// GET ALL CONTACT MESSAGES (ADMIN) - OPTIMIZED WITH PAGINATION
-// ========================================
-router.get('/', protect, admin, async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50;
-        const skip = (page - 1) * limit;
-        const { status, search } = req.query;
-
-        // Build query
-        const query = {};
-        if (status) query.status = status;
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } },
-                { message: { $regex: search, $options: 'i' } }
-            ];
-        }
-
-        const [messages, total] = await Promise.all([
-            Contact.find(query)
-                .select('-__v')
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .lean()
-                .exec(),
-            Contact.countDocuments(query)
-        ]);
-
-        res.json({
-            messages,
-            pagination: {
-                page,
-                limit,
-                total,
-                pages: Math.ceil(total / limit)
-            }
-        });
-    } catch (error) {
-        console.error('[ERROR] Get contact messages:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// GET SINGLE CONTACT MESSAGE (ADMIN)
-// ========================================
-router.get('/:id', protect, admin, async (req, res) => {
-    try {
-        const message = await Contact.findById(req.params.id)
-            .lean()
-            .exec();
-
-        if (!message) {
-            return res.status(404).json({ message: 'Contact message not found' });
-        }
-
-        res.json(message);
-    } catch (error) {
-        console.error('[ERROR] Get contact message:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// UPDATE CONTACT STATUS (ADMIN)
-// ========================================
-router.put('/:id/status', protect, admin, async (req, res) => {
-    try {
-        const { status } = req.body;
-
-        const validStatuses = ['new', 'read', 'responded', 'archived'];
-        if (!validStatuses.includes(status)) {
-            return res.status(400).json({ message: 'Invalid status' });
-        }
-
-        const message = await Contact.findByIdAndUpdate(
-            req.params.id,
-            { $set: { status } },
-            { new: true, select: '-__v' }
-        ).lean().exec();
-
-        if (!message) {
-            return res.status(404).json({ message: 'Contact message not found' });
-        }
-
-        res.json(message);
-    } catch (error) {
-        console.error('[ERROR] Update contact status:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// DELETE CONTACT MESSAGE (ADMIN)
-// ========================================
-router.delete('/:id', protect, admin, async (req, res) => {
-    try {
-        const message = await Contact.findByIdAndDelete(req.params.id);
-
-        if (!message) {
-            return res.status(404).json({ message: 'Contact message not found' });
-        }
-
-        res.json({ message: 'Contact message deleted successfully' });
-    } catch (error) {
-        console.error('[ERROR] Delete contact message:', error);
-        res.status(500).json({ message: error.message });
+        console.error('Contact Email Error:', error);
+        res.status(500).json({ message: 'Failed to send message' });
     }
 });
 

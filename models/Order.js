@@ -203,15 +203,42 @@ orderSchema.virtual('daysUntilDelivery').get(function () {
 // ========================================
 // Update order status
 orderSchema.methods.updateStatus = async function (newStatus, notes = '', updatedBy = null) {
+    // Define status order for tracking logic
+    const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
+    const currentStatusIndex = statusOrder.indexOf(this.orderStatus);
+    const newStatusIndex = statusOrder.indexOf(newStatus);
+
+    // Validation
+    if (newStatus !== 'Cancelled' && this.orderStatus !== 'Cancelled' && newStatusIndex < currentStatusIndex) {
+        throw new Error(`Cannot revert status from ${this.orderStatus} to ${newStatus}`);
+    }
+
     this.orderStatus = newStatus;
 
-    // Update tracking steps
-    const step = this.trackingSteps.find(s => s.status === newStatus);
-    if (step) {
-        step.completed = true;
-        step.date = new Date();
-        if (notes) step.notes = notes;
-        if (updatedBy) step.updatedBy = updatedBy;
+    if (newStatus === 'Cancelled') {
+        const cancelStep = this.trackingSteps.find(s => s.status === 'Cancelled');
+        if (cancelStep) {
+            cancelStep.completed = true;
+            cancelStep.date = new Date();
+            if (notes) cancelStep.notes = notes;
+            if (updatedBy) cancelStep.updatedBy = updatedBy;
+        }
+    } else if (newStatusIndex !== -1) {
+        // Mark all steps up to new status as completed
+        this.trackingSteps.forEach(step => {
+            const stepIndex = statusOrder.indexOf(step.status);
+            if (stepIndex !== -1 && stepIndex <= newStatusIndex) {
+                if (!step.completed) {
+                    step.completed = true;
+                    step.date = new Date();
+                }
+                // Update notes/user for the target step only
+                if (step.status === newStatus) {
+                    if (notes) step.notes = notes;
+                    if (updatedBy) step.updatedBy = updatedBy;
+                }
+            }
+        });
     }
 
     // Set actual delivery date if delivered
