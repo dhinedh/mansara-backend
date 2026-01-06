@@ -199,6 +199,9 @@ app.use('/api/stats', require('./routes/statsRoutes'));
 app.use('/api/content', require('./routes/contentRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
+app.use('/api/blog', require('./routes/blogRoutes'));
+app.use('/api/press', require('./routes/pressRoutes'));
+app.use('/api/careers', require('./routes/careerRoutes'));
 
 app.get('/', (req, res) => {
     res.json({

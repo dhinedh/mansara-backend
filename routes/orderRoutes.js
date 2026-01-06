@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const { Product, Combo } = require('../models/Product');
 const { protect, admin } = require('../middleware/authMiddleware');
 const notificationService = require('../utils/notificationService');
 
@@ -208,6 +209,33 @@ router.put('/:id/confirm', protect, admin, async (req, res) => {
             order.estimatedDeliveryDate = deliveryDate;
         }
 
+        // Deduct stock for each item (Product or Combo)
+        for (const item of order.items) {
+            try {
+                // Try to find as Product
+                let product = await Product.findById(item.product);
+
+                // If not found, try to find as Combo
+                if (!product) {
+                    product = await Combo.findById(item.product);
+                }
+
+                if (product) {
+                    const success = await product.decreaseStock(item.quantity);
+                    if (!success) {
+                        console.warn(`[WARN] Insufficient stock for item ${product.name} (ID: ${product._id}) in Order ${order._id}`);
+                        // Proceed but log warning
+                    } else {
+                        console.log(`[STOCK] Decreased stock for ${product.name} by ${item.quantity}`);
+                    }
+                } else {
+                    console.warn(`[WARN] Product/Combo not found for item ID: ${item.product}`);
+                }
+            } catch (stockError) {
+                console.error(`[ERROR] Failed to update stock for item ${item.product}:`, stockError);
+            }
+        }
+
         await order.save();
 
         if (!order.user) {
@@ -269,7 +297,9 @@ router.put('/:id/status', protect, admin, async (req, res) => {
         // Send status update notification asynchronously
         setImmediate(async () => {
             try {
-                await notificationService.sendOrderStatusUpdate(order, order.user, status);
+                if (order.user && (order.user.email || order.user.phone)) {
+                    await notificationService.sendOrderStatusUpdate(order, order.user, status);
+                }
             } catch (notifError) {
                 console.error('[ERROR] Failed to send status update:', notifError);
             }
@@ -278,7 +308,11 @@ router.put('/:id/status', protect, admin, async (req, res) => {
         res.json(order);
     } catch (error) {
         console.error('[ERROR] Order Status Update:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: 'Failed to update status',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 

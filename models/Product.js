@@ -226,6 +226,11 @@ const comboSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
         index: true
+    },
+    stock: {
+        type: Number,
+        default: 0,
+        index: true
     }
 }, {
     timestamps: true,
@@ -262,6 +267,40 @@ comboSchema.pre('save', async function () {
             .replace(/^-|-$/g, '');
     }
 });
+
+// ========================================
+// INSTANCE METHODS FOR COMBO
+// ========================================
+// Method to decrease stock
+comboSchema.methods.decreaseStock = async function (quantity) {
+    if (this.stock >= quantity) {
+        this.stock -= quantity;
+        await this.save();
+        return true;
+    }
+    return false;
+};
+
+// Method to increase stock
+comboSchema.methods.increaseStock = async function (quantity) {
+    this.stock += quantity;
+    await this.save();
+};
+
+// ========================================
+// JSON TRANSFORMATION
+// ========================================
+const jsonOptions = {
+    virtuals: true,
+    transform: function (doc, ret) {
+        ret.id = ret._id;
+        delete ret.__v;
+        return ret;
+    }
+};
+
+productSchema.set('toJSON', jsonOptions);
+comboSchema.set('toJSON', jsonOptions);
 
 // ========================================
 // EXPORT MODELS
