@@ -22,7 +22,8 @@ const createCrudRouter = (Model) => {
             const { id } = req.params;
             let item;
 
-            if (mongoose.isValidObjectId(id)) {
+            // detailed checking using Regex to avoid mongoose dependency issues
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
                 item = await Model.findById(id);
             }
 
