@@ -1,5 +1,6 @@
 const express = require('express');
 const { protect, admin } = require('../middleware/authMiddleware');
+const mongoose = require('mongoose');
 
 const createCrudRouter = (Model) => {
     const router = express.Router();
@@ -18,7 +19,18 @@ const createCrudRouter = (Model) => {
     // Get Single (Public)
     router.get('/:id', async (req, res) => {
         try {
-            const item = await Model.findById(req.params.id);
+            const { id } = req.params;
+            let item;
+
+            if (mongoose.isValidObjectId(id)) {
+                item = await Model.findById(id);
+            }
+
+            // If not found by ID or not an ID, try finding by slug
+            if (!item) {
+                item = await Model.findOne({ slug: id });
+            }
+
             if (!item) return res.status(404).json({ message: 'Not found' });
             res.json(item);
         } catch (error) {
@@ -32,10 +44,10 @@ const createCrudRouter = (Model) => {
         try {
             console.log('[CRUD Create] Received data:', req.body);
             console.log('[CRUD Create] User:', req.user?.email);
-            
+
             const item = new Model(req.body);
             const savedItem = await item.save();
-            
+
             console.log('[CRUD Create] Success:', savedItem._id);
             res.status(201).json(savedItem);
         } catch (error) {
@@ -53,17 +65,17 @@ const createCrudRouter = (Model) => {
         try {
             console.log('[CRUD Update] ID:', req.params.id);
             console.log('[CRUD Update] Data:', req.body);
-            
+
             // Find the document first
             const item = await Model.findById(req.params.id);
             if (!item) return res.status(404).json({ message: 'Not found' });
-            
+
             // Update fields using Object.assign
             Object.assign(item, req.body);
-            
+
             // Save (this triggers pre-save hooks)
             const updatedItem = await item.save();
-            
+
             console.log('[CRUD Update] Success:', updatedItem._id);
             res.json(updatedItem);
         } catch (error) {
@@ -80,10 +92,10 @@ const createCrudRouter = (Model) => {
     router.delete('/:id', protect, admin, async (req, res) => {
         try {
             console.log('[CRUD Delete] ID:', req.params.id);
-            
+
             const item = await Model.findByIdAndDelete(req.params.id);
             if (!item) return res.status(404).json({ message: 'Not found' });
-            
+
             console.log('[CRUD Delete] Success:', req.params.id);
             res.json({ message: 'Deleted successfully' });
         } catch (error) {
