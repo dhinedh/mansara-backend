@@ -28,8 +28,16 @@ const createCrudRouter = (Model) => {
             }
 
             // If not found by ID or not an ID, try finding by slug (ONLY if slug exists in schema)
-            if (!item && Model.schema.path('slug')) {
-                item = await Model.findOne({ slug: id });
+            // Wrapped in try-catch to prevent ANY possible crash during schema check or query
+            if (!item) {
+                try {
+                    if (Model.schema && Model.schema.path('slug')) {
+                        item = await Model.findOne({ slug: id });
+                    }
+                } catch (slugError) {
+                    console.error('[CRUD GetSingle] Slug lookup failed safely:', slugError.message);
+                    // Do not crash, just leave item as null
+                }
             }
 
             if (!item) return res.status(404).json({ message: 'Not found' });
