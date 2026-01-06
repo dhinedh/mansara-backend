@@ -26,8 +26,8 @@ const createCrudRouter = (Model) => {
                 item = await Model.findById(id);
             }
 
-            // If not found by ID or not an ID, try finding by slug
-            if (!item) {
+            // If not found by ID or not an ID, try finding by slug (ONLY if slug exists in schema)
+            if (!item && Model.schema.path('slug')) {
                 item = await Model.findOne({ slug: id });
             }
 
