@@ -4,8 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const compression = require('compression');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 console.log('[DEBUG] Environment Config Loaded');
@@ -14,25 +12,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ========================================
-// SECURITY & PERFORMANCE OPTIMIZATIONS
+// PERFORMANCE OPTIMIZATIONS
 // ========================================
 
-// 1. Security Headers (Helmet)
-app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin images
-}));
-
-// 2. Rate Limiting specific to API
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { status: 429, message: 'Too many requests, please try again later.' }
-});
-app.use('/api', apiLimiter);
-
-// 3. GZIP Compression - Reduces response size by 70-90%
+// 1. GZIP Compression - Reduces response size by 70-90%
 app.use(compression({
     level: 6,
     threshold: 1024,
