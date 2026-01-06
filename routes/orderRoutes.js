@@ -282,52 +282,13 @@ router.put('/:id/status', protect, admin, async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        // Define status order for tracking logic
-        const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
-        const currentStatusIndex = statusOrder.indexOf(order.orderStatus);
-        const newStatusIndex = statusOrder.indexOf(status);
+        // Use instance method for status update
+        await order.updateStatus(status, req.body.notes, req.user._id);
 
-        // Validation: Cannot move backwards (unless cancelling)
-        if (status !== 'Cancelled' && order.orderStatus !== 'Cancelled' && newStatusIndex < currentStatusIndex) {
-            return res.status(400).json({
-                message: `Cannot revert status from ${order.orderStatus} to ${status}`
-            });
-        }
-
-        // Validation: Cannot change status if Delivered or Cancelled
-        if (order.orderStatus === 'Delivered' || order.orderStatus === 'Cancelled') {
-            return res.status(400).json({
-                message: `Cannot change status of a ${order.orderStatus} order`
-            });
-        }
-
-        // Update order status
-        order.orderStatus = status;
-
-        if (status === 'Cancelled') {
-            // If cancelled, mark cancelled step as completed
-            const cancelStep = order.trackingSteps.find(step => step.status === 'Cancelled');
-            if (cancelStep) {
-                cancelStep.completed = true;
-                cancelStep.date = new Date();
-                // Reset user if not set
-                if (!cancelStep.updatedBy) cancelStep.updatedBy = req.user._id;
-            }
-        } else if (newStatusIndex !== -1) {
-            // Mark all steps up to new status as completed
-            order.trackingSteps.forEach(step => {
-                const stepIndex = statusOrder.indexOf(step.status);
-                if (stepIndex !== -1 && stepIndex <= newStatusIndex) {
-                    if (!step.completed) {
-                        step.completed = true;
-                        step.date = new Date();
-                        step.updatedBy = req.user._id;
-                    }
-                }
-            });
-        }
-
-        await order.save();
+        // Re-fetch to ensure populated fields if needed? 
+        // updateStatus calls save(), so order is updated. 
+        // But trackingSteps updatedBy might be ObjectId, we populated user before.
+        // It's fine for response.
 
         // Send status update notification asynchronously
         setImmediate(async () => {
