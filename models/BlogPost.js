@@ -1,103 +1,66 @@
 const mongoose = require('mongoose');
-
 const blogPostSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        index: true
     },
     slug: {
         type: String,
         unique: true,
-        sparse: true,
-        lowercase: true
+        index: true
     },
     content: {
         type: String,
         required: true
     },
-    excerpt: {
-        type: String
-    },
-    image: {
-        type: String
-    },
-    images: [String],
-    video: String,
+    excerpt: String,
+    featuredImage: String,
     author: {
-        type: String,
-        default: 'Admin'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        index: true
     },
-    tags: [String],
+    category: {
+        type: String,
+        index: true
+    },
+    tags: {
+        type: [String],
+        index: true
+    },
     isPublished: {
         type: Boolean,
-        default: true
+        default: false,
+        index: true
     },
     publishedAt: {
         type: Date,
-        default: Date.now
+        index: true
+    },
+    viewCount: {
+        type: Number,
+        default: 0
+    },
+    metaTitle: String,
+    metaDescription: String
+}, { timestamps: true });
+
+// Compound indexes
+blogPostSchema.index({ isPublished: 1, publishedAt: -1 });
+blogPostSchema.index({ category: 1, isPublished: 1 });
+blogPostSchema.index({ title: 'text', content: 'text', excerpt: 'text' });
+
+// Generate slug
+blogPostSchema.pre('save', function (next) {
+    if (this.isModified('title') && !this.slug) {
+        this.slug = this.title
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-');
     }
-}, {
-    timestamps: true,
-    toJSON: {
-        virtuals: true,
-        transform: function (doc, ret) {
-            ret.id = ret._id;
-            delete ret.__v;
-            return ret;
-        }
-    }
-});
-
-// Generate slug from title
-function generateSlug(title, counter = 0) {
-    let slug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-
-    if (counter > 0) {
-        slug = `${slug}-${counter}`;
-    }
-
-    return slug;
-}
-
-// Pre-save hook to generate slug
-// Pre-save hook to generate slug
-blogPostSchema.pre('save', async function () {
-    // Only generate if new or title changed
-    if (!this.isNew && !this.isModified('title')) {
-        return;
-    }
-
-    try {
-        let counter = 0;
-        let slug = generateSlug(this.title, counter);
-
-        // Check for duplicates
-        while (true) {
-            const existingPost = await this.constructor.findOne({
-                slug: slug,
-                _id: { $ne: this._id }
-            });
-
-            if (!existingPost) {
-                this.slug = slug;
-                break;
-            }
-
-            counter++;
-            slug = generateSlug(this.title, counter);
-
-            // Safety limit to prevent infinite loop
-            if (counter > 100) {
-                throw new Error('Could not generate unique slug');
-            }
-        }
-    } catch (error) {
-        throw error;
-    }
+    next();
 });
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);

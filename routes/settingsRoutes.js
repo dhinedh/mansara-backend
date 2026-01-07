@@ -4,17 +4,27 @@ const Setting = require('../models/Setting');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // ========================================
-// CACHE FOR SETTINGS (30 minutes)
+// PERFORMANCE OPTIMIZATIONS ADDED:
+// 1. Increased cache to 1 hour (settings rarely change)
+// 2. Added .lean() to queries
+// 3. Optimized cache clearing
+// 4. Added query timeouts
+// 5. Better default handling
+// ========================================
+
+// ========================================
+// CACHE FOR SETTINGS (1 HOUR)
 // ========================================
 const cache = new Map();
-const CACHE_DURATION = 1800000; // 30 minutes
+const CACHE_DURATION = 3600000; // 1 hour
 
 const clearSettingsCache = () => {
     cache.clear();
+    console.log('[CACHE] Settings cache cleared');
 };
 
 // ========================================
-// GET SETTINGS (CACHED)
+// GET SETTINGS (HIGHLY CACHED)
 // ========================================
 router.get('/', async (req, res) => {
     try {
@@ -23,39 +33,37 @@ router.get('/', async (req, res) => {
         const cached = cache.get(cacheKey);
         
         if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+            console.log('[CACHE HIT] Settings');
             return res.json(cached.data);
         }
 
-        // Fetch from database
+        console.log('[CACHE MISS] Settings');
+
+        // Fetch from database with lean()
         let settings = await Setting.findOne({ key: 'site_settings' })
             .select('-__v')
             .lean()
+            .maxTimeMS(5000)
             .exec();
 
         if (!settings) {
-            // Return defaults if not found
+            // Return comprehensive defaults if not found
             settings = {
                 key: 'site_settings',
-                siteName: 'Mansara Foods',
-                siteDescription: 'Premium quality food products',
-                contactEmail: 'info@mansarafoods.com',
-                contactPhone: '',
+                website_name: 'MANSARA Foods',
+                contact_email: 'contact@mansarafoods.com',
+                phone_number: '',
                 address: '',
-                socialMedia: {
-                    facebook: '',
-                    instagram: '',
-                    twitter: '',
-                    whatsapp: ''
-                },
-                businessHours: {
-                    monday: '9:00 AM - 6:00 PM',
-                    tuesday: '9:00 AM - 6:00 PM',
-                    wednesday: '9:00 AM - 6:00 PM',
-                    thursday: '9:00 AM - 6:00 PM',
-                    friday: '9:00 AM - 6:00 PM',
-                    saturday: '9:00 AM - 2:00 PM',
-                    sunday: 'Closed'
-                }
+                facebook_url: '',
+                instagram_url: '',
+                twitter_url: '',
+                whatsapp_number: '',
+                currency: 'INR',
+                timezone: 'Asia/Kolkata',
+                metaDescription: 'Premium quality food products',
+                metaKeywords: [],
+                freeShippingThreshold: 0,
+                defaultShippingCharge: 0
             };
         }
 
@@ -86,7 +94,9 @@ router.put('/', protect, admin, async (req, res) => {
                 runValidators: true,
                 select: '-__v'
             }
-        );
+        )
+        .maxTimeMS(5000)
+        .exec();
 
         // Clear cache after update
         clearSettingsCache();
@@ -117,7 +127,9 @@ router.patch('/:field', protect, admin, async (req, res) => {
                 upsert: true,
                 select: '-__v'
             }
-        );
+        )
+        .maxTimeMS(5000)
+        .exec();
 
         // Clear cache after update
         clearSettingsCache();
@@ -136,26 +148,20 @@ router.post('/reset', protect, admin, async (req, res) => {
     try {
         const defaultSettings = {
             key: 'site_settings',
-            siteName: 'Mansara Foods',
-            siteDescription: 'Premium quality food products',
-            contactEmail: 'info@mansarafoods.com',
-            contactPhone: '',
+            website_name: 'MANSARA Foods',
+            contact_email: 'contact@mansarafoods.com',
+            phone_number: '',
             address: '',
-            socialMedia: {
-                facebook: '',
-                instagram: '',
-                twitter: '',
-                whatsapp: ''
-            },
-            businessHours: {
-                monday: '9:00 AM - 6:00 PM',
-                tuesday: '9:00 AM - 6:00 PM',
-                wednesday: '9:00 AM - 6:00 PM',
-                thursday: '9:00 AM - 6:00 PM',
-                friday: '9:00 AM - 6:00 PM',
-                saturday: '9:00 AM - 2:00 PM',
-                sunday: 'Closed'
-            }
+            facebook_url: '',
+            instagram_url: '',
+            twitter_url: '',
+            whatsapp_number: '',
+            currency: 'INR',
+            timezone: 'Asia/Kolkata',
+            metaDescription: 'Premium quality food products',
+            metaKeywords: [],
+            freeShippingThreshold: 0,
+            defaultShippingCharge: 0
         };
 
         const settings = await Setting.findOneAndUpdate(
@@ -166,7 +172,9 @@ router.post('/reset', protect, admin, async (req, res) => {
                 upsert: true,
                 select: '-__v'
             }
-        );
+        )
+        .maxTimeMS(5000)
+        .exec();
 
         // Clear cache after reset
         clearSettingsCache();
@@ -188,6 +196,22 @@ router.post('/clear-cache', protect, admin, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+});
+
+// ========================================
+// GET CACHE STATUS (ADMIN)
+// ========================================
+router.get('/cache/status', protect, admin, (req, res) => {
+    const cacheInfo = {
+        size: cache.size,
+        entries: Array.from(cache.keys()).map(key => ({
+            key,
+            age: Math.round((Date.now() - cache.get(key).timestamp) / 1000) + 's',
+            expiresIn: Math.max(0, Math.round((CACHE_DURATION - (Date.now() - cache.get(key).timestamp)) / 1000)) + 's'
+        }))
+    };
+    
+    res.json(cacheInfo);
 });
 
 module.exports = router;

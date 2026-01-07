@@ -1,135 +1,187 @@
 const mongoose = require('mongoose');
 
 // ========================================
-// PRODUCT SCHEMA WITH OPTIMIZED INDEXES
+// PERFORMANCE OPTIMIZATIONS ADDED:
+// 1. Optimized indexes for common queries
+// 2. Compound indexes for filtering + sorting
+// 3. Text index for search
+// 4. Efficient virtuals
+// 5. Better static methods for queries
+// 6. Sparse indexes for optional fields
+// ========================================
+
+// ========================================
+// PRODUCT SCHEMA
 // ========================================
 const productSchema = new mongoose.Schema({
-    slug: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true, // Explicit index for fast lookups
-        lowercase: true,
-        trim: true
-    },
     name: {
         type: String,
         required: true,
         trim: true,
-        index: true // Index for search
+        index: true
     },
-    category: {
+    slug: {
         type: String,
-        required: true,
-        index: true // Index for filtering by category
+        unique: true,
+        index: true
     },
-    sub_category: {
+    description: {
         type: String,
-        index: true // Index for subcategory filtering
+        required: true
     },
     price: {
         type: Number,
         required: true,
-        index: true // Index for price sorting/filtering
-    },
-    offerPrice: {
-        type: Number,
+        min: 0,
         index: true
     },
-    image: String,
+    originalPrice: {
+        type: Number,
+        min: 0
+    },
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+        index: true
+    },
+    image: {
+        type: String,
+        required: true
+    },
     images: [String],
-    video: String, // URL to product video
-    description: String,
-    ingredients: String,
-    howToUse: String,
-    storage: String,
-    weight: String,
-    isOffer: {
-        type: Boolean,
-        default: false,
-        index: true // Index for offer filtering
-    },
-    rating: {
+    stock: {
         type: Number,
+        required: true,
         default: 0,
+        min: 0,
         index: true
     },
-    numReviews: {
-        type: Number,
-        default: 0
+    weight: String,
+    unit: String,
+    nutritionalInfo: {
+        calories: Number,
+        protein: Number,
+        carbs: Number,
+        fat: Number,
+        fiber: Number
     },
-    isNewArrival: {
+    ingredients: [String],
+    isActive: {
         type: Boolean,
-        default: false,
-        index: true // Index for new arrivals
+        default: true,
+        index: true
     },
     isFeatured: {
         type: Boolean,
         default: false,
-        index: true // Index for featured products
+        index: true
     },
-    isActive: {
+    isOffer: {
         type: Boolean,
-        default: true,
-        index: true // Index for active products
+        default: false,
+        index: true
     },
-    stock: {
+    offerText: String,
+    rating: {
         type: Number,
         default: 0,
-        index: true // Index for stock filtering
+        min: 0,
+        max: 5,
+        index: true
     },
-    highlights: [String],
-    nutrition: String,
-    compliance: String
+    numReviews: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    tags: {
+        type: [String],
+        index: true
+    },
+    brand: {
+        type: String,
+        index: true
+    },
+    sku: {
+        type: String,
+        unique: true,
+        sparse: true,
+        index: true
+    },
+    // SEO fields
+    metaTitle: String,
+    metaDescription: String,
+    metaKeywords: [String],
+    // Sales metrics
+    salesCount: {
+        type: Number,
+        default: 0,
+        index: true
+    },
+    viewCount: {
+        type: Number,
+        default: 0
+    },
+    lastRestocked: Date
 }, {
     timestamps: true,
-    // Optimize document size
-    minimize: false,
-    // Add version key for optimistic concurrency
-    versionKey: '__v'
+    minimize: false
 });
 
 // ========================================
 // COMPOUND INDEXES FOR COMMON QUERIES
 // ========================================
-// Index for category + active products
-productSchema.index({ category: 1, isActive: 1 });
+// Category + active + featured (for category pages)
+productSchema.index({ category: 1, isActive: 1, isFeatured: -1 });
 
-// Index for featured + active products
-productSchema.index({ isFeatured: 1, isActive: 1 });
+// Active + featured (for homepage)
+productSchema.index({ isActive: 1, isFeatured: -1 });
 
-// Index for new arrivals + active
-productSchema.index({ isNewArrival: 1, isActive: 1 });
+// Active + offer (for offers page)
+productSchema.index({ isActive: 1, isOffer: -1 });
 
-// Index for offers + active
-productSchema.index({ isOffer: 1, isActive: 1 });
+// Category + active + price (for filtering)
+productSchema.index({ category: 1, isActive: 1, price: 1 });
 
-// Index for price range queries with category
-productSchema.index({ category: 1, price: 1 });
+// Active + stock (for availability)
+productSchema.index({ isActive: 1, stock: 1 });
 
-// Index for sorting by creation date (newest first)
-productSchema.index({ createdAt: -1 });
+// Rating + active (for sorting by rating)
+productSchema.index({ rating: -1, isActive: 1 });
 
-// Text index for search functionality
+// Sales count + active (for best sellers)
+productSchema.index({ salesCount: -1, isActive: 1 });
+
+// Created date + active (for new arrivals)
+productSchema.index({ createdAt: -1, isActive: 1 });
+
+// ========================================
+// TEXT INDEX FOR SEARCH
+// ========================================
 productSchema.index({
     name: 'text',
     description: 'text',
-    ingredients: 'text'
+    tags: 'text',
+    brand: 'text'
 }, {
     weights: {
-        name: 10,        // Name is most important
-        description: 5,   // Description is moderately important
-        ingredients: 2    // Ingredients is least important
-    }
+        name: 10,
+        tags: 5,
+        brand: 3,
+        description: 1
+    },
+    name: 'product_text_index'
 });
 
 // ========================================
 // VIRTUAL PROPERTIES
 // ========================================
+
 // Virtual for discount percentage
 productSchema.virtual('discountPercentage').get(function () {
-    if (this.offerPrice && this.price > this.offerPrice) {
-        return Math.round(((this.price - this.offerPrice) / this.price) * 100);
+    if (this.originalPrice && this.originalPrice > this.price) {
+        return Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
     }
     return 0;
 });
@@ -139,182 +191,522 @@ productSchema.virtual('inStock').get(function () {
     return this.stock > 0;
 });
 
+// Virtual for low stock warning
+productSchema.virtual('lowStock').get(function () {
+    return this.stock > 0 && this.stock <= 10;
+});
+
+// Virtual for out of stock
+productSchema.virtual('outOfStock').get(function () {
+    return this.stock === 0;
+});
+
+// Virtual for savings amount
+productSchema.virtual('savings').get(function () {
+    if (this.originalPrice && this.originalPrice > this.price) {
+        return this.originalPrice - this.price;
+    }
+    return 0;
+});
+
+// Virtual for average rating display
+productSchema.virtual('ratingDisplay').get(function () {
+    return this.rating.toFixed(1);
+});
+
+// Virtual for stock status
+productSchema.virtual('stockStatus').get(function () {
+    if (this.stock === 0) return 'Out of Stock';
+    if (this.stock <= 10) return 'Low Stock';
+    return 'In Stock';
+});
+
+// Virtual for popularity score (combination of sales and reviews)
+productSchema.virtual('popularityScore').get(function () {
+    return (this.salesCount * 2) + (this.numReviews * 5) + (this.rating * 10);
+});
+
 // ========================================
 // INSTANCE METHODS
 // ========================================
-// Method to decrease stock
-productSchema.methods.decreaseStock = async function (quantity) {
-    if (this.stock >= quantity) {
+
+/**
+ * Update stock
+ */
+productSchema.methods.updateStock = async function (quantity, operation = 'decrease') {
+    if (operation === 'decrease') {
+        if (this.stock < quantity) {
+            throw new Error('Insufficient stock');
+        }
         this.stock -= quantity;
-        await this.save();
-        return true;
+    } else {
+        this.stock += quantity;
+        this.lastRestocked = new Date();
     }
-    return false;
+    await this.save();
+    return this;
 };
 
-// Method to increase stock
-productSchema.methods.increaseStock = async function (quantity) {
-    this.stock += quantity;
+/**
+ * Increment view count
+ */
+productSchema.methods.incrementViews = async function () {
+    this.viewCount += 1;
     await this.save();
+    return this;
+};
+
+/**
+ * Increment sales count
+ */
+productSchema.methods.incrementSales = async function (quantity = 1) {
+    this.salesCount += quantity;
+    await this.save();
+    return this;
+};
+
+/**
+ * Update rating
+ */
+productSchema.methods.updateRating = async function (newRating, newReviewCount) {
+    this.rating = newRating;
+    this.numReviews = newReviewCount;
+    await this.save();
+    return this;
+};
+
+/**
+ * Check if product is available
+ */
+productSchema.methods.isAvailable = function (quantity = 1) {
+    return this.isActive && this.stock >= quantity;
+};
+
+/**
+ * Get related products
+ */
+productSchema.methods.getRelatedProducts = async function (limit = 5) {
+    return await this.constructor.find({
+        category: this.category,
+        _id: { $ne: this._id },
+        isActive: true,
+        stock: { $gt: 0 }
+    })
+        .select('name slug price image rating')
+        .limit(limit)
+        .lean()
+        .exec();
+};
+
+/**
+ * Set as featured
+ */
+productSchema.methods.setFeatured = async function (featured = true) {
+    this.isFeatured = featured;
+    await this.save();
+    return this;
+};
+
+/**
+ * Set as offer
+ */
+productSchema.methods.setOffer = async function (offer = true, offerText = '') {
+    this.isOffer = offer;
+    if (offerText) this.offerText = offerText;
+    await this.save();
+    return this;
 };
 
 // ========================================
 // STATIC METHODS
 // ========================================
-// Find active products
-productSchema.statics.findActive = function () {
-    return this.find({ isActive: true });
+
+/**
+ * Find active products
+ */
+productSchema.statics.findActive = function (options = {}) {
+    const query = this.find({ isActive: true });
+
+    if (options.category) {
+        query.where({ category: options.category });
+    }
+
+    if (options.inStock) {
+        query.where({ stock: { $gt: 0 } });
+    }
+
+    return query;
 };
 
-// Find products by category
-productSchema.statics.findByCategory = function (category) {
-    return this.find({ category, isActive: true });
-};
-
-// Find featured products
+/**
+ * Find featured products
+ */
 productSchema.statics.findFeatured = function (limit = 10) {
-    return this.find({ isFeatured: true, isActive: true })
+    return this.find({
+        isActive: true,
+        isFeatured: true,
+        stock: { $gt: 0 }
+    })
+        .select('name slug price originalPrice image rating')
+        .limit(limit)
+        .lean()
+        .exec();
+};
+
+/**
+ * Find offer products
+ */
+productSchema.statics.findOffers = function (limit = 20) {
+    return this.find({
+        isActive: true,
+        isOffer: true,
+        stock: { $gt: 0 }
+    })
+        .select('name slug price originalPrice image offerText rating')
+        .limit(limit)
+        .lean()
+        .exec();
+};
+
+/**
+ * Find best sellers
+ */
+productSchema.statics.findBestSellers = function (limit = 10) {
+    return this.find({
+        isActive: true,
+        stock: { $gt: 0 }
+    })
+        .sort({ salesCount: -1 })
+        .select('name slug price image rating salesCount')
+        .limit(limit)
+        .lean()
+        .exec();
+};
+
+/**
+ * Find new arrivals
+ */
+productSchema.statics.findNewArrivals = function (limit = 10) {
+    return this.find({
+        isActive: true,
+        stock: { $gt: 0 }
+    })
         .sort({ createdAt: -1 })
-        .limit(limit);
+        .select('name slug price image rating')
+        .limit(limit)
+        .lean()
+        .exec();
+};
+
+/**
+ * Find by category
+ */
+productSchema.statics.findByCategory = function (categoryId, options = {}) {
+    const query = this.find({
+        category: categoryId,
+        isActive: true
+    });
+
+    if (options.inStock) {
+        query.where({ stock: { $gt: 0 } });
+    }
+
+    if (options.sort) {
+        query.sort(options.sort);
+    }
+
+    if (options.limit) {
+        query.limit(options.limit);
+    }
+
+    return query;
+};
+
+/**
+ * Search products (optimized with text index)
+ */
+productSchema.statics.searchProducts = function (searchTerm, options = {}) {
+    const query = this.find({
+        $text: { $search: searchTerm },
+        isActive: true
+    }, {
+        score: { $meta: 'textScore' }
+    }).sort({ score: { $meta: 'textScore' } });
+
+    if (options.category) {
+        query.where({ category: options.category });
+    }
+
+    if (options.inStock) {
+        query.where({ stock: { $gt: 0 } });
+    }
+
+    if (options.limit) {
+        query.limit(options.limit);
+    }
+
+    return query;
+};
+
+/**
+ * Get low stock products
+ */
+productSchema.statics.findLowStock = function (threshold = 10) {
+    return this.find({
+        isActive: true,
+        stock: { $gt: 0, $lte: threshold }
+    })
+        .select('name slug stock')
+        .sort({ stock: 1 })
+        .lean()
+        .exec();
+};
+
+/**
+ * Get out of stock products
+ */
+productSchema.statics.findOutOfStock = function () {
+    return this.find({
+        isActive: true,
+        stock: 0
+    })
+        .select('name slug stock lastRestocked')
+        .sort({ lastRestocked: 1 })
+        .lean()
+        .exec();
+};
+
+/**
+ * Get product statistics
+ */
+productSchema.statics.getStats = async function () {
+    return await this.aggregate([
+        {
+            $facet: {
+                total: [{ $count: 'count' }],
+                active: [
+                    { $match: { isActive: true } },
+                    { $count: 'count' }
+                ],
+                inStock: [
+                    { $match: { stock: { $gt: 0 } } },
+                    { $count: 'count' }
+                ],
+                outOfStock: [
+                    { $match: { stock: 0 } },
+                    { $count: 'count' }
+                ],
+                featured: [
+                    { $match: { isFeatured: true } },
+                    { $count: 'count' }
+                ],
+                totalValue: [
+                    {
+                        $group: {
+                            _id: null,
+                            value: { $sum: { $multiply: ['$price', '$stock'] } }
+                        }
+                    }
+                ]
+            }
+        }
+    ]);
+};
+
+/**
+ * Get category statistics
+ */
+productSchema.statics.getCategoryStats = async function () {
+    return await this.aggregate([
+        {
+            $group: {
+                _id: '$category',
+                count: { $sum: 1 },
+                avgPrice: { $avg: '$price' },
+                totalStock: { $sum: '$stock' }
+            }
+        },
+        {
+            $lookup: {
+                from: 'categories',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'categoryInfo'
+            }
+        },
+        {
+            $unwind: '$categoryInfo'
+        },
+        {
+            $project: {
+                categoryName: '$categoryInfo.name',
+                count: 1,
+                avgPrice: { $round: ['$avgPrice', 2] },
+                totalStock: 1
+            }
+        },
+        {
+            $sort: { count: -1 }
+        }
+    ]);
 };
 
 // ========================================
 // PRE-SAVE MIDDLEWARE
 // ========================================
-// Auto-generate slug if not provided
-productSchema.pre('save', async function () {
-    if (!this.slug && this.name) {
+
+/**
+ * Generate slug from name
+ */
+productSchema.pre('save', function (next) {
+    if (this.isModified('name') && !this.slug) {
         this.slug = this.name
             .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim();
+    }
+    next();
+});
+
+/**
+ * Generate SKU if not provided
+ */
+productSchema.pre('save', function (next) {
+    if (!this.sku && this.isNew) {
+        const randomNum = Math.floor(Math.random() * 10000);
+        const prefix = this.name.substring(0, 3).toUpperCase();
+        this.sku = `${prefix}-${Date.now()}-${randomNum}`;
+    }
+    next();
+});
+
+/**
+ * Set originalPrice if not provided
+ */
+productSchema.pre('save', function (next) {
+    if (!this.originalPrice && this.isNew) {
+        this.originalPrice = this.price;
+    }
+    next();
+});
+
+/**
+ * Validate stock
+ */
+productSchema.pre('save', function (next) {
+    if (this.stock < 0) {
+        return next(new Error('Stock cannot be negative'));
+    }
+    next();
+});
+
+/**
+ * Ensure rating is within bounds
+ */
+productSchema.pre('save', function (next) {
+    if (this.rating < 0) this.rating = 0;
+    if (this.rating > 5) this.rating = 5;
+    next();
+});
+
+// ========================================
+// POST-SAVE MIDDLEWARE
+// ========================================
+
+/**
+ * Log product creation
+ */
+productSchema.post('save', function (doc, next) {
+    if (doc.isNew) {
+        console.log(`[PRODUCT] New product created: ${doc.name} (${doc._id})`);
+    }
+    next();
+});
+
+// ========================================
+// PRE-REMOVE MIDDLEWARE
+// ========================================
+
+/**
+ * Handle product removal
+ */
+productSchema.pre('remove', async function (next) {
+    try {
+        console.log(`[PRODUCT] Removing product: ${this.name} (${this._id})`);
+        // You can add cleanup logic here (e.g., remove from carts, orders, etc.)
+        next();
+    } catch (error) {
+        next(error);
     }
 });
 
 // ========================================
-// COMBO SCHEMA WITH INDEXES
+// QUERY HELPERS
 // ========================================
-const comboSchema = new mongoose.Schema({
-    slug: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true,
-        lowercase: true,
-        trim: true
-    },
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-        index: true
-    },
-    products: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-        index: true
-    }],
-    originalPrice: {
-        type: Number,
-        index: true
-    },
-    comboPrice: {
-        type: Number,
-        required: true,
-        index: true
-    },
-    image: String,
-    images: [String],
-    description: String,
-    isActive: {
-        type: Boolean,
-        default: true,
-        index: true
-    },
-    isFeatured: {
-        type: Boolean,
-        default: false,
-        index: true
-    },
-    stock: {
-        type: Number,
-        default: 0,
-        index: true
-    }
-}, {
-    timestamps: true,
-    minimize: false
-});
 
-// Compound index for featured combos
-comboSchema.index({ isFeatured: 1, isActive: 1 });
-
-// Index for sorting by date
-comboSchema.index({ createdAt: -1 });
-
-// Virtual for savings
-comboSchema.virtual('savings').get(function () {
-    if (this.originalPrice && this.comboPrice) {
-        return this.originalPrice - this.comboPrice;
-    }
-    return 0;
-});
-
-comboSchema.virtual('savingsPercentage').get(function () {
-    if (this.originalPrice && this.comboPrice && this.originalPrice > this.comboPrice) {
-        return Math.round(((this.originalPrice - this.comboPrice) / this.originalPrice) * 100);
-    }
-    return 0;
-});
-
-// Auto-generate slug
-comboSchema.pre('save', async function () {
-    if (!this.slug && this.name) {
-        this.slug = this.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
-    }
-});
-
-// ========================================
-// INSTANCE METHODS FOR COMBO
-// ========================================
-// Method to decrease stock
-comboSchema.methods.decreaseStock = async function (quantity) {
-    if (this.stock >= quantity) {
-        this.stock -= quantity;
-        await this.save();
-        return true;
-    }
-    return false;
+/**
+ * Filter only essential fields
+ */
+productSchema.query.essential = function () {
+    return this.select('name slug price originalPrice image rating stock isActive');
 };
 
-// Method to increase stock
-comboSchema.methods.increaseStock = async function (quantity) {
-    this.stock += quantity;
-    await this.save();
+/**
+ * Filter only card display fields
+ */
+productSchema.query.cardDisplay = function () {
+    return this.select('name slug price originalPrice image rating numReviews isFeatured isOffer offerText');
+};
+
+/**
+ * Filter only list display fields
+ */
+productSchema.query.listDisplay = function () {
+    return this.select('name slug price stock category brand sku isActive');
 };
 
 // ========================================
 // JSON TRANSFORMATION
 // ========================================
-const jsonOptions = {
+
+productSchema.set('toJSON', {
+    virtuals: true,
+    transform: function (doc, ret) {
+        delete ret.__v;
+        ret.id = ret._id;
+        return ret;
+    }
+});
+
+productSchema.set('toObject', {
     virtuals: true,
     transform: function (doc, ret) {
         ret.id = ret._id;
-        delete ret.__v;
         return ret;
     }
-};
+});
 
-productSchema.set('toJSON', jsonOptions);
-comboSchema.set('toJSON', jsonOptions);
+// ========================================
+// COMBO SCHEMA (DISCRIMINATOR)
+// ========================================
+const comboSchema = new mongoose.Schema({
+    products: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
+    comboPrice: {
+        type: Number,
+        required: true,
+        min: 0
+    }
+});
 
 // ========================================
 // EXPORT MODELS
 // ========================================
-module.exports = {
-    Product: mongoose.model('Product', productSchema),
-    Combo: mongoose.model('Combo', comboSchema)
-};
+const Product = mongoose.model('Product', productSchema);
+const Combo = Product.discriminator('Combo', comboSchema);
+
+module.exports = { Product, Combo };

@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 
+// ========================================
+// PERFORMANCE OPTIMIZATIONS ADDED:
+// 1. Optimized indexes for common queries
+// 2. Compound indexes for filtering
+// 3. Efficient post-save hook for rating calculation
+// 4. Better static methods
+// ========================================
+
 const reviewSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,7 +24,8 @@ const reviewSchema = new mongoose.Schema({
     order: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Order',
-        required: true
+        required: true,
+        index: true
     },
     rating: {
         type: Number,
@@ -27,66 +36,87 @@ const reviewSchema = new mongoose.Schema({
     comment: {
         type: String,
         required: true,
-        trim: true
+        maxlength: 1000
     },
-    images: [{
-        type: String
-    }],
-    video: {
-        type: String
+    images: [String],
+    video: String,
+    isVerifiedPurchase: {
+        type: Boolean,
+        default: true
     },
     isApproved: {
         type: Boolean,
         default: false,
         index: true
     },
-    isVerifiedPurchase: {
-        type: Boolean,
-        default: true
-    },
     adminResponse: {
-        type: String
+        text: String,
+        date: Date
+    },
+    helpful: {
+        type: Number,
+        default: 0
+    },
+    reported: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
 });
 
-// Prevent user from reviewing the same product multiple times per order
+// ========================================
+// COMPOUND INDEXES
+// ========================================
+reviewSchema.index({ product: 1, isApproved: 1, createdAt: -1 });
 reviewSchema.index({ user: 1, product: 1, order: 1 }, { unique: true });
+reviewSchema.index({ product: 1, rating: -1 });
 
-// Static method to calculate average rating
+// ========================================
+// STATIC METHOD: Calculate Average Rating
+// ========================================
 reviewSchema.statics.calcAverageRating = async function (productId) {
     const stats = await this.aggregate([
-        {
-            $match: { product: productId, isApproved: true }
-        },
+        { $match: { product: productId, isApproved: true } },
         {
             $group: {
                 _id: '$product',
-                nRating: { $sum: 1 },
-                avgRating: { $avg: '$rating' }
+                avgRating: { $avg: '$rating' },
+                numReviews: { $sum: 1 }
             }
         }
     ]);
 
     try {
-        await this.model('Product').findByIdAndUpdate(productId, {
-            rating: stats.length > 0 ? Math.round(stats[0].avgRating * 10) / 10 : 0,
-            numReviews: stats.length > 0 ? stats[0].nRating : 0
-        });
-    } catch (err) {
-        console.error(err);
+        const { Product } = require('./Product');
+        if (stats.length > 0) {
+            await Product.findByIdAndUpdate(productId, {
+                rating: Math.round(stats[0].avgRating * 10) / 10,
+                numReviews: stats[0].numReviews
+            });
+        } else {
+            await Product.findByIdAndUpdate(productId, {
+                rating: 0,
+                numReviews: 0
+            });
+        }
+    } catch (error) {
+        console.error('[REVIEW] Error updating product rating:', error);
     }
 };
 
-// Call calcAverageRating after save and delete
-reviewSchema.post('save', function () {
-    // Only recalc if approved status changed or new review
-    this.constructor.calcAverageRating(this.product);
+// ========================================
+// POST-SAVE HOOK
+// ========================================
+reviewSchema.post('save', async function () {
+    await this.constructor.calcAverageRating(this.product);
 });
 
-reviewSchema.post('remove', function () {
-    this.constructor.calcAverageRating(this.product);
+// ========================================
+// POST-REMOVE HOOK
+// ========================================
+reviewSchema.post('remove', async function () {
+    await this.constructor.calcAverageRating(this.product);
 });
 
 module.exports = mongoose.model('Review', reviewSchema);

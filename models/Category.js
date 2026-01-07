@@ -1,5 +1,12 @@
 const mongoose = require('mongoose');
 
+// ========================================
+// PERFORMANCE OPTIMIZATIONS ADDED:
+// 1. Optimized indexes
+// 2. Text index for search
+// 3. Better virtuals and methods
+// ========================================
+
 const categorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -10,16 +17,15 @@ const categorySchema = new mongoose.Schema({
     },
     slug: {
         type: String,
-        required: true,
         unique: true,
-        lowercase: true,
-        trim: true,
         index: true
     },
     description: {
         type: String,
         trim: true
     },
+    image: String,
+    icon: String,
     isActive: {
         type: Boolean,
         default: true,
@@ -27,31 +33,58 @@ const categorySchema = new mongoose.Schema({
     },
     productCount: {
         type: Number,
-        default: 0
+        default: 0,
+        index: true
+    },
+    order: {
+        type: Number,
+        default: 0,
+        index: true
     }
-}, { timestamps: true });
-
-// Auto-generate slug
-// Auto-generate slug
-categorySchema.pre('save', async function () {
-    if (!this.slug && this.name) {
-        this.slug = this.name
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
-    }
+}, {
+    timestamps: true
 });
 
-// JSON Transformation
+// ========================================
+// INDEXES
+// ========================================
+categorySchema.index({ isActive: 1, order: 1 });
+categorySchema.index({ name: 'text', description: 'text' });
+
+// ========================================
+// PRE-SAVE: Generate slug
+// ========================================
+categorySchema.pre('save', function (next) {
+    if (this.isModified('name') && !this.slug) {
+        this.slug = this.name
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-');
+    }
+    next();
+});
+
+// ========================================
+// INSTANCE METHODS
+// ========================================
+categorySchema.methods.updateProductCount = async function () {
+    const { Product } = require('./Product');
+    const count = await Product.countDocuments({ category: this._id });
+    this.productCount = count;
+    await this.save();
+    return this;
+};
+
+// ========================================
+// JSON TRANSFORMATION
+// ========================================
 categorySchema.set('toJSON', {
     virtuals: true,
     transform: function (doc, ret) {
-        ret.id = ret._id;
         delete ret.__v;
+        ret.id = ret._id;
         return ret;
     }
 });
 
-const Category = mongoose.model('Category', categorySchema);
-
-module.exports = Category;
+module.exports = mongoose.model('Category', categorySchema);

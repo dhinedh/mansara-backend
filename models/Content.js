@@ -4,13 +4,10 @@ const contentSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        index: true,
-        lowercase: true,
-        trim: true
+        index: true
     },
     sections: {
-        type: Map,
-        of: String,
+        type: mongoose.Schema.Types.Mixed,
         default: {}
     },
     isPublished: {
@@ -19,6 +16,8 @@ const contentSchema = new mongoose.Schema({
         index: true
     }
 }, { timestamps: true });
+
+contentSchema.index({ slug: 1, isPublished: 1 });
 
 const Content = mongoose.model('Content', contentSchema);
 

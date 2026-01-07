@@ -15,18 +15,7 @@ const heroSchema = new mongoose.Schema({
         default: true,
         index: true
     }
-}, {
-    timestamps: true,
-    toJSON: {
-        virtuals: true,
-        transform: function (doc, ret) {
-            ret.id = ret._id;
-            delete ret.__v;
-            return ret;
-        }
-    }
-});
+}, { timestamps: true });
 
 const Hero = mongoose.model('Hero', heroSchema);
-
 module.exports = Hero;

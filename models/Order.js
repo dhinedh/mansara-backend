@@ -1,12 +1,23 @@
 const mongoose = require('mongoose');
 
 // ========================================
+// PERFORMANCE OPTIMIZATIONS ADDED:
+// 1. Optimized indexes for common queries
+// 2. Compound indexes for frequently combined fields
+// 3. Better instance methods
+// 4. Improved static methods for analytics
+// 5. Efficient virtuals
+// 6. Better pre-save hooks
+// ========================================
+
+// ========================================
 // SUB-SCHEMAS
 // ========================================
 const orderItemSchema = new mongoose.Schema({
     product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product',
+        required: true,
         index: true
     },
     name: {
@@ -165,6 +176,9 @@ orderSchema.index({ estimatedDeliveryDate: 1, orderStatus: 1 });
 // Date range queries (for analytics)
 orderSchema.index({ createdAt: -1, orderStatus: 1 });
 
+// Text index for order ID search
+orderSchema.index({ orderId: 'text' });
+
 // ========================================
 // VIRTUAL PROPERTIES
 // ========================================
@@ -198,10 +212,22 @@ orderSchema.virtual('daysUntilDelivery').get(function () {
     return diffDays;
 });
 
+// Virtual for order age (in days)
+orderSchema.virtual('orderAge').get(function () {
+    const now = new Date();
+    const orderDate = new Date(this.createdAt);
+    const diffTime = now - orderDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+});
+
 // ========================================
 // INSTANCE METHODS
 // ========================================
-// Update order status
+
+/**
+ * Update order status
+ */
 orderSchema.methods.updateStatus = async function (newStatus, notes = '', updatedBy = null) {
     // Define status order for tracking logic
     const statusOrder = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
@@ -223,6 +249,9 @@ orderSchema.methods.updateStatus = async function (newStatus, notes = '', update
             if (notes) cancelStep.notes = notes;
             if (updatedBy) cancelStep.updatedBy = updatedBy;
         }
+        this.cancelledAt = new Date();
+        if (updatedBy) this.cancelledBy = updatedBy;
+        if (notes) this.cancellationReason = notes;
     } else if (newStatusIndex !== -1) {
         // Mark all steps up to new status as completed
         this.trackingSteps.forEach(step => {
@@ -250,7 +279,9 @@ orderSchema.methods.updateStatus = async function (newStatus, notes = '', update
     return this;
 };
 
-// Cancel order
+/**
+ * Cancel order
+ */
 orderSchema.methods.cancel = async function (reason, cancelledBy) {
     this.orderStatus = 'Cancelled';
     this.cancellationReason = reason;
@@ -270,7 +301,9 @@ orderSchema.methods.cancel = async function (reason, cancelledBy) {
     return this;
 };
 
-// Calculate delivery time
+/**
+ * Calculate delivery time
+ */
 orderSchema.methods.calculateDeliveryTime = function () {
     if (!this.actualDeliveryDate || !this.date) return null;
 
@@ -279,23 +312,45 @@ orderSchema.methods.calculateDeliveryTime = function () {
     return diffDays;
 };
 
-// Get current tracking step
+/**
+ * Get current tracking step
+ */
 orderSchema.methods.getCurrentStep = function () {
     return this.trackingSteps.find(step =>
         step.status === this.orderStatus
     );
 };
 
-// Check if order can be cancelled
+/**
+ * Check if order can be cancelled
+ */
 orderSchema.methods.canBeCancelled = function () {
     const nonCancellableStatuses = ['Delivered', 'Cancelled', 'Shipped'];
     return !nonCancellableStatuses.includes(this.orderStatus);
 };
 
+/**
+ * Generate invoice number
+ */
+orderSchema.methods.generateInvoice = async function () {
+    if (!this.invoiceNumber) {
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        this.invoiceNumber = `INV-${year}${month}-${this.orderId}`;
+        this.invoiceGenerated = true;
+        await this.save();
+    }
+    return this.invoiceNumber;
+};
+
 // ========================================
 // STATIC METHODS
 // ========================================
-// Find orders by user
+
+/**
+ * Find orders by user
+ */
 orderSchema.statics.findByUser = function (userId, options = {}) {
     const query = this.find({ user: userId });
 
@@ -310,14 +365,18 @@ orderSchema.statics.findByUser = function (userId, options = {}) {
     return query.sort({ createdAt: -1 });
 };
 
-// Find pending orders
+/**
+ * Find pending orders
+ */
 orderSchema.statics.findPending = function () {
     return this.find({
         orderStatus: { $in: ['Ordered', 'Processing'] }
     }).sort({ createdAt: -1 });
 };
 
-// Find orders for delivery today
+/**
+ * Find orders for delivery today
+ */
 orderSchema.statics.findForDeliveryToday = function () {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -333,7 +392,9 @@ orderSchema.statics.findForDeliveryToday = function () {
     });
 };
 
-// Revenue analytics
+/**
+ * Revenue analytics
+ */
 orderSchema.statics.getRevenue = async function (startDate, endDate) {
     const result = await this.aggregate([
         {
@@ -355,28 +416,60 @@ orderSchema.statics.getRevenue = async function (startDate, endDate) {
     return result[0] || { totalRevenue: 0, orderCount: 0, averageOrderValue: 0 };
 };
 
+/**
+ * Get order statistics
+ */
+orderSchema.statics.getStats = async function () {
+    return await this.aggregate([
+        {
+            $facet: {
+                total: [{ $count: 'count' }],
+                byStatus: [
+                    { $group: { _id: '$orderStatus', count: { $sum: 1 } } }
+                ],
+                revenue: [
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    { $group: { _id: null, total: { $sum: '$total' } } }
+                ],
+                avgOrderValue: [
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    { $group: { _id: null, avg: { $avg: '$total' } } }
+                ]
+            }
+        }
+    ]);
+};
+
 // ========================================
 // PRE-SAVE MIDDLEWARE
 // ========================================
-// Generate order ID if not exists
-// Generate order ID if not exists
-orderSchema.pre('save', function () {
+
+/**
+ * Generate order ID if not exists
+ */
+orderSchema.pre('save', function (next) {
     if (!this.orderId) {
         this.orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
     }
+    next();
 });
 
-// Set estimated delivery date if not set
-orderSchema.pre('save', function () {
+/**
+ * Set estimated delivery date if not set
+ */
+orderSchema.pre('save', function (next) {
     if (!this.estimatedDeliveryDate && this.isNew) {
         const estimatedDate = new Date();
         estimatedDate.setDate(estimatedDate.getDate() + 5); // Default 5 days
         this.estimatedDeliveryDate = estimatedDate;
     }
+    next();
 });
 
-// Initialize tracking steps
-orderSchema.pre('save', function () {
+/**
+ * Initialize tracking steps
+ */
+orderSchema.pre('save', function (next) {
     if (this.isNew && (!this.trackingSteps || this.trackingSteps.length === 0)) {
         this.trackingSteps = [
             { status: 'Ordered', completed: true, date: new Date() },
@@ -386,6 +479,21 @@ orderSchema.pre('save', function () {
             { status: 'Delivered', completed: false }
         ];
     }
+    next();
+});
+
+// ========================================
+// POST-SAVE MIDDLEWARE
+// ========================================
+
+/**
+ * Log order creation
+ */
+orderSchema.post('save', function (doc, next) {
+    if (doc.isNew) {
+        console.log(`[ORDER] New order created: ${doc.orderId} - User: ${doc.user}`);
+    }
+    next();
 });
 
 // ========================================
@@ -395,6 +503,15 @@ orderSchema.set('toJSON', {
     virtuals: true,
     transform: function (doc, ret) {
         delete ret.__v;
+        ret.id = ret._id;
+        return ret;
+    }
+});
+
+orderSchema.set('toObject', {
+    virtuals: true,
+    transform: function (doc, ret) {
+        ret.id = ret._id;
         return ret;
     }
 });

@@ -5,7 +5,8 @@ const settingSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        index: true
+        index: true,
+        default: 'site_settings'
     },
     website_name: {
         type: String,
@@ -13,41 +14,14 @@ const settingSchema = new mongoose.Schema({
     },
     contact_email: {
         type: String,
-        default: 'contact@mansarafoods.com',
-        lowercase: true,
-        trim: true
+        default: 'contact@mansarafoods.com'
     },
-    phone_number: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    address: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    facebook_url: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    instagram_url: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    twitter_url: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    whatsapp_number: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    // Business settings
+    phone_number: String,
+    address: String,
+    facebook_url: String,
+    instagram_url: String,
+    twitter_url: String,
+    whatsapp_number: String,
     currency: {
         type: String,
         default: 'INR'
@@ -56,10 +30,8 @@ const settingSchema = new mongoose.Schema({
         type: String,
         default: 'Asia/Kolkata'
     },
-    // SEO settings
     metaDescription: String,
     metaKeywords: [String],
-    // Shipping settings
     freeShippingThreshold: {
         type: Number,
         default: 0
