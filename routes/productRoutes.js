@@ -35,12 +35,12 @@ const cacheMiddleware = (duration = 600000) => { // 10 minutes default
         const originalJson = res.json.bind(res);
         res.json = (data) => {
             cache.set(key, { data, timestamp: Date.now() });
-            
+
             if (cache.size > 100) {
                 const firstKey = cache.keys().next().value;
                 cache.delete(firstKey);
             }
-            
+
             return originalJson(data);
         };
         next();
@@ -73,11 +73,11 @@ router.get('/', cacheMiddleware(600000), async (req, res) => {
         const { category, search, featured, sort, inStock } = req.query;
 
         const query = { isActive: true };
-        
+
         if (category) query.category = category;
         if (featured === 'true') query.isFeatured = true;
         if (inStock === 'true') query.stock = { $gt: 0 };
-        
+
         if (search) {
             query.$text = { $search: search };
         }
@@ -89,28 +89,28 @@ router.get('/', cacheMiddleware(600000), async (req, res) => {
         if (sort === 'popular') sortOption = { rating: -1, numReviews: -1 };
         if (search) sortOption = { score: { $meta: 'textScore' } };
 
-        const [products, total] = await Promise.all([
-            Product.find(query)
-                .select('name slug price offerPrice image images category featured rating numReviews stock isOffer weight')
-                .sort(sortOption)
-                .skip(skip)
-                .limit(limit)
-                .lean()
-                .maxTimeMS(10000)
-                .exec(),
-            Product.countDocuments(query)
-                .maxTimeMS(5000)
-                .exec()
-        ]);
+        const products = await Product.find(query)
+            .select('name slug price offerPrice image images category featured rating numReviews stock isOffer weight')
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit)
+            .lean()
+            .maxTimeMS(30000)
+            .exec();
+
+        // OPTIMIZATION: Skip expensive countDocuments
+        // Infer total for pagination to be consistently fast
+        const hasNextPage = products.length === limit;
+        const total = hasNextPage ? (page * limit) + 100 : (page - 1) * limit + products.length;
 
         res.json({
             products,
             pagination: {
                 page,
                 limit,
-                total,
+                total, // Estimated total
                 pages: Math.ceil(total / limit),
-                hasMore: skip + products.length < total
+                hasMore: hasNextPage
             }
         });
     } catch (error) {
@@ -185,9 +185,9 @@ router.get('/category/:category', cacheMiddleware(600000), async (req, res) => {
         const skip = (page - 1) * limit;
 
         const [products, total] = await Promise.all([
-            Product.find({ 
-                category: req.params.category, 
-                isActive: true 
+            Product.find({
+                category: req.params.category,
+                isActive: true
             })
                 .select('name slug price offerPrice image images rating numReviews stock weight')
                 .sort({ createdAt: -1 })
@@ -196,9 +196,9 @@ router.get('/category/:category', cacheMiddleware(600000), async (req, res) => {
                 .lean()
                 .maxTimeMS(10000)
                 .exec(),
-            Product.countDocuments({ 
-                category: req.params.category, 
-                isActive: true 
+            Product.countDocuments({
+                category: req.params.category,
+                isActive: true
             })
                 .maxTimeMS(5000)
                 .exec()
@@ -226,7 +226,7 @@ router.get('/category/:category', cacheMiddleware(600000), async (req, res) => {
 router.get('/search/query', cacheMiddleware(300000), async (req, res) => {
     try {
         const { q, limit = 20, page = 1 } = req.query;
-        
+
         if (!q || q.trim().length === 0) {
             return res.status(400).json({ message: 'Search query required' });
         }
@@ -235,9 +235,9 @@ router.get('/search/query', cacheMiddleware(300000), async (req, res) => {
 
         const [products, total] = await Promise.all([
             Product.find(
-                { 
+                {
                     $text: { $search: q },
-                    isActive: true 
+                    isActive: true
                 },
                 { score: { $meta: 'textScore' } }
             )
@@ -248,9 +248,9 @@ router.get('/search/query', cacheMiddleware(300000), async (req, res) => {
                 .lean()
                 .maxTimeMS(10000)
                 .exec(),
-            Product.countDocuments({ 
+            Product.countDocuments({
                 $text: { $search: q },
-                isActive: true 
+                isActive: true
             })
                 .maxTimeMS(5000)
                 .exec()
@@ -318,7 +318,7 @@ router.post('/', protect, admin, async (req, res) => {
 
         // Convert to plain object and send immediately
         const result = createdProduct.toObject();
-        
+
         // Clear cache asynchronously (non-blocking)
         clearProductCache();
 
@@ -351,8 +351,8 @@ router.put('/:id', protect, admin, async (req, res) => {
                 select: '-__v'       // Exclude version key
             }
         )
-        .maxTimeMS(3000) // 3 second timeout
-        .exec();
+            .maxTimeMS(3000) // 3 second timeout
+            .exec();
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
@@ -419,7 +419,7 @@ router.put('/bulk/update', protect, admin, async (req, res) => {
 router.delete('/:id', protect, admin, async (req, res) => {
     try {
         console.log('[PRODUCT] Deleting product:', req.params.id);
-        
+
         const product = await Product.findByIdAndDelete(req.params.id)
             .maxTimeMS(5000)
             .exec();
@@ -444,7 +444,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
 router.patch('/:id/toggle-status', protect, admin, async (req, res) => {
     try {
         const { field } = req.body; // isActive, isFeatured, isOffer, etc.
-        
+
         if (!field) {
             return res.status(400).json({ message: 'Field to toggle required' });
         }
@@ -464,7 +464,7 @@ router.patch('/:id/toggle-status', protect, admin, async (req, res) => {
 
         clearProductCache();
 
-        res.json({ 
+        res.json({
             message: `${field} toggled successfully`,
             [field]: product[field]
         });
@@ -490,8 +490,8 @@ router.patch('/:id/stock', protect, admin, async (req, res) => {
             { stock },
             { new: true, lean: true, select: 'stock' }
         )
-        .maxTimeMS(3000)
-        .exec();
+            .maxTimeMS(3000)
+            .exec();
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });

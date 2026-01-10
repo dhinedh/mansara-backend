@@ -55,8 +55,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 mongoose.connect(process.env.MONGODB_URI, {
     maxPoolSize: 10,
     minPoolSize: 2,
-    socketTimeoutMS: 45000,
-    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 120000, // Increased to 2 minutes
+    serverSelectionTimeoutMS: 30000, // Increased to 30 seconds
 })
     .then(() => {
         console.log('✅ Connected to MongoDB');
