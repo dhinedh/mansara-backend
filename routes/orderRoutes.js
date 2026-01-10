@@ -60,6 +60,14 @@ router.post('/', protect, async (req, res) => {
         const createdOrder = await order.save();
 
         // ========================================
+        // CRITICAL STOCK MANAGEMENT
+        // ========================================
+        // Clear user's cart in DB immediately.
+        // This prevents 'restore stock' logic from triggering when frontend calls clearCart().
+        req.user.cart = [];
+        await req.user.save();
+
+        // ========================================
         // OPTIMIZATION: TRULY NON-BLOCKING NOTIFICATION
         // Previous code used setImmediate but still awaited Promise.allSettled
         // Now we don't await anything - fire and forget
@@ -233,40 +241,14 @@ router.put('/:id/confirm', protect, admin, async (req, res) => {
         // ========================================
         // OPTIMIZATION: Deduct stock in parallel (non-blocking)
         // ========================================
-        const stockUpdatePromises = order.items.map(async (item) => {
-            try {
-                // Try Product first
-                let product = await Product.findById(item.product)
-                    .select('stock name')
-                    .maxTimeMS(3000)
-                    .exec();
+        // ========================================
+        // STOCK DEDUCTION REMOVED
+        // ========================================
+        // Stock is now deducted when adding to cart.
+        // We do strictly NOT check or deduct stock here to avoid double deduction.
+        // Only if we implemented "Expires in 15min" logic would we need to re-check.
 
-                // If not found, try Combo
-                if (!product) {
-                    product = await Combo.findById(item.product)
-                        .select('stock name')
-                        .maxTimeMS(3000)
-                        .exec();
-                }
 
-                if (product && product.stock >= item.quantity) {
-                    product.stock -= item.quantity;
-                    await product.save();
-                    console.log(`[STOCK] Decreased ${product.name} by ${item.quantity}`);
-                } else if (product) {
-                    console.warn(`[WARN] Insufficient stock for ${product.name}`);
-                } else {
-                    console.warn(`[WARN] Product not found: ${item.product}`);
-                }
-            } catch (stockError) {
-                console.error(`[ERROR] Stock update failed for ${item.product}:`, stockError);
-            }
-        });
-
-        // Wait for stock updates but don't block response
-        Promise.all(stockUpdatePromises).catch(err => 
-            console.error('[ERROR] Stock updates failed:', err)
-        );
 
         // Save order
         await order.save();
@@ -398,14 +380,14 @@ router.get('/stats/summary', protect, admin, async (req, res) => {
                     recentOrders: [
                         { $sort: { createdAt: -1 } },
                         { $limit: 10 },
-                        { 
-                            $project: { 
-                                orderId: 1, 
-                                total: 1, 
-                                orderStatus: 1, 
+                        {
+                            $project: {
+                                orderId: 1,
+                                total: 1,
+                                orderStatus: 1,
                                 createdAt: 1,
                                 user: 1
-                            } 
+                            }
                         }
                     ],
                     todayStats: [
@@ -427,8 +409,8 @@ router.get('/stats/summary', protect, admin, async (req, res) => {
                 }
             }
         ])
-        .maxTimeMS(10000)
-        .exec();
+            .maxTimeMS(10000)
+            .exec();
 
         // Extract and format results
         const result = {
