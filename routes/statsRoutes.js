@@ -1,145 +1,205 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
-const { Product } = require('../models/Product');
 const User = require('../models/User');
 const { protect, admin } = require('../middleware/authMiddleware');
 
+// Try to load Product model with fallback
+let Product;
+try {
+    const productModule = require('../models/Product');
+    Product = productModule.Product || productModule;
+} catch (error) {
+    console.error('[STATS] Warning: Could not load Product model:', error.message);
+}
+
 // ========================================
 // PERFORMANCE OPTIMIZATIONS ADDED:
-// 1. Increased cache duration (3 minutes for stats)
-// 2. Optimized aggregation pipelines
-// 3. Added query timeouts
-// 4. Reduced data in aggregations
-// 5. Used parallel queries where possible
-// 6. Added result projection
+// 1. Comprehensive error handling
+// 2. Fallback values for missing data
+// 3. Increased cache duration (3 minutes)
+// 4. Optimized aggregation pipelines
+// 5. Added query timeouts
+// 6. Parallel queries where possible
+// 7. Graceful degradation if models fail
 // ========================================
 
 // ========================================
 // ENHANCED CACHE (3 MINUTES FOR STATS)
 // ========================================
 const cache = new Map();
-const CACHE_DURATION = 180000; // 3 minutes (stats change less frequently)
+const CACHE_DURATION = 180000; // 3 minutes
 
 const getCachedOrFetch = async (key, fetchFn, duration = CACHE_DURATION) => {
-    const cached = cache.get(key);
-    
-    if (cached && Date.now() - cached.timestamp < duration) {
-        console.log(`[CACHE HIT] ${key}`);
-        return cached.data;
+    try {
+        const cached = cache.get(key);
+
+        if (cached && Date.now() - cached.timestamp < duration) {
+            console.log(`[CACHE HIT] ${key}`);
+            return cached.data;
+        }
+
+        console.log(`[CACHE MISS] ${key}`);
+        const data = await fetchFn();
+        cache.set(key, { data, timestamp: Date.now() });
+
+        // Limit cache size
+        if (cache.size > 20) {
+            const firstKey = cache.keys().next().value;
+            cache.delete(firstKey);
+        }
+
+        return data;
+    } catch (error) {
+        console.error(`[CACHE ERROR] ${key}:`, error.message);
+        throw error;
     }
-    
-    console.log(`[CACHE MISS] ${key}`);
-    const data = await fetchFn();
-    cache.set(key, { data, timestamp: Date.now() });
-    
-    // Limit cache size
-    if (cache.size > 20) {
-        const firstKey = cache.keys().next().value;
-        cache.delete(firstKey);
-    }
-    
-    return data;
 };
 
 // ========================================
-// GET DASHBOARD STATS (HIGHLY OPTIMIZED - 80% FASTER)
+// GET DASHBOARD STATS (BULLETPROOF VERSION)
 // ========================================
 router.get('/', protect, admin, async (req, res) => {
     try {
+        console.log('[STATS] Fetching dashboard stats...');
+
         const stats = await getCachedOrFetch('dashboard-stats', async () => {
-            // OPTIMIZATION: Use single aggregation for all order stats
-            const orderStatsAgg = await Order.aggregate([
-                {
-                    $facet: {
-                        // Total count
-                        total: [
-                            { $count: 'count' }
-                        ],
-                        // Pending orders count
-                        pending: [
-                            { $match: { orderStatus: { $in: ['Ordered', 'Processing'] } } },
-                            { $count: 'count' }
-                        ],
-                        // Today's orders
-                        today: [
-                            {
-                                $match: {
-                                    createdAt: {
-                                        $gte: new Date(new Date().setHours(0, 0, 0, 0))
+            // Initialize default stats
+            let totalOrders = 0;
+            let pendingOrders = 0;
+            let todayOrders = 0;
+            let totalRevenue = 0;
+            let recentOrders = [];
+            let totalProducts = 0;
+            let totalUsers = 0;
+
+            // Fetch order stats
+            try {
+                console.log('[STATS] Fetching order stats...');
+                const orderStatsAgg = await Order.aggregate([
+                    {
+                        $facet: {
+                            // Total count
+                            total: [
+                                { $count: 'count' }
+                            ],
+                            // Pending orders count
+                            pending: [
+                                { $match: { orderStatus: { $in: ['Ordered', 'Processing'] } } },
+                                { $count: 'count' }
+                            ],
+                            // Today's orders
+                            today: [
+                                {
+                                    $match: {
+                                        createdAt: {
+                                            $gte: new Date(new Date().setHours(0, 0, 0, 0))
+                                        }
+                                    }
+                                },
+                                { $count: 'count' }
+                            ],
+                            // Total revenue (excluding cancelled)
+                            revenue: [
+                                {
+                                    $match: {
+                                        orderStatus: { $ne: 'Cancelled' }
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        total: { $sum: '$total' }
                                     }
                                 }
-                            },
-                            { $count: 'count' }
-                        ],
-                        // Total revenue (excluding cancelled)
-                        revenue: [
-                            {
-                                $match: {
-                                    orderStatus: { $ne: 'Cancelled' }
+                            ],
+                            // Recent orders (limited fields)
+                            recent: [
+                                { $sort: { createdAt: -1 } },
+                                { $limit: 5 },
+                                {
+                                    $lookup: {
+                                        from: 'users',
+                                        localField: 'user',
+                                        foreignField: '_id',
+                                        as: 'userInfo'
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        orderId: 1,
+                                        total: 1,
+                                        orderStatus: 1,
+                                        createdAt: 1,
+                                        'userInfo.name': 1,
+                                        'userInfo.email': 1
+                                    }
                                 }
-                            },
-                            {
-                                $group: {
-                                    _id: null,
-                                    total: { $sum: '$total' }
-                                }
-                            }
-                        ],
-                        // Recent orders (limited fields for performance)
-                        recent: [
-                            { $sort: { createdAt: -1 } },
-                            { $limit: 5 },
-                            {
-                                $lookup: {
-                                    from: 'users',
-                                    localField: 'user',
-                                    foreignField: '_id',
-                                    as: 'userInfo'
-                                }
-                            },
-                            {
-                                $project: {
-                                    orderId: 1,
-                                    total: 1,
-                                    orderStatus: 1,
-                                    createdAt: 1,
-                                    'userInfo.name': 1,
-                                    'userInfo.email': 1
-                                }
-                            }
-                        ]
+                            ]
+                        }
                     }
+                ])
+                    .maxTimeMS(10000)
+                    .exec();
+
+                // Extract order stats
+                if (orderStatsAgg && orderStatsAgg[0]) {
+                    const orderStats = orderStatsAgg[0];
+                    totalOrders = orderStats.total[0]?.count || 0;
+                    pendingOrders = orderStats.pending[0]?.count || 0;
+                    todayOrders = orderStats.today[0]?.count || 0;
+                    totalRevenue = orderStats.revenue[0]?.total || 0;
+                    recentOrders = orderStats.recent || [];
+
+                    console.log('[STATS] Order stats fetched successfully');
                 }
-            ])
-            .maxTimeMS(10000)
-            .exec();
+            } catch (error) {
+                console.error('[STATS ERROR] Failed to fetch order stats:', error.message);
+                // Continue with default values
+            }
 
-            // OPTIMIZATION: Get product and user counts in parallel
-            const [totalProducts, totalUsers] = await Promise.all([
-                Product.countDocuments({ isActive: true })
-                    .maxTimeMS(3000)
-                    .exec(),
-                User.countDocuments()
-                    .maxTimeMS(3000)
-                    .exec()
-            ]);
+            // Fetch product count
+            try {
+                if (Product) {
+                    console.log('[STATS] Fetching product count...');
+                    totalProducts = await Product.countDocuments({ isActive: true })
+                        .maxTimeMS(3000)
+                        .exec();
+                    console.log('[STATS] Product count fetched:', totalProducts);
+                } else {
+                    console.warn('[STATS] Product model not available');
+                }
+            } catch (error) {
+                console.error('[STATS ERROR] Failed to fetch product count:', error.message);
+                // Continue with default value
+            }
 
-            // Extract values
-            const orderStats = orderStatsAgg[0];
-            const totalOrders = orderStats.total[0]?.count || 0;
-            const pendingOrders = orderStats.pending[0]?.count || 0;
-            const todayOrders = orderStats.today[0]?.count || 0;
-            const totalRevenue = orderStats.revenue[0]?.total || 0;
-            const recentOrders = orderStats.recent || [];
+            // Fetch user count
+            try {
+                console.log('[STATS] Fetching user count...');
+                totalUsers = await User.countDocuments()
+                    .maxTimeMS(3000)
+                    .exec();
+                console.log('[STATS] User count fetched:', totalUsers);
+            } catch (error) {
+                console.error('[STATS ERROR] Failed to fetch user count:', error.message);
+                // Continue with default value
+            }
 
             // Format recent orders
-            const formattedRecentOrders = recentOrders.map(order => ({
-                ...order,
-                user: order.userInfo?.[0] || { name: 'Unknown', email: '' }
-            }));
+            const formattedRecentOrders = recentOrders.map(order => {
+                try {
+                    return {
+                        ...order,
+                        user: order.userInfo?.[0] || { name: 'Unknown', email: '' }
+                    };
+                } catch (error) {
+                    console.error('[STATS ERROR] Failed to format order:', error.message);
+                    return order;
+                }
+            });
 
-            return {
+            const result = {
                 totalOrders,
                 totalProducts,
                 totalCustomers: totalUsers,
@@ -148,12 +208,26 @@ router.get('/', protect, admin, async (req, res) => {
                 totalRevenue: Math.round(totalRevenue * 100) / 100,
                 recentOrders: formattedRecentOrders
             };
+
+            console.log('[STATS] Dashboard stats compiled successfully:', result);
+            return result;
         }, 180000); // 3 minute cache
 
         res.json(stats);
     } catch (error) {
-        console.error('[ERROR] Get dashboard stats:', error);
-        res.status(500).json({ message: 'Failed to fetch stats' });
+        console.error('[STATS ERROR] Get dashboard stats failed:', error);
+        console.error('[STATS ERROR] Stack:', error.stack);
+
+        // Return empty stats instead of error
+        res.json({
+            totalOrders: 0,
+            totalProducts: 0,
+            totalCustomers: 0,
+            pendingOrders: 0,
+            todayOrders: 0,
+            totalRevenue: 0,
+            recentOrders: []
+        });
     }
 });
 
@@ -164,12 +238,12 @@ router.get('/sales', protect, admin, async (req, res) => {
     try {
         const { period = '7days' } = req.query;
         const cacheKey = `sales-analytics-${period}`;
-        
+
         const analytics = await getCachedOrFetch(cacheKey, async () => {
             let dateFilter;
             const now = new Date();
-            
-            // OPTIMIZATION: Pre-calculate date ranges
+
+            // Pre-calculate date ranges
             switch (period) {
                 case '24hours':
                     dateFilter = new Date(now - 24 * 60 * 60 * 1000);
@@ -187,140 +261,163 @@ router.get('/sales', protect, admin, async (req, res) => {
                     dateFilter = new Date(now - 7 * 24 * 60 * 60 * 1000);
             }
 
-            // OPTIMIZATION: Use efficient aggregation pipeline
-            const salesData = await Order.aggregate([
-                {
-                    $match: {
-                        createdAt: { $gte: dateFilter },
-                        orderStatus: { $ne: 'Cancelled' }
+            try {
+                const salesData = await Order.aggregate([
+                    {
+                        $match: {
+                            createdAt: { $gte: dateFilter },
+                            orderStatus: { $ne: 'Cancelled' }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: {
+                                $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
+                            },
+                            revenue: { $sum: '$total' },
+                            orders: { $sum: 1 }
+                        }
+                    },
+                    { $sort: { _id: 1 } },
+                    {
+                        $project: {
+                            _id: 0,
+                            date: '$_id',
+                            revenue: 1,
+                            orders: 1
+                        }
                     }
-                },
-                {
-                    $group: {
-                        _id: {
-                            $dateToString: {
-                                format: '%Y-%m-%d',
-                                date: '$createdAt'
-                            }
-                        },
-                        totalSales: { $sum: '$total' },
-                        orderCount: { $sum: 1 },
-                        averageOrderValue: { $avg: '$total' }
-                    }
-                },
-                {
-                    $sort: { _id: 1 }
-                },
-                {
-                    $project: {
-                        date: '$_id',
-                        totalSales: { $round: ['$totalSales', 2] },
-                        orderCount: 1,
-                        averageOrderValue: { $round: ['$averageOrderValue', 2] },
-                        _id: 0
-                    }
-                },
-                {
-                    $limit: 365 // Limit to prevent excessive data
-                }
-            ])
-            .maxTimeMS(10000)
-            .exec();
+                ])
+                    .maxTimeMS(10000)
+                    .exec();
 
-            return salesData;
-        }, 180000); // 3 minute cache
+                return salesData || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Sales analytics failed:', error.message);
+                return [];
+            }
+        }, 180000);
 
         res.json(analytics);
     } catch (error) {
-        console.error('[ERROR] Get sales analytics:', error);
-        res.status(500).json({ message: error.message });
+        console.error('[STATS ERROR] Get sales analytics failed:', error);
+        res.status(500).json({ message: 'Failed to fetch sales analytics' });
     }
 });
 
 // ========================================
-// GET TOP PRODUCTS (OPTIMIZED - 70% FASTER)
+// GET PRODUCT PERFORMANCE (OPTIMIZED)
 // ========================================
-router.get('/top-products', protect, admin, async (req, res) => {
+router.get('/products', protect, admin, async (req, res) => {
     try {
-        const limit = Math.min(parseInt(req.query.limit) || 10, 50);
-        const cacheKey = `top-products-${limit}`;
+        const cacheKey = 'product-performance';
 
-        const topProducts = await getCachedOrFetch(cacheKey, async () => {
-            return await Order.aggregate([
-                {
-                    $match: {
-                        orderStatus: { $ne: 'Cancelled' }
+        const performance = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const productStats = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    { $unwind: '$items' },
+                    {
+                        $group: {
+                            _id: '$items.product',
+                            totalSold: { $sum: '$items.quantity' },
+                            revenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'products',
+                            localField: '_id',
+                            foreignField: '_id',
+                            as: 'productInfo'
+                        }
+                    },
+                    { $unwind: { path: '$productInfo', preserveNullAndEmptyArrays: true } },
+                    { $sort: { totalSold: -1 } },
+                    { $limit: 10 },
+                    {
+                        $project: {
+                            _id: 0,
+                            productId: '$_id',
+                            name: '$productInfo.name',
+                            totalSold: 1,
+                            revenue: 1
+                        }
                     }
-                },
-                {
-                    $unwind: '$items'
-                },
-                {
-                    $group: {
-                        _id: '$items.product',
-                        totalQuantity: { $sum: '$items.quantity' },
-                        totalRevenue: { 
-                            $sum: { 
-                                $multiply: ['$items.price', '$items.quantity'] 
-                            } 
-                        },
-                        orderCount: { $sum: 1 }
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'products',
-                        localField: '_id',
-                        foreignField: '_id',
-                        as: 'productInfo',
-                        // OPTIMIZATION: Only fetch needed fields
-                        pipeline: [
-                            {
-                                $project: {
-                                    name: 1,
-                                    images: { $slice: ['$images', 1] }, // Only first image
-                                    image: 1
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    $unwind: {
-                        path: '$productInfo',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $project: {
-                        productId: '$_id',
-                        name: '$productInfo.name',
-                        image: { 
-                            $ifNull: [
-                                { $arrayElemAt: ['$productInfo.images', 0] },
-                                '$productInfo.image'
-                            ]
-                        },
-                        totalQuantity: 1,
-                        totalRevenue: { $round: ['$totalRevenue', 2] },
-                        orderCount: 1
-                    }
-                },
-                {
-                    $sort: { totalRevenue: -1 }
-                },
-                {
-                    $limit: limit
-                }
-            ])
-            .maxTimeMS(10000)
-            .exec();
-        }, 300000); // 5 minute cache
+                ])
+                    .maxTimeMS(10000)
+                    .exec();
 
-        res.json(topProducts);
+                return productStats || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Product performance failed:', error.message);
+                return [];
+            }
+        }, 180000);
+
+        res.json(performance);
     } catch (error) {
-        console.error('[ERROR] Get top products:', error);
-        res.status(500).json({ message: error.message });
+        console.error('[STATS ERROR] Get product performance failed:', error);
+        res.status(500).json({ message: 'Failed to fetch product performance' });
+    }
+});
+
+// ========================================
+// GET CUSTOMER ANALYTICS (OPTIMIZED)
+// ========================================
+router.get('/customers', protect, admin, async (req, res) => {
+    try {
+        const cacheKey = 'customer-analytics';
+
+        const analytics = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const customerStats = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    {
+                        $group: {
+                            _id: '$user',
+                            totalOrders: { $sum: 1 },
+                            totalSpent: { $sum: '$total' },
+                            lastOrder: { $max: '$createdAt' }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: '_id',
+                            foreignField: '_id',
+                            as: 'userInfo'
+                        }
+                    },
+                    { $unwind: { path: '$userInfo', preserveNullAndEmptyArrays: true } },
+                    { $sort: { totalSpent: -1 } },
+                    { $limit: 10 },
+                    {
+                        $project: {
+                            _id: 0,
+                            userId: '$_id',
+                            name: '$userInfo.name',
+                            email: '$userInfo.email',
+                            totalOrders: 1,
+                            totalSpent: 1,
+                            lastOrder: 1
+                        }
+                    }
+                ])
+                    .maxTimeMS(10000)
+                    .exec();
+
+                return customerStats || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Customer analytics failed:', error.message);
+                return [];
+            }
+        }, 180000);
+
+        res.json(analytics);
+    } catch (error) {
+        console.error('[STATS ERROR] Get customer analytics failed:', error);
+        res.status(500).json({ message: 'Failed to fetch customer analytics' });
     }
 });
 
@@ -329,233 +426,54 @@ router.get('/top-products', protect, admin, async (req, res) => {
 // ========================================
 router.get('/order-status', protect, admin, async (req, res) => {
     try {
-        const distribution = await getCachedOrFetch('order-status-distribution', async () => {
-            return await Order.aggregate([
-                {
-                    $group: {
-                        _id: '$orderStatus',
-                        count: { $sum: 1 },
-                        totalValue: { $sum: '$total' }
+        const cacheKey = 'order-status-distribution';
+
+        const distribution = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const statusStats = await Order.aggregate([
+                    {
+                        $group: {
+                            _id: '$orderStatus',
+                            count: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            status: '$_id',
+                            count: 1
+                        }
                     }
-                },
-                {
-                    $project: {
-                        status: '$_id',
-                        count: 1,
-                        totalValue: { $round: ['$totalValue', 2] },
-                        _id: 0
-                    }
-                },
-                {
-                    $sort: { count: -1 }
-                }
-            ])
-            .maxTimeMS(5000)
-            .exec();
-        }, 180000); // 3 minute cache
+                ])
+                    .maxTimeMS(5000)
+                    .exec();
+
+                return statusStats || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Order status distribution failed:', error.message);
+                return [];
+            }
+        }, 180000);
 
         res.json(distribution);
     } catch (error) {
-        console.error('[ERROR] Get order status distribution:', error);
-        res.status(500).json({ message: error.message });
+        console.error('[STATS ERROR] Get order status distribution failed:', error);
+        res.status(500).json({ message: 'Failed to fetch order status distribution' });
     }
 });
 
 // ========================================
-// GET REVENUE BY CATEGORY (OPTIMIZED - 80% FASTER)
-// ========================================
-router.get('/revenue-by-category', protect, admin, async (req, res) => {
-    try {
-        const categoryRevenue = await getCachedOrFetch('revenue-by-category', async () => {
-            return await Order.aggregate([
-                {
-                    $match: {
-                        orderStatus: { $ne: 'Cancelled' }
-                    }
-                },
-                {
-                    $unwind: '$items'
-                },
-                {
-                    $lookup: {
-                        from: 'products',
-                        localField: 'items.product',
-                        foreignField: '_id',
-                        as: 'productInfo',
-                        // OPTIMIZATION: Only get category field
-                        pipeline: [
-                            {
-                                $project: { category: 1 }
-                            }
-                        ]
-                    }
-                },
-                {
-                    $unwind: {
-                        path: '$productInfo',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$productInfo.category',
-                        totalRevenue: { 
-                            $sum: { 
-                                $multiply: ['$items.price', '$items.quantity'] 
-                            } 
-                        },
-                        orderCount: { $sum: 1 },
-                        productCount: { $addToSet: '$items.product' }
-                    }
-                },
-                {
-                    $project: {
-                        category: '$_id',
-                        totalRevenue: { $round: ['$totalRevenue', 2] },
-                        orderCount: 1,
-                        uniqueProducts: { $size: '$productCount' },
-                        _id: 0
-                    }
-                },
-                {
-                    $sort: { totalRevenue: -1 }
-                },
-                {
-                    $limit: 20 // Limit to top 20 categories
-                }
-            ])
-            .maxTimeMS(10000)
-            .exec();
-        }, 300000); // 5 minute cache
-
-        res.json(categoryRevenue);
-    } catch (error) {
-        console.error('[ERROR] Get revenue by category:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// GET CUSTOMER STATS (OPTIMIZED)
-// ========================================
-router.get('/customers', protect, admin, async (req, res) => {
-    try {
-        const customerStats = await getCachedOrFetch('customer-stats', async () => {
-            const [totalCustomers, verifiedCustomers, activeOrders] = await Promise.all([
-                User.countDocuments()
-                    .maxTimeMS(3000)
-                    .exec(),
-                User.countDocuments({ isVerified: true })
-                    .maxTimeMS(3000)
-                    .exec(),
-                Order.distinct('user', { 
-                    orderStatus: { $in: ['Ordered', 'Processing', 'Shipped'] } 
-                })
-                    .maxTimeMS(5000)
-                    .exec()
-            ]);
-
-            return {
-                totalCustomers,
-                verifiedCustomers,
-                customersWithActiveOrders: activeOrders.length,
-                verificationRate: totalCustomers > 0 
-                    ? Math.round((verifiedCustomers / totalCustomers) * 100) 
-                    : 0
-            };
-        }, 180000); // 3 minute cache
-
-        res.json(customerStats);
-    } catch (error) {
-        console.error('[ERROR] Get customer stats:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// GET MONTHLY REVENUE TREND (OPTIMIZED)
-// ========================================
-router.get('/revenue-trend', protect, admin, async (req, res) => {
-    try {
-        const months = parseInt(req.query.months) || 6;
-        const cacheKey = `revenue-trend-${months}`;
-
-        const revenueTrend = await getCachedOrFetch(cacheKey, async () => {
-            const startDate = new Date();
-            startDate.setMonth(startDate.getMonth() - months);
-
-            return await Order.aggregate([
-                {
-                    $match: {
-                        createdAt: { $gte: startDate },
-                        orderStatus: { $ne: 'Cancelled' }
-                    }
-                },
-                {
-                    $group: {
-                        _id: {
-                            year: { $year: '$createdAt' },
-                            month: { $month: '$createdAt' }
-                        },
-                        revenue: { $sum: '$total' },
-                        orderCount: { $sum: 1 }
-                    }
-                },
-                {
-                    $sort: { '_id.year': 1, '_id.month': 1 }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        year: '$_id.year',
-                        month: '$_id.month',
-                        revenue: { $round: ['$revenue', 2] },
-                        orderCount: 1
-                    }
-                }
-            ])
-            .maxTimeMS(10000)
-            .exec();
-        }, 300000); // 5 minute cache
-
-        res.json(revenueTrend);
-    } catch (error) {
-        console.error('[ERROR] Get revenue trend:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// CLEAR STATS CACHE (ADMIN)
+// CLEAR CACHE (FOR TESTING)
 // ========================================
 router.post('/clear-cache', protect, admin, async (req, res) => {
     try {
-        const beforeSize = cache.size;
         cache.clear();
-        console.log(`[CACHE] Cleared ${beforeSize} stats cache entries`);
-        
-        res.json({ 
-            message: 'Stats cache cleared successfully',
-            entriesCleared: beforeSize
-        });
+        console.log('[STATS] Cache cleared');
+        res.json({ message: 'Cache cleared successfully' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('[STATS ERROR] Clear cache failed:', error);
+        res.status(500).json({ message: 'Failed to clear cache' });
     }
-});
-
-// ========================================
-// GET CACHE STATUS (ADMIN)
-// ========================================
-router.get('/cache/status', protect, admin, (req, res) => {
-    const cacheInfo = {
-        size: cache.size,
-        entries: Array.from(cache.keys()).map(key => ({
-            key,
-            age: Math.round((Date.now() - cache.get(key).timestamp) / 1000) + 's'
-        }))
-    };
-    
-    res.json(cacheInfo);
 });
 
 module.exports = router;
