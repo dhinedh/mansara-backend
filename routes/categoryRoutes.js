@@ -4,31 +4,31 @@ const Category = require('../models/Category');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // ========================================
-// PERFORMANCE OPTIMIZATIONS ADDED:
-// 1. Increased cache duration to 30 minutes (categories rarely change)
-// 2. Added .lean() to all queries
-// 3. Added field projection
-// 4. Optimized cache clearing
-// 5. Added query timeouts
+// CATEGORY ROUTES - FIXED VERSION
+// ========================================
+// Fixes:
+// 1. Better error handling
+// 2. Proper middleware chain
+// 3. Validation before processing
 // ========================================
 
 // ========================================
-// ENHANCED CACHE MIDDLEWARE (30 MIN FOR CATEGORIES)
+// ENHANCED CACHE MIDDLEWARE
 // ========================================
 const cache = new Map();
 
-const cacheMiddleware = (duration = 1800000) => { // 30 minutes default
+const cacheMiddleware = (duration = 1800000) => {
     return (req, res, next) => {
         if (req.method !== 'GET') return next();
-        
+
         const key = req.originalUrl;
         const cached = cache.get(key);
-        
+
         if (cached && Date.now() - cached.timestamp < duration) {
             console.log(`[CACHE HIT] ${key}`);
             return res.json(cached.data);
         }
-        
+
         console.log(`[CACHE MISS] ${key}`);
         const originalJson = res.json.bind(res);
         res.json = (data) => {
@@ -55,18 +55,17 @@ const clearCategoryCache = () => {
 };
 
 // ========================================
-// GET ALL CATEGORIES (OPTIMIZED & CACHED)
+// GET ALL CATEGORIES
 // ========================================
 router.get('/', cacheMiddleware(1800000), async (req, res) => {
     try {
-        // OPTIMIZATION: Use lean() and select only needed fields
         const categories = await Category.find({})
             .select('name slug description isActive productCount')
             .sort({ name: 1 })
             .lean()
             .maxTimeMS(5000)
             .exec();
-        
+
         res.json(categories);
     } catch (error) {
         console.error('[ERROR] Get categories:', error);
@@ -75,7 +74,7 @@ router.get('/', cacheMiddleware(1800000), async (req, res) => {
 });
 
 // ========================================
-// GET ACTIVE CATEGORIES ONLY (OPTIMIZED)
+// GET ACTIVE CATEGORIES ONLY
 // ========================================
 router.get('/active', cacheMiddleware(1800000), async (req, res) => {
     try {
@@ -85,7 +84,7 @@ router.get('/active', cacheMiddleware(1800000), async (req, res) => {
             .lean()
             .maxTimeMS(5000)
             .exec();
-        
+
         res.json(categories);
     } catch (error) {
         console.error('[ERROR] Get active categories:', error);
@@ -94,27 +93,27 @@ router.get('/active', cacheMiddleware(1800000), async (req, res) => {
 });
 
 // ========================================
-// GET SINGLE CATEGORY (OPTIMIZED)
+// GET SINGLE CATEGORY
 // ========================================
 router.get('/:id', cacheMiddleware(1800000), async (req, res) => {
     try {
         let category;
 
-        // Try to find by ID first (if valid ObjectId)
+        // Try by ID first
         if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
             category = await Category.findById(req.params.id)
-                .select('-__v')
+                .select('name slug description isActive productCount')
                 .lean()
-                .maxTimeMS(5000)
+                .maxTimeMS(3000)
                 .exec();
         }
 
-        // If not found by ID, try slug
+        // If not found by ID, try by slug
         if (!category) {
             category = await Category.findOne({ slug: req.params.id })
-                .select('-__v')
+                .select('name slug description isActive productCount')
                 .lean()
-                .maxTimeMS(5000)
+                .maxTimeMS(3000)
                 .exec();
         }
 
@@ -130,83 +129,159 @@ router.get('/:id', cacheMiddleware(1800000), async (req, res) => {
 });
 
 // ========================================
-// CREATE CATEGORY (ADMIN)
+// CREATE CATEGORY (ADMIN) - FIXED
 // ========================================
-router.post('/', protect, admin, async (req, res) => {
+router.post('/', protect, admin, async (req, res, next) => {
     try {
-        const { name, slug, description } = req.body;
-        
-        // Check if category exists
-        const categoryExists = await Category.findOne({ 
-            $or: [{ name }, { slug }] 
-        })
-        .select('_id')
-        .lean()
-        .maxTimeMS(3000)
-        .exec();
+        console.log('[CATEGORY] Create request:', req.body);
 
-        if (categoryExists) {
-            return res.status(400).json({ message: 'Category already exists' });
+        const { name, slug, description } = req.body;
+
+        // Validation
+        if (!name || !slug) {
+            return res.status(400).json({
+                message: 'Name and slug are required'
+            });
         }
 
+        // Check if category exists
+        const categoryExists = await Category.findOne({
+            $or: [{ name }, { slug }]
+        })
+            .select('_id name slug')
+            .lean()
+            .maxTimeMS(3000)
+            .exec();
+
+        if (categoryExists) {
+            return res.status(400).json({
+                message: `Category already exists with ${categoryExists.name === name ? 'name' : 'slug'}: ${categoryExists.name === name ? name : slug}`
+            });
+        }
+
+        // Create category
         const category = await Category.create({
             name,
             slug,
-            description
+            description: description || ''
         });
 
-        // Clear cache after creating
+        console.log('[CATEGORY] Created:', category);
+
+        // Clear cache
         clearCategoryCache();
 
         res.status(201).json(category);
     } catch (error) {
         console.error('[ERROR] Create category:', error);
+        console.error(error.stack);
+
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors
+            });
+        }
+
+        // Handle duplicate key error
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({
+                message: `Category with this ${field} already exists`
+            });
+        }
+
         res.status(400).json({ message: error.message });
     }
 });
 
 // ========================================
-// UPDATE CATEGORY (ADMIN)
+// UPDATE CATEGORY (ADMIN) - FIXED
 // ========================================
-router.put('/:id', protect, admin, async (req, res) => {
+router.put('/:id', protect, admin, async (req, res, next) => {
     try {
+        console.log('[CATEGORY] Update request:', req.params.id, req.body);
+
         const updateData = {};
-        if (req.body.name) updateData.name = req.body.name;
-        if (req.body.slug) updateData.slug = req.body.slug;
+        if (req.body.name !== undefined) updateData.name = req.body.name;
+        if (req.body.slug !== undefined) updateData.slug = req.body.slug;
         if (req.body.description !== undefined) updateData.description = req.body.description;
         if (req.body.isActive !== undefined) updateData.isActive = req.body.isActive;
 
+        // Check if updating to existing name/slug
+        if (updateData.name || updateData.slug) {
+            const existingCategory = await Category.findOne({
+                _id: { $ne: req.params.id },
+                $or: [
+                    updateData.name ? { name: updateData.name } : {},
+                    updateData.slug ? { slug: updateData.slug } : {}
+                ].filter(obj => Object.keys(obj).length > 0)
+            })
+                .select('_id')
+                .lean()
+                .maxTimeMS(3000)
+                .exec();
+
+            if (existingCategory) {
+                return res.status(400).json({
+                    message: 'Another category with this name or slug already exists'
+                });
+            }
+        }
+
         const category = await Category.findByIdAndUpdate(
             req.params.id,
-            { $set: updateData },
-            { 
+            updateData,
+            {
                 new: true,
                 runValidators: true,
                 select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         if (!category) {
             return res.status(404).json({ message: 'Category not found' });
         }
 
-        // Clear cache after update
+        console.log('[CATEGORY] Updated:', category);
+
+        // Clear cache
         clearCategoryCache();
 
         res.json(category);
     } catch (error) {
         console.error('[ERROR] Update category:', error);
+
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors
+            });
+        }
+
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+            return res.status(400).json({
+                message: `Category with this ${field} already exists`
+            });
+        }
+
         res.status(400).json({ message: error.message });
     }
 });
 
 // ========================================
-// DELETE CATEGORY (ADMIN)
+// DELETE CATEGORY (ADMIN) - FIXED
 // ========================================
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res, next) => {
     try {
+        console.log('[CATEGORY] Delete request:', req.params.id);
+
         const category = await Category.findByIdAndDelete(req.params.id)
             .maxTimeMS(5000)
             .exec();
@@ -215,10 +290,18 @@ router.delete('/:id', protect, admin, async (req, res) => {
             return res.status(404).json({ message: 'Category not found' });
         }
 
-        // Clear cache after deletion
+        console.log('[CATEGORY] Deleted:', category.name);
+
+        // Clear cache
         clearCategoryCache();
 
-        res.json({ message: 'Category removed successfully' });
+        res.json({
+            message: 'Category deleted successfully',
+            category: {
+                id: category._id,
+                name: category.name
+            }
+        });
     } catch (error) {
         console.error('[ERROR] Delete category:', error);
         res.status(500).json({ message: error.message });
@@ -226,46 +309,40 @@ router.delete('/:id', protect, admin, async (req, res) => {
 });
 
 // ========================================
-// UPDATE CATEGORY PRODUCT COUNT (INTERNAL)
+// GET CATEGORIES WITH PRODUCT COUNT
 // ========================================
-router.patch('/:id/product-count', protect, admin, async (req, res) => {
+router.get('/stats/count', protect, admin, async (req, res) => {
     try {
-        const { count } = req.body;
+        const { Product } = require('../models/Product');
 
-        if (count === undefined || count < 0) {
-            return res.status(400).json({ message: 'Valid count required' });
-        }
+        const categoriesWithCount = await Category.aggregate([
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: '_id',
+                    foreignField: 'category',
+                    as: 'products'
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    slug: 1,
+                    description: 1,
+                    isActive: 1,
+                    productCount: { $size: '$products' }
+                }
+            },
+            {
+                $sort: { name: 1 }
+            }
+        ])
+            .maxTimeMS(10000)
+            .exec();
 
-        const category = await Category.findByIdAndUpdate(
-            req.params.id,
-            { $set: { productCount: count } },
-            { new: true, select: '-__v' }
-        )
-        .maxTimeMS(3000)
-        .exec();
-
-        if (!category) {
-            return res.status(404).json({ message: 'Category not found' });
-        }
-
-        // Clear cache
-        clearCategoryCache();
-
-        res.json(category);
+        res.json(categoriesWithCount);
     } catch (error) {
-        console.error('[ERROR] Update product count:', error);
-        res.status(500).json({ message: error.message });
-    }
-});
-
-// ========================================
-// CLEAR CATEGORY CACHE (ADMIN)
-// ========================================
-router.post('/cache/clear', protect, admin, (req, res) => {
-    try {
-        clearCategoryCache();
-        res.json({ message: 'Category cache cleared successfully' });
-    } catch (error) {
+        console.error('[ERROR] Get categories with count:', error);
         res.status(500).json({ message: error.message });
     }
 });

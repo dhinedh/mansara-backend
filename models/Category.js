@@ -54,14 +54,16 @@ categorySchema.index({ name: 'text', description: 'text' });
 // ========================================
 // PRE-SAVE: Generate slug
 // ========================================
-categorySchema.pre('save', function (next) {
+// ========================================
+// PRE-SAVE: Generate slug
+// ========================================
+categorySchema.pre('save', async function () {
     if (this.isModified('name') && !this.slug) {
         this.slug = this.name
             .toLowerCase()
             .replace(/[^\w\s-]/g, '')
             .replace(/\s+/g, '-');
     }
-    next();
 });
 
 // ========================================

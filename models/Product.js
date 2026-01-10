@@ -116,8 +116,7 @@ const productSchema = new mongoose.Schema({
     // Sales metrics
     salesCount: {
         type: Number,
-        default: 0,
-        index: true
+        default: 0
     },
     viewCount: {
         type: Number,
@@ -132,44 +131,25 @@ const productSchema = new mongoose.Schema({
 // ========================================
 // COMPOUND INDEXES FOR COMMON QUERIES
 // ========================================
-// Category + active + featured (for category pages)
-productSchema.index({ category: 1, isActive: 1, isFeatured: -1 });
-
-// Active + featured (for homepage)
-productSchema.index({ isActive: 1, isFeatured: -1 });
-
-// Active + offer (for offers page)
-productSchema.index({ isActive: 1, isOffer: -1 });
-
-// Category + active + price (for filtering)
-productSchema.index({ category: 1, isActive: 1, price: 1 });
-
-// Active + stock (for availability)
-productSchema.index({ isActive: 1, stock: 1 });
-
-// Rating + active (for sorting by rating)
-productSchema.index({ rating: -1, isActive: 1 });
-
-// Sales count + active (for best sellers)
-productSchema.index({ salesCount: -1, isActive: 1 });
-
-// Created date + active (for new arrivals)
-productSchema.index({ createdAt: -1, isActive: 1 });
+// Optimized: Removed redundant single-field indexes, kept high-value compounds
+productSchema.index({ category: 1, isActive: 1, price: 1 }); // Filtering
+productSchema.index({ isActive: 1, isFeatured: -1 });        // Homepage
+productSchema.index({ isActive: 1, isOffer: -1 });           // Offers page
+productSchema.index({ isActive: 1, stock: 1 });              // Availability
+productSchema.index({ createdAt: -1 });                      // New arrivals (simple sort)
 
 // ========================================
 // TEXT INDEX FOR SEARCH
 // ========================================
 productSchema.index({
     name: 'text',
-    description: 'text',
     tags: 'text',
     brand: 'text'
 }, {
     weights: {
         name: 10,
         tags: 5,
-        brand: 3,
-        description: 1
+        brand: 3
     },
     name: 'product_text_index'
 });
@@ -552,13 +532,14 @@ productSchema.statics.getCategoryStats = async function () {
 };
 
 // ========================================
-// PRE-SAVE MIDDLEWARE
+// CONSOLIDATED PRE-SAVE MIDDLEWARE
 // ========================================
 
 /**
- * Generate slug from name
+ * Single optimized hook for all pre-save logic
  */
-productSchema.pre('save', function (next) {
+productSchema.pre('save', async function () {
+    // 1. Generate slug
     if (this.isModified('name') && !this.slug) {
         this.slug = this.name
             .toLowerCase()
@@ -567,48 +548,27 @@ productSchema.pre('save', function (next) {
             .replace(/-+/g, '-')
             .trim();
     }
-    next();
-});
 
-/**
- * Generate SKU if not provided
- */
-productSchema.pre('save', function (next) {
+    // 2. Generate SKU
     if (!this.sku && this.isNew) {
         const randomNum = Math.floor(Math.random() * 10000);
         const prefix = this.name.substring(0, 3).toUpperCase();
         this.sku = `${prefix}-${Date.now()}-${randomNum}`;
     }
-    next();
-});
 
-/**
- * Set originalPrice if not provided
- */
-productSchema.pre('save', function (next) {
+    // 3. Set original price
     if (!this.originalPrice && this.isNew) {
         this.originalPrice = this.price;
     }
-    next();
-});
 
-/**
- * Validate stock
- */
-productSchema.pre('save', function (next) {
+    // 4. Validate stock
     if (this.stock < 0) {
-        return next(new Error('Stock cannot be negative'));
+        throw new Error('Stock cannot be negative');
     }
-    next();
-});
 
-/**
- * Ensure rating is within bounds
- */
-productSchema.pre('save', function (next) {
+    // 5. Ensure rating bounds
     if (this.rating < 0) this.rating = 0;
     if (this.rating > 5) this.rating = 5;
-    next();
 });
 
 // ========================================

@@ -447,29 +447,27 @@ orderSchema.statics.getStats = async function () {
 /**
  * Generate order ID if not exists
  */
-orderSchema.pre('save', function (next) {
+orderSchema.pre('save', async function () {
     if (!this.orderId) {
         this.orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
     }
-    next();
 });
 
 /**
  * Set estimated delivery date if not set
  */
-orderSchema.pre('save', function (next) {
+orderSchema.pre('save', async function () {
     if (!this.estimatedDeliveryDate && this.isNew) {
         const estimatedDate = new Date();
         estimatedDate.setDate(estimatedDate.getDate() + 5); // Default 5 days
         this.estimatedDeliveryDate = estimatedDate;
     }
-    next();
 });
 
 /**
  * Initialize tracking steps
  */
-orderSchema.pre('save', function (next) {
+orderSchema.pre('save', async function () {
     if (this.isNew && (!this.trackingSteps || this.trackingSteps.length === 0)) {
         this.trackingSteps = [
             { status: 'Ordered', completed: true, date: new Date() },
@@ -479,7 +477,6 @@ orderSchema.pre('save', function (next) {
             { status: 'Delivered', completed: false }
         ];
     }
-    next();
 });
 
 // ========================================

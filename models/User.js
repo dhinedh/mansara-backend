@@ -179,9 +179,9 @@ userSchema.index({ email: 1, authProvider: 1 });
 // ========================================
 // TEXT INDEX FOR SEARCH
 // ========================================
-userSchema.index({ 
-    name: 'text', 
-    email: 'text' 
+userSchema.index({
+    name: 'text',
+    email: 'text'
 }, {
     weights: {
         name: 10,
@@ -373,31 +373,26 @@ userSchema.statics.getUserStats = async function () {
  * CRITICAL: Only hash if password is modified AND password exists
  * Google users don't have passwords, so skip hashing for them
  */
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
     // If password is not modified, skip
     if (!this.isModified('password')) {
-        return next();
+        return;
     }
 
     // If password is empty/undefined (Google Auth user), skip
     if (!this.password) {
-        return next();
+        return;
     }
 
-    try {
-        // Hash the password
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
-    }
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 });
 
 /**
  * Ensure only one default address
  */
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function () {
     if (this.addresses && this.addresses.length > 0) {
         const defaultCount = this.addresses.filter(addr => addr.isDefault).length;
 
@@ -418,17 +413,15 @@ userSchema.pre('save', function (next) {
             this.addresses[0].isDefault = true;
         }
     }
-    next();
 });
 
 /**
  * Update timestamps
  */
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function () {
     if (this.isNew) {
         this.joinDate = new Date();
     }
-    next();
 });
 
 // ========================================
@@ -495,10 +488,10 @@ userSchema.set('toJSON', {
         delete ret.otpExpire;
         delete ret.resetPasswordToken;
         delete ret.resetPasswordExpire;
-        
+
         // Ensure id is always present
         ret.id = ret._id;
-        
+
         return ret;
     }
 });
