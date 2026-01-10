@@ -131,12 +131,28 @@ const productSchema = new mongoose.Schema({
 // ========================================
 // COMPOUND INDEXES FOR COMMON QUERIES
 // ========================================
-// Optimized: Removed redundant single-field indexes, kept high-value compounds
-productSchema.index({ category: 1, isActive: 1, price: 1 }); // Filtering
-productSchema.index({ isActive: 1, isFeatured: -1 });        // Homepage
-productSchema.index({ isActive: 1, isOffer: -1 });           // Offers page
-productSchema.index({ isActive: 1, stock: 1 });              // Availability
-productSchema.index({ createdAt: -1 });                      // New arrivals (simple sort)
+// Optimized: Balanced indexes for fast reads AND writes
+
+// 1. Default Sort (Newest First) - CRITICAL for load speed
+productSchema.index({ createdAt: -1, isActive: 1 });
+
+// 2. Category Pages (Filter + Sort)
+productSchema.index({ category: 1, isActive: 1, price: 1 });
+
+// 3. Homepage / Featured
+productSchema.index({ isActive: 1, isFeatured: -1 });
+
+// 4. Best Sellers (Sort by popularity)
+productSchema.index({ salesCount: -1, isActive: 1 });
+
+// 5. Offers Page
+productSchema.index({ isActive: 1, isOffer: -1 });
+
+// 6. Availability Check / Stock Management
+productSchema.index({ isActive: 1, stock: 1 });
+
+// 7. Top Rated
+productSchema.index({ rating: -1, isActive: 1 });
 
 // ========================================
 // TEXT INDEX FOR SEARCH
