@@ -2,6 +2,8 @@ const express = require('express');
 // Force restart 6
 const router = express.Router();
 const { Product, Combo } = require('../models/Product');
+const Notification = require('../models/Notification');
+const { sendBulkWhatsApp } = require('../utils/sendWhatsApp');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // ========================================
@@ -486,19 +488,48 @@ router.patch('/:id/stock', protect, admin, async (req, res) => {
             return res.status(400).json({ message: 'Valid stock number required' });
         }
 
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            { stock },
-            { new: true, lean: true, select: 'stock' }
-        )
-            .maxTimeMS(3000)
-            .exec();
+        const product = await Product.findById(req.params.id);
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        const oldStock = product.stock;
+        product.stock = stock;
+        await product.save();
+
         clearProductCache();
+
+        // NOTIFICATION TRIGGER: If stock was 0/low and is now available
+        if (oldStock === 0 && stock > 0) {
+            setImmediate(async () => {
+                try {
+                    const pendingNotifications = await Notification.find({
+                        product: product._id,
+                        status: 'pending'
+                    });
+
+                    if (pendingNotifications.length > 0) {
+                        console.log(`[NOTIFY] Found ${pendingNotifications.length} subscribers for ${product.name}`);
+
+                        const messages = pendingNotifications.map(n => ({
+                            phone: n.whatsapp,
+                            message: `Good news! ${product.name} is back in stock at Mansara Foods. Order now before it runs out again!`
+                        }));
+
+                        await sendBulkWhatsApp(messages, 500);
+
+                        // Mark as sent
+                        await Notification.updateMany(
+                            { product: product._id, status: 'pending' },
+                            { $set: { status: 'sent', sentAt: new Date() } }
+                        );
+                    }
+                } catch (err) {
+                    console.error('[NOTIFY] Error sending alerts:', err);
+                }
+            });
+        }
 
         res.json({ stock: product.stock });
     } catch (error) {
