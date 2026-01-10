@@ -35,6 +35,10 @@ const productSchema = new mongoose.Schema({
         min: 0,
         index: true
     },
+    offerPrice: {
+        type: Number,
+        min: 0
+    },
     originalPrice: {
         type: Number,
         min: 0
@@ -66,7 +70,13 @@ const productSchema = new mongoose.Schema({
         fat: Number,
         fiber: Number
     },
-    ingredients: [String],
+    ingredients: String,
+    howToUse: String,
+    storage: String,
+    highlights: [String],
+    nutrition: String,
+    compliance: String,
+    short_description: String,
     isActive: {
         type: Boolean,
         default: true,
