@@ -56,11 +56,11 @@ router.get('/', protect, admin, async (req, res) => {
                 }
             }
         ])
-            .maxTimeMS(15000)
+
             .exec();
 
         const total = await User.countDocuments()
-            .maxTimeMS(5000)
+
             .exec();
 
         res.json({
@@ -88,7 +88,7 @@ router.get('/:id', async (req, res) => {
         const user = await User.findById(req.params.id)
             .select('-password -__v -resetPasswordToken -resetPasswordExpire -otp -otpExpire')
             .lean()
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
@@ -122,7 +122,7 @@ router.put('/:id', protect, async (req, res) => {
             { _id: req.params.id },
             { $set: updates }
         )
-            .maxTimeMS(5000)
+
             .exec();
 
         if (updateResult.matchedCount === 0) {
@@ -132,7 +132,7 @@ router.put('/:id', protect, async (req, res) => {
         const user = await User.findById(req.params.id)
             .select('-password -__v')
             .lean()
-            .maxTimeMS(3000)
+
             .exec();
 
         res.json(user);
@@ -153,7 +153,7 @@ router.post('/:id/address', protect, async (req, res) => {
             { $push: { addresses: req.body } },
             { new: true, select: '-password -__v' }
         )
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
@@ -186,7 +186,7 @@ router.put('/:id/address/:addressId', protect, async (req, res) => {
             { $set: updateFields },
             { new: true, select: '-password -__v' }
         )
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
@@ -211,7 +211,7 @@ router.delete('/:id/address/:addressId', protect, async (req, res) => {
             { $pull: { addresses: { _id: req.params.addressId } } },
             { new: true, select: '-password -__v' }
         )
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
@@ -272,7 +272,7 @@ router.get('/:id/stats', protect, admin, async (req, res) => {
                 }
             }
         ])
-            .maxTimeMS(10000)
+
             .exec();
 
         if (stats.length === 0) {
@@ -310,7 +310,7 @@ router.get('/search/query', protect, admin, async (req, res) => {
             .select('name email phone whatsapp role status createdAt')
             .limit(parseInt(limit))
             .lean()
-            .maxTimeMS(5000)
+
             .exec();
 
         res.json({
@@ -340,7 +340,7 @@ router.patch('/:id/role', protect, admin, async (req, res) => {
             { $set: { role, isAdmin: role === 'admin' } },
             { new: true, select: '-password -__v' }
         )
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
@@ -370,7 +370,7 @@ router.patch('/:id/status', protect, admin, async (req, res) => {
             { $set: { status } },
             { new: true, select: '-password -__v' }
         )
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
@@ -390,7 +390,7 @@ router.patch('/:id/status', protect, admin, async (req, res) => {
 router.delete('/:id', protect, admin, async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id)
-            .maxTimeMS(5000)
+
             .exec();
 
         if (!user) {
