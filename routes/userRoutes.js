@@ -23,7 +23,13 @@ router.get('/', protect, admin, async (req, res) => {
         const skip = (page - 1) * limit;
 
         // OPTIMIZATION: Use single aggregation instead of multiple queries
+        // OPTIMIZATION: Use single aggregation instead of multiple queries
         const usersAgg = await User.aggregate([
+            // 1. Sort, Skip, Limit FIRST to reduce working set
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+            // 2. lookup only for the paginated users
             {
                 $lookup: {
                     from: 'orders',
@@ -48,13 +54,10 @@ router.get('/', protect, admin, async (req, res) => {
                     otp: 0,
                     otpExpire: 0
                 }
-            },
-            { $sort: { createdAt: -1 } },
-            { $skip: skip },
-            { $limit: limit }
+            }
         ])
-        .maxTimeMS(15000)
-        .exec();
+            .maxTimeMS(15000)
+            .exec();
 
         const total = await User.countDocuments()
             .maxTimeMS(5000)
@@ -107,7 +110,7 @@ router.put('/:id', protect, async (req, res) => {
         // Only allow updating certain fields
         const allowedUpdates = ['name', 'phone', 'whatsapp', 'addresses'];
         const updates = {};
-        
+
         allowedUpdates.forEach(field => {
             if (req.body[field] !== undefined) {
                 updates[field] = req.body[field];
@@ -119,8 +122,8 @@ router.put('/:id', protect, async (req, res) => {
             { _id: req.params.id },
             { $set: updates }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         if (updateResult.matchedCount === 0) {
             return res.status(404).json({ message: 'User not found' });
@@ -150,9 +153,9 @@ router.post('/:id/address', protect, async (req, res) => {
             { $push: { addresses: req.body } },
             { new: true, select: '-password -__v' }
         )
-        .maxTimeMS(5000)
-        .exec();
-        
+            .maxTimeMS(5000)
+            .exec();
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -176,16 +179,16 @@ router.put('/:id/address/:addressId', protect, async (req, res) => {
         });
 
         const user = await User.findOneAndUpdate(
-            { 
+            {
                 _id: req.params.id,
-                'addresses._id': req.params.addressId 
+                'addresses._id': req.params.addressId
             },
             { $set: updateFields },
             { new: true, select: '-password -__v' }
         )
-        .maxTimeMS(5000)
-        .exec();
-        
+            .maxTimeMS(5000)
+            .exec();
+
         if (!user) {
             return res.status(404).json({ message: 'User or address not found' });
         }
@@ -208,9 +211,9 @@ router.delete('/:id/address/:addressId', protect, async (req, res) => {
             { $pull: { addresses: { _id: req.params.addressId } } },
             { new: true, select: '-password -__v' }
         )
-        .maxTimeMS(5000)
-        .exec();
-        
+            .maxTimeMS(5000)
+            .exec();
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -229,10 +232,10 @@ router.get('/:id/stats', protect, admin, async (req, res) => {
     try {
         // OPTIMIZATION: Use single aggregation pipeline
         const stats = await User.aggregate([
-            { 
-                $match: { 
-                    _id: require('mongoose').Types.ObjectId(req.params.id) 
-                } 
+            {
+                $match: {
+                    _id: require('mongoose').Types.ObjectId(req.params.id)
+                }
             },
             {
                 $lookup: {
@@ -269,8 +272,8 @@ router.get('/:id/stats', protect, admin, async (req, res) => {
                 }
             }
         ])
-        .maxTimeMS(10000)
-        .exec();
+            .maxTimeMS(10000)
+            .exec();
 
         if (stats.length === 0) {
             return res.status(404).json({ message: 'User not found' });
@@ -289,14 +292,14 @@ router.get('/:id/stats', protect, admin, async (req, res) => {
 router.get('/search/query', protect, admin, async (req, res) => {
     try {
         const { q, limit = 20 } = req.query;
-        
+
         if (!q || q.trim().length === 0) {
             return res.status(400).json({ message: 'Search query required' });
         }
 
         // OPTIMIZATION: Use regex with index
         const searchRegex = new RegExp(q, 'i');
-        
+
         const users = await User.find({
             $or: [
                 { name: searchRegex },
@@ -304,11 +307,11 @@ router.get('/search/query', protect, admin, async (req, res) => {
                 { phone: searchRegex }
             ]
         })
-        .select('name email phone whatsapp role status createdAt')
-        .limit(parseInt(limit))
-        .lean()
-        .maxTimeMS(5000)
-        .exec();
+            .select('name email phone whatsapp role status createdAt')
+            .limit(parseInt(limit))
+            .lean()
+            .maxTimeMS(5000)
+            .exec();
 
         res.json({
             users,
@@ -337,8 +340,8 @@ router.patch('/:id/role', protect, admin, async (req, res) => {
             { $set: { role, isAdmin: role === 'admin' } },
             { new: true, select: '-password -__v' }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -367,8 +370,8 @@ router.patch('/:id/status', protect, admin, async (req, res) => {
             { $set: { status } },
             { new: true, select: '-password -__v' }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
