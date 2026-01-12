@@ -28,8 +28,8 @@ app.disable('x-powered-by');
 
 // Rate limiter
 const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 100,
+    windowMs: 10 * 60 * 1000,
+    max: 100,
 });
 app.use('/api', limiter);
 
@@ -41,26 +41,26 @@ app.use(compression({ level: 6 }));
 ====================================================== */
 
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://mansarafoods.com',
-  'https://www.mansarafoods.com',
+    'http://localhost:5173',
+    'http://localhost:8080',
+    'https://mansarafoods.com',
+    'https://www.mansarafoods.com',
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error(`CORS blocked for origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.options('*', cors());
+app.options(/(.*)/, cors());
 
 /* ======================================================
    BODY PARSERS
@@ -77,17 +77,17 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 mongoose.set('sanitizeFilter', true);
 
 mongoose.connect(process.env.MONGODB_URI, {
-  maxPoolSize: 10,
-  minPoolSize: 2,
-  socketTimeoutMS: 120000,
-  serverSelectionTimeoutMS: 30000,
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    socketTimeoutMS: 120000,
+    serverSelectionTimeoutMS: 30000,
 })
-.then(() => {
-  console.log('✅ Connected to MongoDB');
-})
-.catch(err => {
-  console.error('❌ MongoDB connection error:', err);
-});
+    .then(() => {
+        console.log('✅ Connected to MongoDB');
+    })
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err);
+    });
 
 /* ======================================================
    ROUTES
@@ -117,11 +117,11 @@ app.use('/api/payment', require('./routes/paymentRoutes'));
 ====================================================== */
 
 app.get('/', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Mansara Nourish Hub API is running',
-    environment: process.env.NODE_ENV || 'production'
-  });
+    res.json({
+        status: 'OK',
+        message: 'Mansara Nourish Hub API is running',
+        environment: process.env.NODE_ENV || 'production'
+    });
 });
 
 /* ======================================================
@@ -129,8 +129,8 @@ app.get('/', (req, res) => {
 ====================================================== */
 
 app.use((err, req, res, next) => {
-  console.error('[API ERROR]', err.message);
-  res.status(500).json({ message: err.message });
+    console.error('[API ERROR]', err.message);
+    res.status(500).json({ message: err.message });
 });
 
 /* ======================================================
@@ -138,13 +138,13 @@ app.use((err, req, res, next) => {
 ====================================================== */
 
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🔒 CORS allowed for mansarafoods.com`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🔒 CORS allowed for mansarafoods.com`);
 });
 
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down...');
-  server.close(() => process.exit(0));
+    console.log('SIGTERM received, shutting down...');
+    server.close(() => process.exit(0));
 });
 
 module.exports = app;
