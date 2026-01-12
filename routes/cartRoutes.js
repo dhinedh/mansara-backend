@@ -54,18 +54,8 @@ router.post('/add', protect, async (req, res) => {
         }
 
         if (product.variants && product.variants.length > 0) {
-            // Find variant
-            // Note: Frontend sends variant: { weight: '...' } or finding by price/weight match
-            // We need to infer which variant it is.
-            // Simplified: If product has variants, we assume 100g/200g logic.
-            // Ideally, cart item should store variantId.
-            // For now, let's assume root stock tracks total or we skip check if variant stock is missing.
-
-            // BETTER FIX: Skip root stock check if variants exist, OR check specific variant stock if possible.
-            // Since we don't fully track variant IDs in cart yet, valid check is tricky.
-            // Let's rely on frontend validation for now or check if ANY variant has stock.
-            const totalVariantStock = product.variants.reduce((acc, v) => acc + (v.stock || 0), 0);
-            if (totalVariantStock < quantity) {
+            // Check global stock first (Master Switch)
+            if (product.stock < quantity) {
                 return res.status(400).json({ message: `Insufficient stock for ${name}` });
             }
 
