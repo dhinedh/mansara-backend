@@ -22,7 +22,16 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 
 // 2. Prevent NoSQL Injection
-app.use(mongoSanitize());
+app.use(
+    mongoSanitize({
+        replaceWith: '_',
+        onSanitize: ({ key }) => {
+            console.warn(`[SANITIZE] Removed key: ${key}`);
+        },
+        allowDots: true,
+        sanitizeQuery: false // 🔥 THIS FIXES YOUR ERROR
+    })
+);
 
 // 3. Rate Limiting (Global)
 const limiter = rateLimit({
