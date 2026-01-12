@@ -21,7 +21,14 @@ const addressSchema = new mongoose.Schema({
         enum: ['Home', 'Work', 'Other'],
         default: 'Home'
     },
-    street: { type: String, trim: true },
+    // New detailed address format
+    line1: { type: String, trim: true }, // House No., Building Name
+    line2: { type: String, trim: true }, // Street Name, Area
+    landmark: { type: String, trim: true },
+
+    // Backward compatibility & legacy support
+    street: { type: String, trim: true }, // Deprecated but kept for old data
+
     city: { type: String, trim: true },
     state: { type: String, trim: true },
     zip: { type: String, trim: true },
