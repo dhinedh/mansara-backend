@@ -62,6 +62,13 @@ const productSchema = new mongoose.Schema({
         index: true
     },
     weight: String,
+    variants: [{
+        weight: String,
+        price: Number,
+        offerPrice: Number,
+        stock: Number,
+        sku: String
+    }],
     unit: String,
     nutritionalInfo: {
         calories: Number,

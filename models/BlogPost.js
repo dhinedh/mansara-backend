@@ -17,6 +17,7 @@ const blogPostSchema = new mongoose.Schema({
     },
     excerpt: String,
     featuredImage: String,
+    video: String,
     author: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

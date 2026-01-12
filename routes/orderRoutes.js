@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const User = require('../models/User');
 const { Product, Combo } = require('../models/Product');
 const { protect, admin } = require('../middleware/authMiddleware');
 const notificationService = require('../utils/notificationService');
@@ -64,8 +65,10 @@ router.post('/', protect, async (req, res) => {
         // ========================================
         // Clear user's cart in DB immediately.
         // This prevents 'restore stock' logic from triggering when frontend calls clearCart().
-        req.user.cart = [];
-        await req.user.save();
+        // Clear user's cart in DB immediately.
+        // This prevents 'restore stock' logic from triggering when frontend calls clearCart().
+        // OPTIMIZATION: Use findByIdAndUpdate because req.user is lean() (no save() method)
+        await User.findByIdAndUpdate(req.user._id, { $set: { cart: [] } });
 
         // ========================================
         // OPTIMIZATION: TRULY NON-BLOCKING NOTIFICATION
