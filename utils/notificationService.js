@@ -745,6 +745,45 @@ We hope to serve you again soon! 🙏`;
         } catch (error) {
             console.error('[ERROR] sendPasswordReset:', error.message);
         }
+    },
+
+    // 7. Stock Alert (Back in Stock)
+    sendStockAlert: async (product) => {
+        try {
+            // Find pending notifications
+            const Notification = require('../models/Notification');
+            const { sendBulkWhatsApp } = require('./sendWhatsApp');
+
+            const pendingNotifications = await Notification.find({
+                product: product._id,
+                status: 'pending'
+            });
+
+            if (pendingNotifications.length === 0) {
+                return 0;
+            }
+
+            console.log(`[NOTIFY] Found ${pendingNotifications.length} subscribers for ${product.name}`);
+
+            const messages = pendingNotifications.map(n => ({
+                phone: n.whatsapp,
+                message: `*Mansara Foods* 🌿\n\nGood news! *${product.name}* is back in stock! 🎉\n\nOrder now before it runs out again!\n\n📦 Order here: ${process.env.FRONTEND_URL || 'https://mansarafoods.com'}/product/${product.slug}`
+            }));
+
+            await sendBulkWhatsApp(messages, 500);
+
+            // Mark as sent
+            await Notification.updateMany(
+                { product: product._id, status: 'pending' },
+                { $set: { status: 'sent', sentAt: new Date() } }
+            );
+
+            return pendingNotifications.length;
+
+        } catch (error) {
+            console.error('[ERROR] sendStockAlert:', error.message);
+            return 0;
+        }
     }
 };
 

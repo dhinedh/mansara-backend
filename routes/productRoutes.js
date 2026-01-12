@@ -343,6 +343,13 @@ router.put('/:id', protect, admin, async (req, res) => {
         console.log('[PRODUCT] Updating product:', req.params.id);
         const startTime = Date.now();
 
+        // 1. Get old product to check stock
+        const oldProduct = await Product.findById(req.params.id).select('stock');
+        if (!oldProduct) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // 2. Update product
         // OPTIMIZATION: Use findByIdAndUpdate with lean for speed
         const product = await Product.findByIdAndUpdate(
             req.params.id,
@@ -357,15 +364,25 @@ router.put('/:id', protect, admin, async (req, res) => {
             .maxTimeMS(3000) // 3 second timeout
             .exec();
 
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
         // Clear cache asynchronously (non-blocking)
         clearProductCache();
 
         const duration = Date.now() - startTime;
         console.log(`[PRODUCT] ✓ Updated in ${duration}ms`);
+
+        // 3. Trigger Stock Alert if stock increased from 0
+        if (oldProduct.stock === 0 && (req.body.stock > 0 || product.stock > 0)) {
+            // Re-fetch full product if needed or just pass partial if name/slug didn't change (safer to fetch or use updated doc)
+            // 'product' is the updated doc (lean)
+            setImmediate(() => {
+                const notificationService = require('../utils/notificationService'); // Lazy load to avoid circular deps if any
+                notificationService.sendStockAlert(product)
+                    .then(count => {
+                        if (count > 0) console.log(`[NOTIFY] Sent ${count} alert(s) for ${product.name}`);
+                    })
+                    .catch(err => console.error('[NOTIFY] Failed:', err));
+            });
+        }
 
         // Send response immediately
         res.json(product);
@@ -502,32 +519,13 @@ router.patch('/:id/stock', protect, admin, async (req, res) => {
 
         // NOTIFICATION TRIGGER: If stock was 0/low and is now available
         if (oldStock === 0 && stock > 0) {
-            setImmediate(async () => {
-                try {
-                    const pendingNotifications = await Notification.find({
-                        product: product._id,
-                        status: 'pending'
-                    });
-
-                    if (pendingNotifications.length > 0) {
-                        console.log(`[NOTIFY] Found ${pendingNotifications.length} subscribers for ${product.name}`);
-
-                        const messages = pendingNotifications.map(n => ({
-                            phone: n.whatsapp,
-                            message: `Good news! ${product.name} is back in stock at Mansara Foods. Order now before it runs out again!`
-                        }));
-
-                        await sendBulkWhatsApp(messages, 500);
-
-                        // Mark as sent
-                        await Notification.updateMany(
-                            { product: product._id, status: 'pending' },
-                            { $set: { status: 'sent', sentAt: new Date() } }
-                        );
-                    }
-                } catch (err) {
-                    console.error('[NOTIFY] Error sending alerts:', err);
-                }
+            setImmediate(() => {
+                const notificationService = require('../utils/notificationService');
+                notificationService.sendStockAlert(product)
+                    .then(count => {
+                        if (count > 0) console.log(`[NOTIFY] Sent ${count} alert(s) for ${product.name}`);
+                    })
+                    .catch(err => console.error('[NOTIFY] Failed:', err));
             });
         }
 
