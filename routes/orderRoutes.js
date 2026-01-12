@@ -45,6 +45,53 @@ router.post('/', protect, async (req, res) => {
             { status: 'Delivered', completed: false }
         ];
 
+        // ========================================
+        // STOCK MANAGEMENT: DEDUCT ON ORDER
+        // ========================================
+        for (const item of items) {
+            const Model = item.type === 'combo' ? Combo : Product;
+            const product = await Model.findById(item.id);
+
+            if (!product) {
+                throw new Error(`Product ${item.name} not found`); // Will be caught by catch block
+            }
+
+            if (product.variants && product.variants.length > 0) {
+                // Find variant by price (fallback logic similar to cart)
+                // Ideally we match by ALL properties or ID, but price is what we have consistent
+                const variant = product.variants.find(v => v.price === item.price);
+
+                if (!variant) {
+                    // Fallback: if no price match, maybe it's the base product price?
+                    // If strict, throw error or skip? 
+                    // Safe approach: Check root stock as well
+                }
+
+                if (variant) {
+                    if (variant.stock < item.quantity) {
+                        throw new Error(`Insufficient stock for ${item.name} (Variant)`);
+                    }
+                    variant.stock -= item.quantity;
+                }
+
+                // Deduct root stock too
+                if (product.stock < item.quantity) {
+                    throw new Error(`Insufficient stock for ${item.name}`);
+                }
+                product.stock -= item.quantity;
+                product.markModified('variants');
+
+            } else {
+                // Simple Product
+                if (product.stock < item.quantity) {
+                    throw new Error(`Insufficient stock for ${item.name}`);
+                }
+                product.stock -= item.quantity;
+            }
+
+            await product.save();
+        }
+
         const order = new Order({
             user: req.user._id,
             orderId,
