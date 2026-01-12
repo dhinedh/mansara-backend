@@ -4,12 +4,33 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const compression = require('compression');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 console.log('[DEBUG] Environment Config Loaded');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ========================================
+// SECURITY MIDDLEWARE
+// ========================================
+
+// 1. Set Security Headers
+app.use(helmet());
+
+// 2. Prevent NoSQL Injection
+app.use(mongoSanitize());
+
+// 3. Rate Limiting (Global)
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api', limiter);
 
 // ========================================
 // PERFORMANCE OPTIMIZATIONS
@@ -25,6 +46,7 @@ app.use(compression({
         }
         return compression.filter(req, res);
     }
+    // ...
 }));
 
 // 2. Trust proxy for correct IP addresses
@@ -204,6 +226,7 @@ app.use('/api/press', require('./routes/pressRoutes'));
 app.use('/api/careers', require('./routes/careerRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/payment', require('./routes/paymentRoutes'));
 
 app.get('/', (req, res) => {
     res.json({
