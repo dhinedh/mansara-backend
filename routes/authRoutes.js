@@ -33,16 +33,36 @@ const generateToken = (id) => {
 };
 
 // Send WhatsApp OTP (non-blocking helper)
-const sendOTPAsync = (whatsapp, otp) => {
+const sendOTPAsync = (whatsapp, email, otp) => {
     setImmediate(() => {
         const sendWhatsApp = require('../utils/sendWhatsApp');
+        const sendEmail = require('../utils/sendEmail');
 
         // Using text message for OTP via Whapi.cloud
         const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
 
+        // Send WhatsApp
         sendWhatsApp(whatsapp, message).catch(err =>
             console.error('[ERROR] WhatsApp OTP send failed:', err.message)
         );
+
+        // Send Email
+        if (email) {
+            sendEmail({
+                email: email,
+                subject: 'Your Verification Code - Mansara Foods',
+                message: message,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #333;">Verification Code</h2>
+                        <p>Your verification code is:</p>
+                        <h1 style="color: #4CAF50; letter-spacing: 5px;">${otp}</h1>
+                        <p>This code is valid for 10 minutes.</p>
+                        <p>If you didn't request this code, please ignore this email.</p>
+                    </div>
+                `
+            }).catch(err => console.error('[ERROR] Email OTP send failed:', err.message));
+        }
     });
 };
 
@@ -91,7 +111,7 @@ router.post('/register', async (req, res) => {
         });
 
         // Send OTP asynchronously (non-blocking)
-        sendOTPAsync(whatsapp, otp);
+        sendOTPAsync(whatsapp, email, otp);
 
         // Return immediately
         res.status(201).json({
@@ -398,7 +418,7 @@ router.post('/resend-otp', async (req, res) => {
         await tempUser.save();
 
         // Send OTP asynchronously
-        sendOTPAsync(tempUser.whatsapp, otp);
+        sendOTPAsync(tempUser.whatsapp, email, otp);
 
         res.json({ message: "OTP resent successfully to WhatsApp" });
 
@@ -542,14 +562,33 @@ router.post('/forgot-password', async (req, res) => {
         const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
         setImmediate(() => {
             const sendWhatsApp = require('../utils/sendWhatsApp');
+            const sendEmail = require('../utils/sendEmail');
+
+            // Send WhatsApp
             sendWhatsApp(user.whatsapp, message).catch(err => {
                 console.error('[ERROR] WhatsApp send failed:', err);
             });
+
+            // Send Email
+            sendEmail({
+                email: email,
+                subject: 'Password Reset Code - Mansara Foods',
+                message: message,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #333;">Password Reset</h2>
+                        <p>Your password reset code is:</p>
+                        <h1 style="color: #E91E63; letter-spacing: 5px;">${otp}</h1>
+                        <p>This code is valid for 10 minutes.</p>
+                        <p>If you didn't request this code, please ignore this email.</p>
+                    </div>
+                `
+            }).catch(err => console.error('[ERROR] Email send failed:', err.message));
         });
 
         res.status(200).json({
             success: true,
-            message: 'Password reset OTP has been sent to your registered WhatsApp number'
+            message: 'Password reset OTP has been sent to your registered WhatsApp number and Email'
         });
     } catch (error) {
         console.error('[ERROR] Forgot password:', error);
