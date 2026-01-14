@@ -25,7 +25,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // HELPER FUNCTIONS
 // ========================================
 
-// Generate JWT (kept same)
+// Generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
@@ -33,41 +33,16 @@ const generateToken = (id) => {
 };
 
 // Send WhatsApp OTP (non-blocking helper)
-// Send WhatsApp OTP (non-blocking helper)
 const sendOTPAsync = (whatsapp, otp) => {
     setImmediate(() => {
-        const { sendWhatsAppTemplate, formatPhoneNumber } = require('../utils/sendWhatsApp');
-        const sendWhatsApp = require('../utils/sendWhatsApp'); // Fallback
+        const sendWhatsApp = require('../utils/sendWhatsApp');
 
-        // CHECK IF USER HAS CONFIGURED A TEMPLATE
-        // If they have a template like 'otp_alert', use it.
-        // The component structure depends on the specific template.
-        // Assuming a simple body variable for OTP.
-        const templateName = process.env.BOTBIZ_OTP_TEMPLATE;
+        // Using text message for OTP via Whapi.cloud
+        const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
 
-        if (templateName) {
-            // Template components for OTP (assuming 1 variable in body)
-            const components = [
-                {
-                    type: 'body',
-                    parameters: [
-                        { type: 'text', text: otp }
-                    ]
-                }
-            ];
-
-            sendWhatsAppTemplate(whatsapp, templateName, components).catch(err =>
-                console.error('[ERROR] WhatsApp OTP Template failed:', err.message)
-            );
-        } else {
-            // FALLBACK TO TEXT (Will fail for new 24h windows)
-            console.warn('[WARN] No BOTBIZ_OTP_TEMPLATE configured. Using plain text fallback (may fail if 24h window closed).');
-            const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
-
-            sendWhatsApp(whatsapp, message).catch(err =>
-                console.error('[ERROR] WhatsApp OTP Text failed:', err.message)
-            );
-        }
+        sendWhatsApp(whatsapp, message).catch(err =>
+            console.error('[ERROR] WhatsApp OTP send failed:', err.message)
+        );
     });
 };
 

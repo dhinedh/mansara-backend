@@ -93,7 +93,7 @@ router.get('/', cacheMiddleware(600000), async (req, res) => {
         if (search) sortOption = { score: { $meta: 'textScore' } };
 
         const products = await Product.find(query)
-            .select('name slug price offerPrice image images category featured rating numReviews stock isOffer weight description ingredients howToUse storage nutrition compliance highlights sub_category short_description isActive variants')
+            .select('name slug price offerPrice image images category featured rating numReviews stock isOffer weight description ingredients howToUse storage nutrition compliance highlights sub_category short_description isActive variants isNewArrival')
             .sort(sortOption)
             .skip(skip)
             .limit(limit)
@@ -192,7 +192,7 @@ router.get('/category/:category', cacheMiddleware(600000), async (req, res) => {
                 category: req.params.category,
                 isActive: true
             })
-                .select('name slug price offerPrice image images rating numReviews stock weight variants')
+                .select('name slug price offerPrice image images rating numReviews stock weight variants isNewArrival')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
@@ -244,7 +244,7 @@ router.get('/search/query', cacheMiddleware(300000), async (req, res) => {
                 },
                 { score: { $meta: 'textScore' } }
             )
-                .select('name slug price offerPrice image images rating numReviews stock variants')
+                .select('name slug price offerPrice image images rating numReviews stock variants isNewArrival')
                 .sort({ score: { $meta: 'textScore' } })
                 .skip(skip)
                 .limit(parseInt(limit))
