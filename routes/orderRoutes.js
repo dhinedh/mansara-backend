@@ -208,7 +208,6 @@ router.get('/user/:userId', protect, async (req, res) => {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .populate('user', 'name email phone whatsapp') // Only needed fields
                 .populate('items.product', 'slug name image') // Populate product details for linking
                 .lean()
                 .maxTimeMS(10000) // 10 second timeout
