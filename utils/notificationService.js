@@ -2,7 +2,7 @@ const sendEmail = require('./sendEmail');
 const sendWhatsApp = require('./sendWhatsApp');
 
 // ========================================
-// OPTIMIZED NOTIFICATION SERVICE
+// OPTIMIZED NOTIFICATION SERVICE WITH BOTBIZ
 // ========================================
 const notificationService = {
     // Helper to format phone number
@@ -187,7 +187,7 @@ We'll notify you once your order is confirmed with delivery details!
 Thank you for choosing Mansara Foods! 🙏`;
 
                     await sendWhatsApp(whatsappNumber, whatsappMessage);
-                    console.log('[✓] Order placed WhatsApp sent');
+                    console.log('[✓] Order placed WhatsApp sent via BotBiz');
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
                 }
@@ -351,7 +351,7 @@ We'll keep you updated on your order status!
 Thank you for choosing Mansara Foods! 🙏`;
 
                     await sendWhatsApp(whatsappNumber, whatsappMessage);
-                    console.log('[✓] Order confirmed WhatsApp sent');
+                    console.log('[✓] Order confirmed WhatsApp sent via BotBiz');
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
                 }
@@ -485,7 +485,7 @@ Thank you for choosing Mansara Foods! 🙏`;
                     message += `📦 Track: ${trackingLink}\n\nThank you! 🙏`;
 
                     await sendWhatsApp(whatsappNumber, message);
-                    console.log(`[✓] Status update WhatsApp sent: ${newStatus}`);
+                    console.log(`[✓] Status update WhatsApp sent via BotBiz: ${newStatus}`);
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
                 }
@@ -591,7 +591,7 @@ If you have any questions, please contact our support.
 We hope to serve you again soon! 🙏`;
 
                     await sendWhatsApp(whatsappNumber, message);
-                    console.log('[✓] Cancellation WhatsApp sent');
+                    console.log('[✓] Cancellation WhatsApp sent via BotBiz');
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
                 }
@@ -778,6 +778,7 @@ We hope to serve you again soon! 🙏`;
                 { $set: { status: 'sent', sentAt: new Date() } }
             );
 
+            console.log(`[✓] Stock alerts sent via BotBiz to ${pendingNotifications.length} users`);
             return pendingNotifications.length;
 
         } catch (error) {

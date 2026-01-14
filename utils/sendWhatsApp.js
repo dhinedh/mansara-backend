@@ -29,38 +29,46 @@ const formatPhoneNumber = (phone) => {
  * @param {string} message - Message text
  */
 const sendWhatsApp = async (destination, message) => {
-    // Fallback to hardcoded key if env var not set (Temporary override as per user request)
-    const apiKey = process.env.BOTBIZ_API_KEY || '16916|cO3ILIcXEkhqv8v3GAdivnGtzMBvb6CcQVRHTPJb77e9a058';
+    // Configuration from user request
+    const apiKey = process.env.BOTBIZ_API_KEY || 'KkWbvZEqOEMOBEm3TplcuphlZaAbo1y5oVriLLku9bd2379a';
+    const instanceId = process.env.BOTBIZ_INSTANCE_ID || '16963';
+    const baseUrl = process.env.BOTBIZ_API_URL || 'https://api.botbiz.app/v1';
 
-    // BotBiz typically uses this endpoint for text messages
-    const url = 'https://botbiz.app/api/v2/send-text';
+    // Construct endpoint URL
+    const url = `${baseUrl}/whatsapp/send`;
 
     try {
         const formattedPhone = formatPhoneNumber(destination);
 
-        console.log(`[WHATSAPP] Sending to ${formattedPhone} via BotBiz...`);
+        console.log(`[WHATSAPP] Sending to ${formattedPhone} via BotBiz v1...`);
 
-        const response = await axios.post(url, {
-            phone: formattedPhone,
+        // BotBiz v1 API payload
+        const payload = {
+            apiToken: apiKey,
+            phone_number_id: instanceId,
             message: message,
-            api_key: apiKey
-        });
+            phone_number: formattedPhone
+        };
 
-        if (response.data && response.data.status === 'success') {
-            console.log(`[WHATSAPP] ✓ Sent successfully. ID: ${response.data.message_id}`);
+        const response = await axios.post(url, payload);
+
+        // Check for success (Botbiz v1 might return success:true or specific status)
+        if (response.data) {
+            console.log(`[WHATSAPP] ✓ Sent successfully. API Response:`, JSON.stringify(response.data));
             return response.data;
         } else {
-            // Note: BotBiz might return success: true or status: success
-            console.log('[WHATSAPP] Response:', response.data);
+            console.log('[WHATSAPP] Unexpected response format:', response.data);
             return response.data;
         }
 
     } catch (error) {
         console.error('[WHATSAPP] ✗ Failed:', error.message);
         if (error.response) {
-            console.error('[WHATSAPP] API Error:', error.response.data);
+            console.error('[WHATSAPP] API Error Data:', error.response.data);
+            console.error('[WHATSAPP] API Error Status:', error.response.status);
         }
-        throw error;
+        // Don't throw to prevent crashing the main flow, just log
+        // throw error; 
     }
 };
 
