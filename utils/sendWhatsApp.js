@@ -32,7 +32,8 @@ const sendWhatsApp = async (destination, message) => {
     // Configuration from user request
     const apiKey = process.env.BOTBIZ_API_KEY || 'KkWbvZEqOEMOBEm3TplcuphlZaAbo1y5oVriLLku9bd2379a';
     const instanceId = process.env.BOTBIZ_INSTANCE_ID || '16963';
-    const baseUrl = process.env.BOTBIZ_API_URL || 'https://api.botbiz.app/v1';
+    // CORRECT URL: dash.botbiz.io, not api.botbiz.app
+    const baseUrl = process.env.BOTBIZ_API_URL || 'https://dash.botbiz.io/api/v1';
 
     // Construct endpoint URL
     const url = `${baseUrl}/whatsapp/send`;
@@ -41,6 +42,7 @@ const sendWhatsApp = async (destination, message) => {
         const formattedPhone = formatPhoneNumber(destination);
 
         console.log(`[WHATSAPP] Sending to ${formattedPhone} via BotBiz v1...`);
+        console.log(`[WHATSAPP] Endpoint: ${url}`);
 
         // BotBiz v1 API payload
         const payload = {
