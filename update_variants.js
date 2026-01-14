@@ -28,14 +28,13 @@ const updateVariants = async () => {
 
                     // 100g Update: 10% Discount
                     if (weight === '100g') {
-                        // Original logic: offerPrice = price * 0.9
-                        // Ensure price exists
+                        // Use Math.floor to ensure at least 10% discount (avoiding 9.x% rounding up)
                         if (variant.price) {
-                            const newOfferPrice = Math.round(variant.price * 0.9);
+                            const newOfferPrice = Math.floor(variant.price * 0.9);
                             if (variant.offerPrice !== newOfferPrice) {
                                 variant.offerPrice = newOfferPrice;
                                 isModified = true;
-                                console.log(`[${product.name}] Updated 100g variant: Price ${variant.price} -> Offer ${newOfferPrice}`);
+                                console.log(`[${product.name}] Updated 100g variant: Price ${variant.price} -> Offer ${newOfferPrice} (Fixed 10%)`);
                             }
                         }
                     }
@@ -57,13 +56,13 @@ const updateVariants = async () => {
 
             if (topWeight === '100g') {
                 if (product.price) {
-                    const newOfferPrice = Math.round(product.price * 0.9);
+                    const newOfferPrice = Math.floor(product.price * 0.9);
                     if (product.offerPrice !== newOfferPrice) {
                         product.offerPrice = newOfferPrice;
                         product.isOffer = true;
                         product.offerText = '10% OFF';
                         isModified = true;
-                        console.log(`[${product.name}] Updated Top-level 100g: Price ${product.price} -> Offer ${newOfferPrice}`);
+                        console.log(`[${product.name}] Updated Top-level 100g: Price ${product.price} -> Offer ${newOfferPrice} (Fixed 10%)`);
                     }
                 }
             }
