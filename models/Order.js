@@ -95,10 +95,17 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'],
+        enum: ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Closed'],
         default: 'Ordered',
         index: true // Critical for order filtering
     },
+    feedbackStatus: {
+        type: String,
+        enum: ['Pending', 'Received', 'Not Received'],
+        default: 'Pending',
+        index: true
+    },
+    feedbackDate: Date,
     items: {
         type: [orderItemSchema],
         validate: [arrayMinLength, 'Order must have at least one item']

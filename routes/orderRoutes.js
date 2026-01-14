@@ -208,6 +208,7 @@ router.get('/user/:userId', protect, async (req, res) => {
                 .skip(skip)
                 .limit(limit)
                 .populate('user', 'name email phone whatsapp') // Only needed fields
+                .populate('items.product', 'slug name image') // Populate product details for linking
                 .lean()
                 .maxTimeMS(10000) // 10 second timeout
                 .exec(),
@@ -241,6 +242,34 @@ router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => 
         const limit = parseInt(req.query.limit) || 50;
         const skip = (page - 1) * limit;
         const { status, paymentStatus, search } = req.query;
+
+        // AUTO-CLOSE LOGIC (Lazy Check)
+        // Find delivered orders older than 5 days with pending feedback and close them
+        try {
+            const fiveDaysAgo = new Date();
+            fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+            await Order.updateMany(
+                {
+                    orderStatus: 'Delivered',
+                    feedbackStatus: { $ne: 'Received' }, // Not specifically marked as Received
+                    $or: [
+                        { actualDeliveryDate: { $lt: fiveDaysAgo } },
+                        { actualDeliveryDate: { $exists: false }, updatedAt: { $lt: fiveDaysAgo } }
+                    ]
+                },
+                {
+                    $set: {
+                        orderStatus: 'Closed',
+                        feedbackStatus: 'Not Received',
+                        feedbackDate: new Date()
+                    }
+                }
+            );
+        } catch (err) {
+            console.error('[WARN] Auto-close failed:', err);
+            // Continue even if auto-close fails
+        }
 
         // Build query
         const query = {};
@@ -390,6 +419,34 @@ router.put('/:id/confirm', protect, checkPermission('orders', 'limited'), async 
         res.json(order);
     } catch (error) {
         console.error('[ERROR] Order Confirmation:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// ========================================
+// SUBMIT FEEDBACK STATUS (NEW)
+// ========================================
+router.put('/:id/feedback', protect, checkPermission('orders', 'limited'), async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!['Received', 'Not Received'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid feedback status' });
+        }
+
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        order.feedbackStatus = status;
+        order.feedbackDate = new Date();
+
+        if (status === 'Received') {
+            order.orderStatus = 'Closed';
+        }
+
+        await order.save();
+        res.json(order);
+    } catch (error) {
+        console.error('[ERROR] Update feedback:', error);
         res.status(500).json({ message: error.message });
     }
 });
