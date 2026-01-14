@@ -1,88 +1,94 @@
 const mongoose = require('mongoose');
+const path = require('path');
 const dotenv = require('dotenv');
+
+// Load env
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 const { Product } = require('./models/Product');
 
-dotenv.config();
-
-const connectDB = async () => {
+const updateVariants = async () => {
     try {
+        console.log('Connecting to DB...');
         await mongoose.connect(process.env.MONGODB_URI);
-        console.log('MongoDB Connected');
-    } catch (err) {
-        console.error('MongoDB Connection Error:', err);
+        console.log('Connected.');
+
+        const products = await Product.find({});
+        console.log(`Found ${products.length} products. Processing...`);
+
+        let updatedCount = 0;
+
+        for (const product of products) {
+            let isModified = false;
+
+            // Check variants
+            if (product.variants && product.variants.length > 0) {
+                product.variants.forEach(variant => {
+                    const weight = (variant.weight || '').toLowerCase().replace(/\s/g, '');
+
+                    // 100g Update: 10% Discount
+                    if (weight === '100g') {
+                        // Original logic: offerPrice = price * 0.9
+                        // Ensure price exists
+                        if (variant.price) {
+                            const newOfferPrice = Math.round(variant.price * 0.9);
+                            if (variant.offerPrice !== newOfferPrice) {
+                                variant.offerPrice = newOfferPrice;
+                                isModified = true;
+                                console.log(`[${product.name}] Updated 100g variant: Price ${variant.price} -> Offer ${newOfferPrice}`);
+                            }
+                        }
+                    }
+
+                    // 200g Update: Stock 0
+                    if (weight === '200g') {
+                        if (variant.stock !== 0) {
+                            variant.stock = 0;
+                            isModified = true;
+                            console.log(`[${product.name}] Updated 200g variant: Stock 0`);
+                        }
+                    }
+                });
+            }
+
+            // Also check top-level if relevant (though user specifically asked for weights which usually implies variants, 
+            // some products might be single-variant at top level)
+            const topWeight = (product.weight || '').toLowerCase().replace(/\s/g, '');
+
+            if (topWeight === '100g') {
+                if (product.price) {
+                    const newOfferPrice = Math.round(product.price * 0.9);
+                    if (product.offerPrice !== newOfferPrice) {
+                        product.offerPrice = newOfferPrice;
+                        product.isOffer = true;
+                        product.offerText = '10% OFF';
+                        isModified = true;
+                        console.log(`[${product.name}] Updated Top-level 100g: Price ${product.price} -> Offer ${newOfferPrice}`);
+                    }
+                }
+            }
+
+            if (topWeight === '200g') {
+                if (product.stock !== 0) {
+                    product.stock = 0;
+                    isModified = true;
+                    console.log(`[${product.name}] Updated Top-level 200g: Stock 0`);
+                }
+            }
+
+            if (isModified) {
+                await product.save();
+                updatedCount++;
+            }
+        }
+
+        console.log(`\nSuccess! Updated ${updatedCount} products.`);
+        process.exit(0);
+
+    } catch (error) {
+        console.error('Error updating variants:', error);
         process.exit(1);
     }
 };
 
-const updates = [
-    {
-        name: /Urad Porridge Mix – Classic/i,
-        variants: [
-            { weight: '100g', price: 55, stock: 100 },
-            { weight: '200g', price: 105, stock: 100 }
-        ]
-    },
-    {
-        name: /Urad Porridge Mix – Salt & Pepper/i,
-        variants: [
-            { weight: '100g', price: 55, stock: 100 },
-            { weight: '200g', price: 105, stock: 100 }
-        ]
-    },
-    {
-        name: /Urad Porridge Mix – Millet Magic/i,
-        variants: [
-            { weight: '100g', price: 60, stock: 100 },
-            { weight: '200g', price: 115, stock: 100 }
-        ]
-    },
-    {
-        name: /Urad Porridge Mix – Premium/i,
-        variants: [
-            { weight: '100g', price: 65, stock: 100 },
-            { weight: '200g', price: 125, stock: 100 }
-        ]
-    },
-    {
-        name: /Black Rice Delight Porridge Mix/i,
-        variants: [
-            { weight: '100g', price: 70, stock: 100 },
-            { weight: '200g', price: 135, stock: 100 }
-        ]
-    },
-    {
-        name: /Millet Fusion Idly Podi/i,
-        variants: [
-            { weight: '100g', price: 75, stock: 100 },
-            { weight: '200g', price: 145, stock: 100 }
-        ]
-    }
-];
-
-const runMigration = async () => {
-    await connectDB();
-
-    for (const update of updates) {
-        try {
-            const product = await Product.findOne({ name: update.name });
-            if (product) {
-                console.log(`Updating ${product.name}...`);
-                product.variants = update.variants;
-                // Update base price to match the first variant (base variant)
-                product.price = update.variants[0].price;
-                product.weight = update.variants[0].weight;
-                await product.save();
-                console.log(`✓ Updated ${product.name}`);
-            } else {
-                console.log(`✗ Product not found matching: ${update.name}`);
-            }
-        } catch (error) {
-            console.error(`Error updating product matching ${update.name}:`, error);
-        }
-    }
-
-    console.log('Migration complete.');
-    process.exit(0);
-};
-
-runMigration();
+updateVariants();
