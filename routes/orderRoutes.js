@@ -106,18 +106,29 @@ router.post('/', protect, async (req, res) => {
             await product.save();
         }
 
-        // Check if Delivery Charge needs to be added (assuming frontend calculation logic)
-        // If total > 500, free delivery. Else +40 (Example logic, adjust as per requirement)
-        // For now, we compare the item totals + delivery fee passed or implicit.
+        // ========================================
+        // 4. SHIPPING CALCULATION (Server Side)
+        // ========================================
+        const SHIPPING_THRESHOLD = 1000;
+        const SHIPPING_CHARGE = 50;
+        let shippingCharge = 0;
 
-        // SIMPLE VALIDATION: Check if calculated total is close to passed total (allow small float diffs)
-        // Note: dbTotal is just items. passed 'total' might include delivery.
-        // We will Trust but Verify: ensure dbTotal <= total.
+        // Calculate shipping based on ITEM total (dbTotal)
+        if (dbTotal < SHIPPING_THRESHOLD) {
+            shippingCharge = SHIPPING_CHARGE;
+        }
 
-        // Strict Validation (Optional):
-        // if (Math.abs(dbTotal - total) > 50) { 
-        //    throw new Error('Price mismatch detected. Please refresh cart.'); 
-        // }
+        // Final authoritative total
+        // We trust our DB prices + our shipping logic
+        const finalTotal = dbTotal + shippingCharge;
+
+        // Validate Client Total (Optional Warning)
+        if (Math.abs(finalTotal - total) > 1.0) {
+            console.warn(`[WARN] Price mismatch! Client: ${total}, Server: ${finalTotal}`);
+            // We could throw error, but if payment is already captured for 'total', 
+            // switching to 'finalTotal' might create discrepancy.
+            // For now, we enforce Server Total as the Order Value.
+        }
 
         // ========================================
         // 3. SECURITY: VERIFY PAYMENT SIGNATURE
@@ -153,7 +164,7 @@ router.post('/', protect, async (req, res) => {
             user: req.user._id,
             orderId,
             items,
-            total, // You could enforce dbTotal here if you wanted strict server-side pricing
+            total: finalTotal, // Enforce server-side pricing
             paymentMethod,
             deliveryAddress,
             orderStatus: 'Ordered',

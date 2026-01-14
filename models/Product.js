@@ -94,6 +94,11 @@ const productSchema = new mongoose.Schema({
         default: false,
         index: true
     },
+    isNewArrival: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
     isOffer: {
         type: Boolean,
         default: false,

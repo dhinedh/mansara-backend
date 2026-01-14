@@ -16,7 +16,7 @@ const heroesData = [
         data: [
             {
                 id: '1',
-                image: '/hero-combo-5day.jpg',
+                image: '/hero-home-combo-final.jpg',
                 title: '',
                 subtitle: '',
                 ctaText: '',
@@ -48,8 +48,35 @@ const heroesData = [
         key: 'products',
         data: {
             image: '/hero-products.png',
+            title: 'Our Clean Range',
+            subtitle: 'Pure, wholesome, and made for your well-being.'
+        },
+        isActive: true
+    },
+    {
+        key: 'newArrivals',
+        data: {
+            image: '/hero-new-arrivals.png',
+            title: 'Fresh Additions',
+            subtitle: 'Discover the latest from the Mansara kitchen.'
+        },
+        isActive: true
+    },
+    {
+        key: 'cart',
+        data: {
+            image: '/hero-cart.jpg',
             title: '',
             subtitle: ''
+        },
+        isActive: true
+    },
+    {
+        key: 'about',
+        data: {
+            image: '/hero-about.png',
+            title: 'Our Tradition of Wellness',
+            subtitle: 'Handcrafted with care, rooted in heritage.'
         },
         isActive: true
     }
