@@ -285,12 +285,26 @@ router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => 
 // ========================================
 router.get('/:id', protect, async (req, res) => {
     try {
-        // OPTIMIZATION: Use lean() and limit populate fields
-        const order = await Order.findById(req.params.id)
-            .populate('user', 'name email phone whatsapp')
-            .lean()
-            .maxTimeMS(5000)
-            .exec();
+        let order;
+
+        // Check if valid ObjectId
+        if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+            // OPTIMIZATION: Use lean() and limit populate fields
+            order = await Order.findById(req.params.id)
+                .populate('user', 'name email phone whatsapp')
+                .lean()
+                .maxTimeMS(5000)
+                .exec();
+        }
+
+        // If not found by ID or not ObjectId, try by orderId (e.g. ORD123456)
+        if (!order) {
+            order = await Order.findOne({ orderId: req.params.id })
+                .populate('user', 'name email phone whatsapp')
+                .lean()
+                .maxTimeMS(5000)
+                .exec();
+        }
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
