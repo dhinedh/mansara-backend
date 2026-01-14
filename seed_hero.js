@@ -21,6 +21,15 @@ const heroData = {
             ctaText: '', // Empty as requested
             ctaLink: '/combos',
             alignment: 'center'
+        },
+        {
+            id: '2',
+            image: '/hero-launch-offer.png',
+            title: '',
+            subtitle: '',
+            ctaText: '',
+            ctaLink: '/offers',
+            alignment: 'center'
         }
     ],
     isActive: true
