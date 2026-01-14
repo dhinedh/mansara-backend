@@ -53,10 +53,10 @@ const sendWhatsApp = async (destination, message) => {
         // Check response
         if (response.data) {
             console.log(`[BOTBIZ] ✓ Response:`, JSON.stringify(response.data));
-            
+
             // Common success indicators in BotBiz responses
-            if (response.data.status === 'success' || 
-                response.data.success === true || 
+            if (response.data.status === 'success' ||
+                response.data.success === true ||
                 response.status === 200) {
                 console.log(`[BOTBIZ] ✓ Message sent successfully`);
                 return response.data;
@@ -71,11 +71,11 @@ const sendWhatsApp = async (destination, message) => {
 
     } catch (error) {
         console.error('[BOTBIZ] ✗ Send failed:', error.message);
-        
+
         if (error.response) {
             console.error('[BOTBIZ] Status:', error.response.status);
             console.error('[BOTBIZ] Error Data:', JSON.stringify(error.response.data));
-            
+
             // Common error messages
             if (error.response.status === 401 || error.response.status === 403) {
                 console.error('[BOTBIZ] ❌ Authentication failed - Check your API token');
@@ -91,7 +91,7 @@ const sendWhatsApp = async (destination, message) => {
         } else if (error.code === 'ETIMEDOUT') {
             console.error('[BOTBIZ] ❌ Request timeout - BotBiz server not responding');
         }
-        
+
         // Don't throw to prevent crashing the main flow
         return null;
     }
@@ -142,6 +142,54 @@ const sendWhatsAppPost = async (destination, message) => {
 };
 
 /**
+ * Send WhatsApp Template Message via BotBiz v1 (dash.botbiz.io)
+ * @param {string} destination - Phone number
+ * @param {string} templateName - Name of the template (e.g. 'otp_verification')
+ * @param {Array} components - Array of component objects (optional)
+ * @returns {Promise<Object>} Response data
+ */
+const sendWhatsAppTemplate = async (destination, templateName, components = []) => {
+    const apiToken = process.env.BOTBIZ_API_KEY || 'KkWbvZEqOEMOBEm3TplcuphlZaAbo1y5oVriLLku9bd2379a';
+    const phoneNumberId = process.env.BOTBIZ_INSTANCE_ID || '16963';
+
+    let baseUrl = process.env.BOTBIZ_API_URL;
+    if (!baseUrl || baseUrl === 'https://api.botbiz.app/v1') {
+        baseUrl = 'https://dash.botbiz.io/api/v1';
+    }
+
+    const url = `${baseUrl}/whatsapp/template/send`;
+
+    try {
+        const formattedPhone = formatPhoneNumber(destination);
+        console.log(`[BOTBIZ TEMPLATE] Sending "${templateName}" to ${formattedPhone}...`);
+
+        const payload = {
+            apiToken: apiToken,
+            phone_number_id: phoneNumberId,
+            template_name: templateName,
+            language_code: 'en_US',
+            phone_number: formattedPhone,
+            components: JSON.stringify(components)
+        };
+
+        const response = await axios.post(url, payload);
+
+        if (response.data) {
+            console.log(`[BOTBIZ TEMPLATE] ✓ Template sent successfully.`);
+            return response.data;
+        }
+        return null;
+
+    } catch (error) {
+        console.error('[BOTBIZ TEMPLATE] ✗ Send failed:', error.message);
+        if (error.response) {
+            console.error('[BOTBIZ TEMPLATE] API Error:', JSON.stringify(error.response.data));
+        }
+        return null;
+    }
+};
+
+/**
  * Send bulk WhatsApp messages with delay
  * @param {Array} messagesList - Array of {phone, message} objects
  * @param {number} delayBetween - Delay in milliseconds between messages (default: 1000ms)
@@ -154,11 +202,11 @@ const sendBulkWhatsApp = async (messagesList, delayBetween = 1000) => {
 
     for (let i = 0; i < messagesList.length; i++) {
         const item = messagesList[i];
-        
+
         try {
             console.log(`[BOTBIZ BULK] Sending ${i + 1}/${messagesList.length} to ${item.phone}...`);
             const result = await sendWhatsApp(item.phone, item.message);
-            
+
             if (result) {
                 results.success.push(item.phone);
                 console.log(`[BOTBIZ BULK] ✓ ${i + 1}/${messagesList.length} sent`);
@@ -166,7 +214,7 @@ const sendBulkWhatsApp = async (messagesList, delayBetween = 1000) => {
                 results.failed.push({ phone: item.phone, error: 'Send failed' });
                 console.log(`[BOTBIZ BULK] ✗ ${i + 1}/${messagesList.length} failed`);
             }
-            
+
             // Add delay between messages to avoid rate limiting
             if (i < messagesList.length - 1) {
                 await new Promise(r => setTimeout(r, delayBetween));
@@ -209,25 +257,25 @@ const testConnection = async (testPhone) => {
     console.log('\n╔════════════════════════════════════════════════════════╗');
     console.log('║           BOTBIZ CONNECTION TEST                      ║');
     console.log('╚════════════════════════════════════════════════════════╝\n');
-    
+
     console.log('Configuration:');
     console.log(`  API Token: ${process.env.BOTBIZ_API_KEY ? '✓ Set' : '✗ Not set'}`);
     console.log(`  Instance ID: ${process.env.BOTBIZ_INSTANCE_ID || '16963'}`);
     console.log(`  API URL: ${process.env.BOTBIZ_API_URL || 'https://dash.botbiz.io/api/v1/whatsapp/send'}`);
     console.log(`  Test Phone: ${testPhone || 'Not provided'}\n`);
-    
+
     if (!testPhone) {
         console.log('❌ No test phone number provided');
         console.log('Usage: testConnection("919876543210")\n');
         return false;
     }
-    
+
     try {
         const testMessage = `🧪 *BotBiz Connection Test*\n\nTime: ${new Date().toLocaleString('en-IN')}\n\nIf you receive this, your BotBiz integration is working! ✅\n\n- Mansara Foods`;
-        
+
         console.log('📤 Sending test message...\n');
         const result = await sendWhatsApp(testPhone, testMessage);
-        
+
         if (result) {
             console.log('\n╔════════════════════════════════════════════════════════╗');
             console.log('║  ✅ CONNECTION TEST PASSED!                           ║');
@@ -251,6 +299,7 @@ const testConnection = async (testPhone) => {
 };
 
 module.exports = sendWhatsApp;
+module.exports.sendWhatsAppTemplate = sendWhatsAppTemplate;
 module.exports.sendWhatsAppPost = sendWhatsAppPost;
 module.exports.sendBulkWhatsApp = sendBulkWhatsApp;
 module.exports.formatPhoneNumber = formatPhoneNumber;

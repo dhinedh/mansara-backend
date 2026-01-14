@@ -33,14 +33,41 @@ const generateToken = (id) => {
 };
 
 // Send WhatsApp OTP (non-blocking helper)
+// Send WhatsApp OTP (non-blocking helper)
 const sendOTPAsync = (whatsapp, otp) => {
     setImmediate(() => {
-        const sendWhatsApp = require('../utils/sendWhatsApp');
-        const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
-        
-        sendWhatsApp(whatsapp, message).catch(err =>
-            console.error('[ERROR] WhatsApp OTP failed:', err.message)
-        );
+        const { sendWhatsAppTemplate, formatPhoneNumber } = require('../utils/sendWhatsApp');
+        const sendWhatsApp = require('../utils/sendWhatsApp'); // Fallback
+
+        // CHECK IF USER HAS CONFIGURED A TEMPLATE
+        // If they have a template like 'otp_alert', use it.
+        // The component structure depends on the specific template.
+        // Assuming a simple body variable for OTP.
+        const templateName = process.env.BOTBIZ_OTP_TEMPLATE;
+
+        if (templateName) {
+            // Template components for OTP (assuming 1 variable in body)
+            const components = [
+                {
+                    type: 'body',
+                    parameters: [
+                        { type: 'text', text: otp }
+                    ]
+                }
+            ];
+
+            sendWhatsAppTemplate(whatsapp, templateName, components).catch(err =>
+                console.error('[ERROR] WhatsApp OTP Template failed:', err.message)
+            );
+        } else {
+            // FALLBACK TO TEXT (Will fail for new 24h windows)
+            console.warn('[WARN] No BOTBIZ_OTP_TEMPLATE configured. Using plain text fallback (may fail if 24h window closed).');
+            const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
+
+            sendWhatsApp(whatsapp, message).catch(err =>
+                console.error('[ERROR] WhatsApp OTP Text failed:', err.message)
+            );
+        }
     });
 };
 
@@ -61,13 +88,13 @@ router.post('/register', async (req, res) => {
             .lean()
             .maxTimeMS(5000)
             .exec();
-            
+
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
         // Delete existing temp user (non-blocking)
-        TempUser.findOneAndDelete({ email }).exec().catch(() => {});
+        TempUser.findOneAndDelete({ email }).exec().catch(() => { });
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
@@ -206,7 +233,7 @@ router.post('/google', async (req, res) => {
                 User.updateOne(
                     { _id: user._id },
                     { $set: { lastLogin: new Date() } }
-                ).exec().catch(() => {});
+                ).exec().catch(() => { });
             });
         } else {
             // OPTIMIZATION 2: Check email only if googleId not found
@@ -221,8 +248,8 @@ router.post('/google', async (req, res) => {
                 setImmediate(() => {
                     User.updateOne(
                         { _id: user._id },
-                        { 
-                            $set: { 
+                        {
+                            $set: {
                                 googleId,
                                 picture,
                                 authProvider: 'google',
@@ -256,7 +283,7 @@ router.post('/google', async (req, res) => {
 
                 // Create user
                 const newUser = await User.create(newUserData);
-                
+
                 // Convert to plain object
                 user = {
                     _id: newUser._id,
@@ -326,10 +353,10 @@ router.post('/verify-email', async (req, res) => {
             otp,
             otpExpire: { $gt: Date.now() }
         })
-        .select('name email password phone whatsapp')
-        .lean()
-        .maxTimeMS(5000)
-        .exec();
+            .select('name email password phone whatsapp')
+            .lean()
+            .maxTimeMS(5000)
+            .exec();
 
         if (!tempUser) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
@@ -347,7 +374,7 @@ router.post('/verify-email', async (req, res) => {
         });
 
         // Delete temp user asynchronously
-        TempUser.findByIdAndDelete(tempUser._id).exec().catch(() => {});
+        TempUser.findByIdAndDelete(tempUser._id).exec().catch(() => { });
 
         res.json({
             _id: newUser._id,
@@ -370,7 +397,7 @@ router.post('/verify-email', async (req, res) => {
 // ========================================
 router.post('/resend-otp', async (req, res) => {
     const { email } = req.body;
-    
+
     try {
         // OPTIMIZATION: Use Promise.all for parallel queries
         const [existingUser, tempUser] = await Promise.all([
@@ -467,7 +494,7 @@ router.put('/profile', protect, async (req, res) => {
                 .lean()
                 .maxTimeMS(3000)
                 .exec();
-                
+
             if (emailExists) {
                 return res.status(400).json({ message: 'Email already in use' });
             }
