@@ -43,6 +43,15 @@ const heroesData = [
             subtitle: ''
         },
         isActive: true
+    },
+    {
+        key: 'products',
+        data: {
+            image: '/hero-products.png',
+            title: '',
+            subtitle: ''
+        },
+        isActive: true
     }
 ];
 
