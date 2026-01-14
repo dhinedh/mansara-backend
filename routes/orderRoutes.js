@@ -56,7 +56,7 @@ router.post('/', protect, async (req, res) => {
         // ========================================
         for (const item of items) {
             const Model = item.type === 'combo' ? Combo : Product;
-            const product = await Model.findById(item.id);
+            const product = await Model.findById(item.product || item.id);
 
             if (!product) {
                 throw new Error(`Product ${item.name} not found`); // Will be caught by catch block

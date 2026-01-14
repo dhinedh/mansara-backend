@@ -16,6 +16,7 @@ const users = [
     {
         email: 'ceo@mansarafoods.com',
         name: 'CEO',
+        password: 'ceo123',
         role: 'admin',
         permissions: {
             offers: 'limited', combos: 'limited', content: 'limited', blog: 'limited', press: 'limited', careers: 'limited', banners: 'limited',
@@ -26,6 +27,7 @@ const users = [
     {
         email: 'director@mansarafoods.com',
         name: 'Director',
+        password: 'director123',
         role: 'user', // "No Access" implies regular user or even restricted admin? Let's say user with no permissions.
         permissions: {
             products: 'none', stocks: 'none', categories: 'none', offers: 'none', combos: 'none', orders: 'none', customers: 'none', content: 'none', blog: 'none', press: 'none', careers: 'none', banners: 'none', settings: 'none'
@@ -34,6 +36,7 @@ const users = [
     {
         email: 'accounts@mansarafoods.com',
         name: 'Accounts',
+        password: 'accounts123',
         role: 'admin',
         permissions: {
             offers: 'view', orders: 'view', customers: 'view'
@@ -42,6 +45,7 @@ const users = [
     {
         email: 'compliance@mansarafoods.com',
         name: 'Compliance',
+        password: 'compliance123',
         role: 'admin',
         permissions: {
             press: 'view'
@@ -50,6 +54,7 @@ const users = [
     {
         email: 'sales@mansarafoods.com',
         name: 'Sales',
+        password: 'sales123',
         role: 'admin',
         permissions: {
             offers: 'limited', combos: 'limited', orders: 'limited',
@@ -59,6 +64,7 @@ const users = [
     {
         email: 'order-updates@mansarafoods.com',
         name: 'Order Updates',
+        password: 'orderupdates123',
         role: 'admin',
         permissions: {
             orders: 'view'
@@ -67,6 +73,7 @@ const users = [
     {
         email: 'support@mansarafoods.com',
         name: 'Support',
+        password: 'support123',
         role: 'admin',
         permissions: {
             orders: 'limited', customers: 'limited'
@@ -75,6 +82,7 @@ const users = [
     {
         email: 'feedback@mansarafoods.com',
         name: 'Feedback',
+        password: 'feedback123',
         role: 'admin',
         permissions: {
             blog: 'view'
@@ -83,6 +91,7 @@ const users = [
     {
         email: 'contact@mansarafoods.com',
         name: 'Contact',
+        password: 'contact123',
         role: 'admin',
         permissions: {
             content: 'limited'
@@ -91,6 +100,7 @@ const users = [
     {
         email: 'careers@mansarafoods.com',
         name: 'Careers',
+        password: 'careers123',
         role: 'admin',
         permissions: {
             careers: 'limited'
@@ -99,6 +109,7 @@ const users = [
     {
         email: 'backend-admin@mansarafoods.internal',
         name: 'Super Admin',
+        password: 'admin123',
         role: 'admin',
         permissions: {
             products: 'full', stocks: 'full', categories: 'full', offers: 'full', combos: 'full', orders: 'full', customers: 'full', content: 'full', blog: 'full', press: 'full', careers: 'full', banners: 'full', settings: 'full'
@@ -123,13 +134,17 @@ const seedUsers = async () => {
                 console.log(`Updating ${u.email}...`);
                 existingUser.permissions = fullPermissions;
                 existingUser.role = u.role; // Ensure role is correct
+                // Update password if provided
+                if (u.password) {
+                    existingUser.password = u.password;
+                }
                 await existingUser.save();
             } else {
                 console.log(`Creating ${u.email}...`);
                 await User.create({
                     email: u.email,
                     name: u.name,
-                    password: 'password123', // Default password
+                    password: u.password || 'password123', // Use specific password or default
                     role: u.role,
                     permissions: fullPermissions,
                     isVerified: true,
