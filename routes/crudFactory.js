@@ -1,5 +1,5 @@
 const express = require('express');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 const mongoose = require('mongoose');
 
 // ========================================
@@ -14,7 +14,7 @@ const mongoose = require('mongoose');
 // 6. Added pagination support
 // ========================================
 
-const createCrudRouter = (Model) => {
+const createCrudRouter = (Model, moduleName) => {
     const router = express.Router();
 
     // ========================================
@@ -28,7 +28,7 @@ const createCrudRouter = (Model) => {
 
             // Build query
             const query = {};
-            
+
             // Filter by published status if field exists
             if (Model.schema.path('isPublished')) {
                 query.isPublished = req.query.published === 'false' ? false : true;
@@ -158,10 +158,16 @@ const createCrudRouter = (Model) => {
         }
     });
 
+    // Helper permission middleware
+    // If moduleName is not provided, fallback to admin only (legacy behavior)
+    const canCreate = moduleName ? checkPermission(moduleName, 'limited') : admin;
+    const canUpdate = moduleName ? checkPermission(moduleName, 'limited') : admin;
+    const canDelete = moduleName ? checkPermission(moduleName, 'full') : admin;
+
     // ========================================
     // CREATE (ADMIN) - OPTIMIZED
     // ========================================
-    router.post('/', protect, admin, async (req, res) => {
+    router.post('/', protect, canCreate, async (req, res) => {
         try {
             console.log('[CRUD Create] Received data:', Object.keys(req.body));
             console.log('[CRUD Create] User:', req.user?.email);
@@ -184,7 +190,7 @@ const createCrudRouter = (Model) => {
     // ========================================
     // UPDATE (ADMIN) - OPTIMIZED
     // ========================================
-    router.put('/:id', protect, admin, async (req, res) => {
+    router.put('/:id', protect, canUpdate, async (req, res) => {
         try {
             console.log('[CRUD Update] ID:', req.params.id);
             console.log('[CRUD Update] Fields:', Object.keys(req.body));
@@ -193,14 +199,14 @@ const createCrudRouter = (Model) => {
             const updatedItem = await Model.findByIdAndUpdate(
                 req.params.id,
                 req.body,
-                { 
+                {
                     new: true,
                     runValidators: true,
                     select: '-__v'
                 }
             )
-            .maxTimeMS(5000)
-            .exec();
+                .maxTimeMS(5000)
+                .exec();
 
             if (!updatedItem) {
                 return res.status(404).json({ message: 'Not found' });
@@ -221,7 +227,7 @@ const createCrudRouter = (Model) => {
     // ========================================
     // PATCH (ADMIN) - OPTIMIZED FOR PARTIAL UPDATES
     // ========================================
-    router.patch('/:id', protect, admin, async (req, res) => {
+    router.patch('/:id', protect, canUpdate, async (req, res) => {
         try {
             console.log('[CRUD Patch] ID:', req.params.id);
             console.log('[CRUD Patch] Fields:', Object.keys(req.body));
@@ -229,14 +235,14 @@ const createCrudRouter = (Model) => {
             const updatedItem = await Model.findByIdAndUpdate(
                 req.params.id,
                 { $set: req.body },
-                { 
+                {
                     new: true,
                     runValidators: true,
                     select: '-__v'
                 }
             )
-            .maxTimeMS(5000)
-            .exec();
+                .maxTimeMS(5000)
+                .exec();
 
             if (!updatedItem) {
                 return res.status(404).json({ message: 'Not found' });
@@ -256,7 +262,7 @@ const createCrudRouter = (Model) => {
     // ========================================
     // DELETE (ADMIN) - OPTIMIZED
     // ========================================
-    router.delete('/:id', protect, admin, async (req, res) => {
+    router.delete('/:id', protect, canDelete, async (req, res) => {
         try {
             console.log('[CRUD Delete] ID:', req.params.id);
 
@@ -279,7 +285,7 @@ const createCrudRouter = (Model) => {
     // ========================================
     // BULK DELETE (ADMIN) - OPTIMIZED
     // ========================================
-    router.post('/bulk/delete', protect, admin, async (req, res) => {
+    router.post('/bulk/delete', protect, canDelete, async (req, res) => {
         try {
             const { ids } = req.body;
 
@@ -291,7 +297,7 @@ const createCrudRouter = (Model) => {
                 .maxTimeMS(10000)
                 .exec();
 
-            res.json({ 
+            res.json({
                 message: `${result.deletedCount} items deleted successfully`,
                 deletedCount: result.deletedCount
             });
@@ -304,7 +310,7 @@ const createCrudRouter = (Model) => {
     // ========================================
     // BULK UPDATE (ADMIN) - OPTIMIZED
     // ========================================
-    router.post('/bulk/update', protect, admin, async (req, res) => {
+    router.post('/bulk/update', protect, canUpdate, async (req, res) => {
         try {
             const { ids, updates } = req.body;
 
@@ -320,10 +326,10 @@ const createCrudRouter = (Model) => {
                 { _id: { $in: ids } },
                 { $set: updates }
             )
-            .maxTimeMS(10000)
-            .exec();
+                .maxTimeMS(10000)
+                .exec();
 
-            res.json({ 
+            res.json({
                 message: `${result.modifiedCount} items updated successfully`,
                 modifiedCount: result.modifiedCount,
                 matchedCount: result.matchedCount

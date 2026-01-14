@@ -3,7 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const User = require('../models/User');
 const { Product, Combo } = require('../models/Product');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 const notificationService = require('../utils/notificationService');
 const crypto = require('crypto'); // REQUIRED FOR SIGNATURE VERIFICATION
 
@@ -235,7 +235,7 @@ router.get('/user/:userId', protect, async (req, res) => {
 // ========================================
 // GET ALL ORDERS (ADMIN) - HIGHLY OPTIMIZED
 // ========================================
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 50;
@@ -306,7 +306,7 @@ router.get('/:id', protect, async (req, res) => {
 // ========================================
 // CONFIRM ORDER (ADMIN) - OPTIMIZED
 // ========================================
-router.put('/:id/confirm', protect, admin, async (req, res) => {
+router.put('/:id/confirm', protect, checkPermission('orders', 'limited'), async (req, res) => {
     try {
         const { estimatedDeliveryDate } = req.body;
 
@@ -383,7 +383,7 @@ router.put('/:id/confirm', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE ORDER STATUS (ADMIN) - OPTIMIZED
 // ========================================
-router.put('/:id/status', protect, admin, async (req, res) => {
+router.put('/:id/status', protect, checkPermission('orders', 'limited'), async (req, res) => {
     try {
         const { status } = req.body;
 
@@ -439,7 +439,9 @@ router.put('/:id/cancel', protect, async (req, res) => {
         }
 
         // Check authorization
-        if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        const canManage = req.user.role === 'admin' || (req.user.permissions && ['limited', 'full'].includes(req.user.permissions.orders));
+
+        if (order.user._id.toString() !== req.user._id.toString() && !canManage) {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
@@ -466,7 +468,7 @@ router.put('/:id/cancel', protect, async (req, res) => {
 // ========================================
 // GET ORDER STATISTICS (ADMIN) - HIGHLY OPTIMIZED
 // ========================================
-router.get('/stats/summary', protect, admin, async (req, res) => {
+router.get('/stats/summary', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
         // OPTIMIZATION: Use single aggregation instead of multiple queries
         const stats = await Order.aggregate([
@@ -537,7 +539,7 @@ router.get('/stats/summary', protect, admin, async (req, res) => {
 // ========================================
 // GET RECENT ORDERS (OPTIMIZED)
 // ========================================
-router.get('/recent/list', protect, admin, async (req, res) => {
+router.get('/recent/list', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
         const limit = parseInt(req.query.limit) || 20;
 

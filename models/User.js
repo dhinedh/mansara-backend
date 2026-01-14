@@ -144,6 +144,21 @@ const userSchema = new mongoose.Schema({
         default: 'user',
         index: true
     },
+    permissions: {
+        products: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        stocks: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        categories: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        offers: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        combos: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        orders: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        customers: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        content: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        blog: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        press: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        careers: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        banners: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' },
+        settings: { type: String, enum: ['none', 'view', 'limited', 'full'], default: 'none' }
+    },
 
     joinDate: {
         type: Date,

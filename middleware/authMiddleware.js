@@ -29,8 +29,8 @@ const protect = async (req, res, next) => {
 
         // If no token, return unauthorized
         if (!token) {
-            return res.status(401).json({ 
-                message: 'Not authorized, no token provided' 
+            return res.status(401).json({
+                message: 'Not authorized, no token provided'
             });
         }
 
@@ -43,29 +43,29 @@ const protect = async (req, res, next) => {
             const userId = decoded.id || decoded.userId;
 
             if (!userId) {
-                return res.status(401).json({ 
-                    message: 'Invalid token payload' 
+                return res.status(401).json({
+                    message: 'Invalid token payload'
                 });
             }
 
             // OPTIMIZATION: Get user with lean() for better performance
             // Only select fields that are commonly needed
             const user = await User.findById(userId)
-                .select('_id name email phone whatsapp role isVerified status avatar picture')
+                .select('_id name email phone whatsapp role isVerified status avatar picture permissions')
                 .lean()
                 .maxTimeMS(5000) // 5 second timeout
                 .exec();
 
             if (!user) {
-                return res.status(401).json({ 
-                    message: 'Not authorized, user not found' 
+                return res.status(401).json({
+                    message: 'Not authorized, user not found'
                 });
             }
 
             // Check if user is active
             if (user.status === 'Blocked' || user.status === 'Inactive') {
-                return res.status(401).json({ 
-                    message: 'Account is inactive or blocked' 
+                return res.status(401).json({
+                    message: 'Account is inactive or blocked'
                 });
             }
 
@@ -75,27 +75,27 @@ const protect = async (req, res, next) => {
 
         } catch (error) {
             console.error('[AUTH] Token verification failed:', error.message);
-            
+
             // Specific error messages
             if (error.name === 'TokenExpiredError') {
-                return res.status(401).json({ 
-                    message: 'Token expired, please login again' 
+                return res.status(401).json({
+                    message: 'Token expired, please login again'
                 });
             } else if (error.name === 'JsonWebTokenError') {
-                return res.status(401).json({ 
-                    message: 'Invalid token' 
+                return res.status(401).json({
+                    message: 'Invalid token'
                 });
             } else {
-                return res.status(401).json({ 
-                    message: 'Not authorized, token failed' 
+                return res.status(401).json({
+                    message: 'Not authorized, token failed'
                 });
             }
         }
 
     } catch (error) {
         console.error('[AUTH] Protect middleware error:', error);
-        res.status(500).json({ 
-            message: 'Server error during authentication' 
+        res.status(500).json({
+            message: 'Server error during authentication'
         });
     }
 };
@@ -107,16 +107,16 @@ const protect = async (req, res, next) => {
  */
 const admin = (req, res, next) => {
     if (!req.user) {
-        return res.status(401).json({ 
-            message: 'Not authorized, please login' 
+        return res.status(401).json({
+            message: 'Not authorized, please login'
         });
     }
 
     if (req.user.role === 'admin' || req.user.isAdmin === true) {
         next();
     } else {
-        return res.status(403).json({ 
-            message: 'Access denied. Admin privileges required.' 
+        return res.status(403).json({
+            message: 'Access denied. Admin privileges required.'
         });
     }
 };
@@ -136,10 +136,10 @@ const optionalAuth = async (req, res, next) => {
         if (token) {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                
+
                 // Support both 'id' and 'userId' in token payload
                 const userId = decoded.id || decoded.userId;
-                
+
                 if (userId) {
                     // OPTIMIZATION: Use lean() and select only needed fields
                     const user = await User.findById(userId)
@@ -172,16 +172,16 @@ const optionalAuth = async (req, res, next) => {
  */
 const verified = (req, res, next) => {
     if (!req.user) {
-        return res.status(401).json({ 
-            message: 'Not authorized' 
+        return res.status(401).json({
+            message: 'Not authorized'
         });
     }
 
     if (req.user.isVerified) {
         next();
     } else {
-        return res.status(403).json({ 
-            message: 'Email verification required. Please verify your email.' 
+        return res.status(403).json({
+            message: 'Email verification required. Please verify your email.'
         });
     }
 };
@@ -193,16 +193,16 @@ const verified = (req, res, next) => {
  */
 const isGoogleUser = (req, res, next) => {
     if (!req.user) {
-        return res.status(401).json({ 
-            message: 'Not authorized' 
+        return res.status(401).json({
+            message: 'Not authorized'
         });
     }
 
     if (req.user.authProvider === 'google') {
         next();
     } else {
-        return res.status(403).json({ 
-            message: 'This action is only available for Google authenticated users' 
+        return res.status(403).json({
+            message: 'This action is only available for Google authenticated users'
         });
     }
 };
@@ -214,16 +214,16 @@ const isGoogleUser = (req, res, next) => {
  */
 const isLocalUser = (req, res, next) => {
     if (!req.user) {
-        return res.status(401).json({ 
-            message: 'Not authorized' 
+        return res.status(401).json({
+            message: 'Not authorized'
         });
     }
 
     if (req.user.authProvider === 'local' || !req.user.authProvider) {
         next();
     } else {
-        return res.status(403).json({ 
-            message: 'This action is only available for email/password users' 
+        return res.status(403).json({
+            message: 'This action is only available for email/password users'
         });
     }
 };
@@ -250,10 +250,10 @@ const rateLimit = (maxRequests = 100, windowMs = 15 * 60 * 1000) => {
         // Use user ID if authenticated, otherwise use IP
         const identifier = req.user?._id?.toString() || req.ip || req.connection.remoteAddress;
         const now = Date.now();
-        
-        const userData = requests.get(identifier) || { 
-            count: 0, 
-            resetTime: now 
+
+        const userData = requests.get(identifier) || {
+            count: 0,
+            resetTime: now
         };
 
         // Reset if window has passed
@@ -267,7 +267,7 @@ const rateLimit = (maxRequests = 100, windowMs = 15 * 60 * 1000) => {
 
         // Check if limit exceeded
         if (userData.count > maxRequests) {
-            return res.status(429).json({ 
+            return res.status(429).json({
                 message: 'Too many requests, please try again later',
                 retryAfter: Math.ceil((userData.resetTime + windowMs - now) / 1000)
             });
@@ -289,19 +289,19 @@ const rateLimit = (maxRequests = 100, windowMs = 15 * 60 * 1000) => {
  */
 const validateOwnership = (req, res, next) => {
     if (!req.user) {
-        return res.status(401).json({ 
-            message: 'Not authorized' 
+        return res.status(401).json({
+            message: 'Not authorized'
         });
     }
 
     // Check if user is admin or accessing their own resource
     const resourceUserId = req.params.userId || req.params.id;
-    
+
     if (req.user.role === 'admin' || req.user._id.toString() === resourceUserId) {
         next();
     } else {
-        return res.status(403).json({ 
-            message: 'Access denied. You can only access your own resources.' 
+        return res.status(403).json({
+            message: 'Access denied. You can only access your own resources.'
         });
     }
 };
@@ -316,7 +316,7 @@ const logActivity = (action) => {
             try {
                 // Log activity
                 console.log(`[ACTIVITY] User ${req.user._id} (${req.user.email}) performed: ${action}`);
-                
+
                 // Optional: Save to database
                 // await ActivityLog.create({
                 //     user: req.user._id,
@@ -346,7 +346,7 @@ const corsMiddleware = (req, res, next) => {
     ].filter(url => url && url !== 'undefined');
 
     const origin = req.headers.origin;
-    
+
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -368,13 +368,13 @@ const corsMiddleware = (req, res, next) => {
 const securityHeaders = (req, res, next) => {
     // Remove powered by header
     res.removeHeader('X-Powered-By');
-    
+
     // Add security headers
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    
+
     next();
 };
 
@@ -383,12 +383,12 @@ const securityHeaders = (req, res, next) => {
  */
 const requestLogger = (req, res, next) => {
     const start = Date.now();
-    
+
     // Log after response is sent
     res.on('finish', () => {
         const duration = Date.now() - start;
         const user = req.user ? `${req.user.email} (${req.user._id})` : 'anonymous';
-        
+
         console.log(
             `[${new Date().toISOString()}] ` +
             `${req.method} ${req.originalUrl} ` +
@@ -396,14 +396,46 @@ const requestLogger = (req, res, next) => {
             `User: ${user}`
         );
     });
-    
+
     next();
 };
 
-module.exports = { 
-    protect, 
-    admin, 
-    optionalAuth, 
+/**
+ * Check module permission
+ * levels: none < view < limited < full
+ */
+const checkPermission = (module, requiredLevel) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        // Super Admin Bypass (optional, but good safety)
+        if (req.user.role === 'admin' && req.user.email.includes('backend-admin')) {
+            return next();
+        }
+
+        const userPermissions = req.user.permissions || {};
+        const userLevel = userPermissions[module] || 'none';
+
+        const levels = ['none', 'view', 'limited', 'full'];
+        const userLevelIndex = levels.indexOf(userLevel);
+        const requiredLevelIndex = levels.indexOf(requiredLevel);
+
+        if (userLevelIndex >= requiredLevelIndex) {
+            next();
+        } else {
+            return res.status(403).json({
+                message: `Access denied. ${requiredLevel} permission required for ${module}.`
+            });
+        }
+    };
+};
+
+module.exports = {
+    protect,
+    admin,
+    optionalAuth,
     verified,
     isGoogleUser,
     isLocalUser,
@@ -412,5 +444,6 @@ module.exports = {
     logActivity,
     corsMiddleware,
     securityHeaders,
-    requestLogger
+    requestLogger,
+    checkPermission
 };

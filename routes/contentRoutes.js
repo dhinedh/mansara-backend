@@ -3,7 +3,7 @@ const router = express.Router();
 const Content = require('../models/Content');
 const Banner = require('../models/Banner');
 const Hero = require('../models/Hero');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // ========================================
 // PERFORMANCE OPTIMIZATIONS ADDED:
@@ -22,15 +22,15 @@ const cache = new Map();
 const cacheMiddleware = (duration = 1800000) => { // 30 minutes
     return (req, res, next) => {
         if (req.method !== 'GET') return next();
-        
+
         const key = req.originalUrl;
         const cached = cache.get(key);
-        
+
         if (cached && Date.now() - cached.timestamp < duration) {
             console.log(`[CACHE HIT] ${key}`);
             return res.json(cached.data);
         }
-        
+
         console.log(`[CACHE MISS] ${key}`);
         const originalJson = res.json.bind(res);
         res.json = (data) => {
@@ -78,9 +78,9 @@ router.get('/pages', cacheMiddleware(1800000), async (req, res) => {
 // Get single content page by slug (CACHED)
 router.get('/pages/:slug', cacheMiddleware(1800000), async (req, res) => {
     try {
-        const page = await Content.findOne({ 
+        const page = await Content.findOne({
             slug: req.params.slug,
-            isPublished: true 
+            isPublished: true
         })
             .select('-__v')
             .lean()
@@ -99,7 +99,7 @@ router.get('/pages/:slug', cacheMiddleware(1800000), async (req, res) => {
 });
 
 // Update content page (ADMIN)
-router.put('/pages/:slug', protect, admin, async (req, res) => {
+router.put('/pages/:slug', protect, checkPermission('content', 'limited'), async (req, res) => {
     try {
         const { slug } = req.params;
         const { sections, isPublished } = req.body;
@@ -110,15 +110,15 @@ router.put('/pages/:slug', protect, admin, async (req, res) => {
         const content = await Content.findOneAndUpdate(
             { slug },
             updateData,
-            { 
-                new: true, 
-                upsert: true, 
+            {
+                new: true,
+                upsert: true,
                 select: '-__v',
                 runValidators: true
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         clearContentCache();
         res.json(content);
@@ -129,7 +129,7 @@ router.put('/pages/:slug', protect, admin, async (req, res) => {
 });
 
 // Delete content page (ADMIN)
-router.delete('/pages/:slug', protect, admin, async (req, res) => {
+router.delete('/pages/:slug', protect, checkPermission('content', 'full'), async (req, res) => {
     try {
         const page = await Content.findOneAndDelete({ slug: req.params.slug })
             .maxTimeMS(5000)
@@ -171,7 +171,7 @@ router.get('/banners', cacheMiddleware(1800000), async (req, res) => {
 router.get('/banners/active', cacheMiddleware(1800000), async (req, res) => {
     try {
         const { page } = req.query;
-        
+
         const query = { active: true };
         if (page) query.page = page;
 
@@ -191,9 +191,9 @@ router.get('/banners/active', cacheMiddleware(1800000), async (req, res) => {
 // Get banners by page (CACHED)
 router.get('/banners/page/:page', cacheMiddleware(1800000), async (req, res) => {
     try {
-        const banners = await Banner.find({ 
+        const banners = await Banner.find({
             page: req.params.page,
-            active: true 
+            active: true
         })
             .select('image title subtitle link order')
             .sort({ order: 1 })
@@ -208,7 +208,7 @@ router.get('/banners/page/:page', cacheMiddleware(1800000), async (req, res) => 
 });
 
 // Create banner (ADMIN)
-router.post('/banners', protect, admin, async (req, res) => {
+router.post('/banners', protect, checkPermission('banners', 'limited'), async (req, res) => {
     try {
         const banner = await Banner.create(req.body);
         clearContentCache();
@@ -220,19 +220,19 @@ router.post('/banners', protect, admin, async (req, res) => {
 });
 
 // Update banner (ADMIN)
-router.put('/banners/:id', protect, admin, async (req, res) => {
+router.put('/banners/:id', protect, checkPermission('banners', 'limited'), async (req, res) => {
     try {
         const banner = await Banner.findByIdAndUpdate(
             req.params.id,
             req.body,
-            { 
-                new: true, 
-                runValidators: true, 
-                select: '-__v' 
+            {
+                new: true,
+                runValidators: true,
+                select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         if (!banner) {
             return res.status(404).json({ message: 'Banner not found' });
@@ -247,7 +247,7 @@ router.put('/banners/:id', protect, admin, async (req, res) => {
 });
 
 // Delete banner (ADMIN)
-router.delete('/banners/:id', protect, admin, async (req, res) => {
+router.delete('/banners/:id', protect, checkPermission('banners', 'full'), async (req, res) => {
     try {
         const banner = await Banner.findByIdAndDelete(req.params.id)
             .maxTimeMS(5000)
@@ -266,7 +266,7 @@ router.delete('/banners/:id', protect, admin, async (req, res) => {
 });
 
 // Toggle banner active status (ADMIN)
-router.patch('/banners/:id/active', protect, admin, async (req, res) => {
+router.patch('/banners/:id/active', protect, checkPermission('banners', 'limited'), async (req, res) => {
     try {
         const { active } = req.body;
 
@@ -275,8 +275,8 @@ router.patch('/banners/:id/active', protect, admin, async (req, res) => {
             { $set: { active: !!active } },
             { new: true, select: '-__v' }
         )
-        .maxTimeMS(3000)
-        .exec();
+            .maxTimeMS(3000)
+            .exec();
 
         if (!banner) {
             return res.status(404).json({ message: 'Banner not found' });
@@ -319,9 +319,9 @@ router.get('/hero', cacheMiddleware(1800000), async (req, res) => {
 // Get single hero config (CACHED)
 router.get('/hero/:key', cacheMiddleware(1800000), async (req, res) => {
     try {
-        const hero = await Hero.findOne({ 
+        const hero = await Hero.findOne({
             key: req.params.key,
-            isActive: true 
+            isActive: true
         })
             .select('data')
             .lean()
@@ -340,24 +340,24 @@ router.get('/hero/:key', cacheMiddleware(1800000), async (req, res) => {
 });
 
 // Update hero config (ADMIN)
-router.put('/hero/:key', protect, admin, async (req, res) => {
+router.put('/hero/:key', protect, checkPermission('banners', 'limited'), async (req, res) => {
     try {
         const { key } = req.params;
         const hero = await Hero.findOneAndUpdate(
             { key },
-            { 
-                key, 
+            {
+                key,
                 data: req.body,
-                isActive: true 
+                isActive: true
             },
-            { 
-                new: true, 
-                upsert: true, 
-                select: '-__v' 
+            {
+                new: true,
+                upsert: true,
+                select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         clearContentCache();
         res.json(hero);
@@ -368,7 +368,7 @@ router.put('/hero/:key', protect, admin, async (req, res) => {
 });
 
 // Delete hero config (ADMIN)
-router.delete('/hero/:key', protect, admin, async (req, res) => {
+router.delete('/hero/:key', protect, checkPermission('banners', 'full'), async (req, res) => {
     try {
         const hero = await Hero.findOneAndDelete({ key: req.params.key })
             .maxTimeMS(5000)
@@ -389,7 +389,7 @@ router.delete('/hero/:key', protect, admin, async (req, res) => {
 // ========================================
 // CLEAR CONTENT CACHE (ADMIN)
 // ========================================
-router.post('/cache/clear', protect, admin, (req, res) => {
+router.post('/cache/clear', protect, checkPermission('content', 'limited'), (req, res) => {
     try {
         clearContentCache();
         res.json({ message: 'Content cache cleared successfully' });

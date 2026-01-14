@@ -4,7 +4,7 @@ const router = express.Router();
 const { Product, Combo } = require('../models/Product');
 const Notification = require('../models/Notification');
 const { sendBulkWhatsApp } = require('../utils/sendWhatsApp');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // ========================================
 // ULTRA-FAST PRODUCT ROUTES
@@ -310,7 +310,7 @@ router.get('/:id/related', cacheMiddleware(600000), async (req, res) => {
 // ========================================
 // CREATE PRODUCT (ADMIN) - ULTRA FAST
 // ========================================
-router.post('/', protect, admin, async (req, res) => {
+router.post('/', protect, checkPermission('products', 'limited'), async (req, res) => {
     try {
         console.log('[PRODUCT] Creating product...');
         const startTime = Date.now();
@@ -338,7 +338,7 @@ router.post('/', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE PRODUCT (ADMIN) - ULTRA FAST
 // ========================================
-router.put('/:id', protect, admin, async (req, res) => {
+router.put('/:id', protect, checkPermission('products', 'limited'), async (req, res) => {
     try {
         console.log('[PRODUCT] Updating product:', req.params.id);
         const startTime = Date.now();
@@ -395,7 +395,7 @@ router.put('/:id', protect, admin, async (req, res) => {
 // ========================================
 // BULK UPDATE PRODUCTS (ADMIN) - OPTIMIZED
 // ========================================
-router.put('/bulk/update', protect, admin, async (req, res) => {
+router.put('/bulk/update', protect, checkPermission('products', 'limited'), async (req, res) => {
     try {
         const { ids, updates } = req.body;
 
@@ -436,7 +436,7 @@ router.put('/bulk/update', protect, admin, async (req, res) => {
 // ========================================
 // DELETE PRODUCT (ADMIN)
 // ========================================
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, checkPermission('products', 'full'), async (req, res) => {
     try {
         console.log('[PRODUCT] Deleting product:', req.params.id);
 
@@ -461,7 +461,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
 // ========================================
 // TOGGLE PRODUCT STATUS (ADMIN) - FAST
 // ========================================
-router.patch('/:id/toggle-status', protect, admin, async (req, res) => {
+router.patch('/:id/toggle-status', protect, checkPermission('products', 'limited'), async (req, res) => {
     try {
         const { field } = req.body; // isActive, isFeatured, isOffer, etc.
 
@@ -497,7 +497,7 @@ router.patch('/:id/toggle-status', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE STOCK (ADMIN) - FAST
 // ========================================
-router.patch('/:id/stock', protect, admin, async (req, res) => {
+router.patch('/:id/stock', protect, checkPermission('stocks', 'limited'), async (req, res) => {
     try {
         const { stock } = req.body;
 

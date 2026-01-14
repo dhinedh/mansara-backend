@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Product, Combo } = require('../models/Product');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // ========================================
 // PERFORMANCE OPTIMIZATIONS ADDED:
@@ -20,15 +20,15 @@ const cache = new Map();
 const cacheMiddleware = (duration = 600000) => { // 10 minutes
     return (req, res, next) => {
         if (req.method !== 'GET') return next();
-        
+
         const key = req.originalUrl;
         const cached = cache.get(key);
-        
+
         if (cached && Date.now() - cached.timestamp < duration) {
             console.log(`[CACHE HIT] ${key}`);
             return res.json(cached.data);
         }
-        
+
         console.log(`[CACHE MISS] ${key}`);
         const originalJson = res.json.bind(res);
         res.json = (data) => {
@@ -100,11 +100,11 @@ router.get('/', cacheMiddleware(600000), async (req, res) => {
 router.get('/featured', cacheMiddleware(1800000), async (req, res) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 10, 50);
-        
+
         // OPTIMIZATION: Use compound index { isFeatured: 1, isActive: 1 }
-        const combos = await Combo.find({ 
-            isFeatured: true, 
-            isActive: true 
+        const combos = await Combo.find({
+            isFeatured: true,
+            isActive: true
         })
             .select('name slug originalPrice comboPrice image images stock')
             .limit(limit)
@@ -126,7 +126,7 @@ router.get('/featured', cacheMiddleware(1800000), async (req, res) => {
 router.get('/active', cacheMiddleware(600000), async (req, res) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-        
+
         const combos = await Combo.find({ isActive: true })
             .select('name slug originalPrice comboPrice image stock')
             .limit(limit)
@@ -183,14 +183,14 @@ router.get('/:id', cacheMiddleware(600000), async (req, res) => {
 // ========================================
 // CREATE COMBO (ADMIN)
 // ========================================
-router.post('/', protect, admin, async (req, res) => {
+router.post('/', protect, checkPermission('combos', 'limited'), async (req, res) => {
     try {
         const combo = new Combo(req.body);
         const createdCombo = await combo.save();
-        
+
         // Clear cache after creating
         clearComboCache();
-        
+
         res.status(201).json(createdCombo);
     } catch (error) {
         console.error('[ERROR] Create combo:', error);
@@ -201,19 +201,19 @@ router.post('/', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE COMBO (ADMIN)
 // ========================================
-router.put('/:id', protect, admin, async (req, res) => {
+router.put('/:id', protect, checkPermission('combos', 'limited'), async (req, res) => {
     try {
         const combo = await Combo.findByIdAndUpdate(
             req.params.id,
             req.body,
-            { 
+            {
                 new: true,
                 runValidators: true,
                 select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         if (!combo) {
             return res.status(404).json({ message: 'Combo not found' });
@@ -232,7 +232,7 @@ router.put('/:id', protect, admin, async (req, res) => {
 // ========================================
 // DELETE COMBO (ADMIN)
 // ========================================
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, checkPermission('combos', 'full'), async (req, res) => {
     try {
         const combo = await Combo.findByIdAndDelete(req.params.id)
             .maxTimeMS(5000)
@@ -255,7 +255,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE COMBO STOCK (ADMIN) - OPTIMIZED
 // ========================================
-router.patch('/:id/stock', protect, admin, async (req, res) => {
+router.patch('/:id/stock', protect, checkPermission('combos', 'limited'), async (req, res) => {
     try {
         const { stock } = req.body;
 
@@ -267,8 +267,8 @@ router.patch('/:id/stock', protect, admin, async (req, res) => {
             { _id: req.params.id },
             { $set: { stock } }
         )
-        .maxTimeMS(3000)
-        .exec();
+            .maxTimeMS(3000)
+            .exec();
 
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'Combo not found' });
@@ -276,9 +276,9 @@ router.patch('/:id/stock', protect, admin, async (req, res) => {
 
         clearComboCache();
 
-        res.json({ 
+        res.json({
             message: 'Stock updated successfully',
-            stock 
+            stock
         });
     } catch (error) {
         console.error('[ERROR] Update combo stock:', error);
@@ -289,7 +289,7 @@ router.patch('/:id/stock', protect, admin, async (req, res) => {
 // ========================================
 // TOGGLE COMBO FEATURED STATUS (ADMIN)
 // ========================================
-router.patch('/:id/featured', protect, admin, async (req, res) => {
+router.patch('/:id/featured', protect, checkPermission('combos', 'limited'), async (req, res) => {
     try {
         const { isFeatured } = req.body;
 
@@ -298,8 +298,8 @@ router.patch('/:id/featured', protect, admin, async (req, res) => {
             { $set: { isFeatured: !!isFeatured } },
             { new: true, select: '-__v' }
         )
-        .maxTimeMS(3000)
-        .exec();
+            .maxTimeMS(3000)
+            .exec();
 
         if (!combo) {
             return res.status(404).json({ message: 'Combo not found' });
@@ -317,7 +317,7 @@ router.patch('/:id/featured', protect, admin, async (req, res) => {
 // ========================================
 // TOGGLE COMBO ACTIVE STATUS (ADMIN)
 // ========================================
-router.patch('/:id/active', protect, admin, async (req, res) => {
+router.patch('/:id/active', protect, checkPermission('combos', 'limited'), async (req, res) => {
     try {
         const { isActive } = req.body;
 
@@ -326,8 +326,8 @@ router.patch('/:id/active', protect, admin, async (req, res) => {
             { $set: { isActive: !!isActive } },
             { new: true, select: '-__v' }
         )
-        .maxTimeMS(3000)
-        .exec();
+            .maxTimeMS(3000)
+            .exec();
 
         if (!combo) {
             return res.status(404).json({ message: 'Combo not found' });
@@ -345,7 +345,7 @@ router.patch('/:id/active', protect, admin, async (req, res) => {
 // ========================================
 // CLEAR COMBO CACHE (ADMIN)
 // ========================================
-router.post('/cache/clear', protect, admin, (req, res) => {
+router.post('/cache/clear', protect, checkPermission('combos', 'limited'), (req, res) => {
     try {
         clearComboCache();
         res.json({ message: 'Combo cache cleared successfully' });

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // ========================================
 // PERFORMANCE OPTIMIZATIONS ADDED:
@@ -16,7 +16,7 @@ const { protect, admin } = require('../middleware/authMiddleware');
 // ========================================
 // GET ALL USERS (ADMIN) - HIGHLY OPTIMIZED
 // ========================================
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', protect, checkPermission('customers', 'view'), async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = Math.min(parseInt(req.query.limit) || 50, 100);
@@ -228,7 +228,7 @@ router.delete('/:id/address/:addressId', protect, async (req, res) => {
 // ========================================
 // GET USER STATISTICS (ADMIN) - OPTIMIZED
 // ========================================
-router.get('/:id/stats', protect, admin, async (req, res) => {
+router.get('/:id/stats', protect, checkPermission('customers', 'view'), async (req, res) => {
     try {
         // OPTIMIZATION: Use single aggregation pipeline
         const stats = await User.aggregate([
@@ -289,7 +289,7 @@ router.get('/:id/stats', protect, admin, async (req, res) => {
 // ========================================
 // SEARCH USERS (ADMIN) - OPTIMIZED
 // ========================================
-router.get('/search/query', protect, admin, async (req, res) => {
+router.get('/search/query', protect, checkPermission('customers', 'view'), async (req, res) => {
     try {
         const { q, limit = 20 } = req.query;
 
@@ -327,7 +327,7 @@ router.get('/search/query', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE USER ROLE (ADMIN) - OPTIMIZED
 // ========================================
-router.patch('/:id/role', protect, admin, async (req, res) => {
+router.patch('/:id/role', protect, checkPermission('customers', 'full'), async (req, res) => {
     try {
         const { role } = req.body;
 
@@ -357,7 +357,7 @@ router.patch('/:id/role', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE USER STATUS (ADMIN) - OPTIMIZED
 // ========================================
-router.patch('/:id/status', protect, admin, async (req, res) => {
+router.patch('/:id/status', protect, checkPermission('customers', 'limited'), async (req, res) => {
     try {
         const { status } = req.body;
 
@@ -387,7 +387,7 @@ router.patch('/:id/status', protect, admin, async (req, res) => {
 // ========================================
 // DELETE USER (ADMIN) - OPTIMIZED
 // ========================================
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, checkPermission('customers', 'full'), async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id)
 

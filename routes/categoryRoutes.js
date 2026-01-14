@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // ========================================
 // CATEGORY ROUTES - FIXED VERSION
@@ -131,7 +131,7 @@ router.get('/:id', cacheMiddleware(1800000), async (req, res) => {
 // ========================================
 // CREATE CATEGORY (ADMIN) - FIXED
 // ========================================
-router.post('/', protect, admin, async (req, res, next) => {
+router.post('/', protect, checkPermission('categories', 'limited'), async (req, res, next) => {
     try {
         console.log('[CATEGORY] Create request:', req.body);
 
@@ -200,7 +200,7 @@ router.post('/', protect, admin, async (req, res, next) => {
 // ========================================
 // UPDATE CATEGORY (ADMIN) - FIXED
 // ========================================
-router.put('/:id', protect, admin, async (req, res, next) => {
+router.put('/:id', protect, checkPermission('categories', 'limited'), async (req, res, next) => {
     try {
         console.log('[CATEGORY] Update request:', req.params.id, req.body);
 
@@ -278,7 +278,7 @@ router.put('/:id', protect, admin, async (req, res, next) => {
 // ========================================
 // DELETE CATEGORY (ADMIN) - FIXED
 // ========================================
-router.delete('/:id', protect, admin, async (req, res, next) => {
+router.delete('/:id', protect, checkPermission('categories', 'full'), async (req, res, next) => {
     try {
         console.log('[CATEGORY] Delete request:', req.params.id);
 
@@ -311,7 +311,7 @@ router.delete('/:id', protect, admin, async (req, res, next) => {
 // ========================================
 // GET CATEGORIES WITH PRODUCT COUNT
 // ========================================
-router.get('/stats/count', protect, admin, async (req, res) => {
+router.get('/stats/count', protect, checkPermission('categories', 'view'), async (req, res) => {
     try {
         const { Product } = require('../models/Product');
 

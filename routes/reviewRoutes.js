@@ -3,7 +3,7 @@ const router = express.Router();
 const Review = require('../models/Review');
 const Order = require('../models/Order');
 const { Product } = require('../models/Product');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 const notificationService = require('../utils/notificationService');
 
 // ========================================
@@ -19,7 +19,7 @@ const notificationService = require('../utils/notificationService');
 // ========================================
 // GET ALL REVIEWS (ADMIN) - OPTIMIZED
 // ========================================
-router.get('/admin', protect, admin, async (req, res) => {
+router.get('/admin', protect, checkPermission('products', 'view'), async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = Math.min(parseInt(req.query.limit) || 50, 100);
@@ -174,8 +174,8 @@ router.get('/product/:productId/stats', async (req, res) => {
                 }
             }
         ])
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         res.json(stats[0] || {
             averageRating: 0,
@@ -209,9 +209,9 @@ router.get('/check/:productId', protect, async (req, res) => {
             .exec();
 
         if (!order) {
-            return res.json({ 
-                canReview: false, 
-                message: 'You must purchase this product to review it.' 
+            return res.json({
+                canReview: false,
+                message: 'You must purchase this product to review it.'
             });
         }
 
@@ -227,9 +227,9 @@ router.get('/check/:productId', protect, async (req, res) => {
             .exec();
 
         if (existingReview) {
-            return res.json({ 
-                canReview: false, 
-                message: 'You have already reviewed this product for this order.' 
+            return res.json({
+                canReview: false,
+                message: 'You have already reviewed this product for this order.'
             });
         }
 
@@ -260,8 +260,8 @@ router.post('/', protect, async (req, res) => {
             .exec();
 
         if (!order) {
-            return res.status(400).json({ 
-                message: 'You can only review products you have purchased and received.' 
+            return res.status(400).json({
+                message: 'You can only review products you have purchased and received.'
             });
         }
 
@@ -277,8 +277,8 @@ router.post('/', protect, async (req, res) => {
             .exec();
 
         if (alreadyReviewed) {
-            return res.status(400).json({ 
-                message: 'You have already reviewed this product from this order.' 
+            return res.status(400).json({
+                message: 'You have already reviewed this product from this order.'
             });
         }
 
@@ -302,7 +302,7 @@ router.post('/', protect, async (req, res) => {
                     .select('name')
                     .lean()
                     .exec();
-                    
+
                 if (product) {
                     await notificationService.sendReviewAlert(review, product, req.user);
                 }
@@ -321,7 +321,7 @@ router.post('/', protect, async (req, res) => {
 // ========================================
 // UPDATE REVIEW STATUS (ADMIN) - OPTIMIZED
 // ========================================
-router.put('/:id', protect, admin, async (req, res) => {
+router.put('/:id', protect, checkPermission('products', 'limited'), async (req, res) => {
     try {
         const { isApproved, adminResponse } = req.body;
 
@@ -349,7 +349,7 @@ router.put('/:id', protect, admin, async (req, res) => {
 // ========================================
 // DELETE REVIEW (ADMIN) - OPTIMIZED
 // ========================================
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, checkPermission('products', 'full'), async (req, res) => {
     try {
         const review = await Review.findById(req.params.id)
             .maxTimeMS(5000)
@@ -371,7 +371,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
 // ========================================
 // BULK APPROVE REVIEWS (ADMIN) - OPTIMIZED
 // ========================================
-router.post('/bulk/approve', protect, admin, async (req, res) => {
+router.post('/bulk/approve', protect, checkPermission('products', 'limited'), async (req, res) => {
     try {
         const { reviewIds } = req.body;
 
@@ -384,8 +384,8 @@ router.post('/bulk/approve', protect, admin, async (req, res) => {
             { _id: { $in: reviewIds } },
             { $set: { isApproved: true } }
         )
-        .maxTimeMS(10000)
-        .exec();
+            .maxTimeMS(10000)
+            .exec();
 
         // Recalculate ratings for affected products
         const reviews = await Review.find({ _id: { $in: reviewIds } })
@@ -394,12 +394,12 @@ router.post('/bulk/approve', protect, admin, async (req, res) => {
             .exec();
 
         const uniqueProductIds = [...new Set(reviews.map(r => r.product.toString()))];
-        
+
         for (const productId of uniqueProductIds) {
             await Review.calcAverageRating(productId);
         }
 
-        res.json({ 
+        res.json({
             message: `${result.modifiedCount} reviews approved successfully`,
             modifiedCount: result.modifiedCount
         });
@@ -412,7 +412,7 @@ router.post('/bulk/approve', protect, admin, async (req, res) => {
 // ========================================
 // GET PENDING REVIEWS (ADMIN) - OPTIMIZED
 // ========================================
-router.get('/pending/list', protect, admin, async (req, res) => {
+router.get('/pending/list', protect, checkPermission('products', 'view'), async (req, res) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 20, 100);
 

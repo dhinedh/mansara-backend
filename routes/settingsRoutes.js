@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Setting = require('../models/Setting');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // ========================================
 // PERFORMANCE OPTIMIZATIONS ADDED:
@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
         // Check cache first
         const cacheKey = 'site_settings';
         const cached = cache.get(cacheKey);
-        
+
         if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
             console.log('[CACHE HIT] Settings');
             return res.json(cached.data);
@@ -83,20 +83,20 @@ router.get('/', async (req, res) => {
 // ========================================
 // UPDATE SETTINGS (ADMIN)
 // ========================================
-router.put('/', protect, admin, async (req, res) => {
+router.put('/', protect, checkPermission('settings', 'limited'), async (req, res) => {
     try {
         const settings = await Setting.findOneAndUpdate(
             { key: 'site_settings' },
             { ...req.body, key: 'site_settings' },
-            { 
-                new: true, 
+            {
+                new: true,
                 upsert: true,
                 runValidators: true,
                 select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         // Clear cache after update
         clearSettingsCache();
@@ -111,7 +111,7 @@ router.put('/', protect, admin, async (req, res) => {
 // ========================================
 // UPDATE SPECIFIC SETTING FIELD (ADMIN)
 // ========================================
-router.patch('/:field', protect, admin, async (req, res) => {
+router.patch('/:field', protect, checkPermission('settings', 'limited'), async (req, res) => {
     try {
         const { field } = req.params;
         const { value } = req.body;
@@ -122,14 +122,14 @@ router.patch('/:field', protect, admin, async (req, res) => {
         const settings = await Setting.findOneAndUpdate(
             { key: 'site_settings' },
             updateQuery,
-            { 
-                new: true, 
+            {
+                new: true,
                 upsert: true,
                 select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         // Clear cache after update
         clearSettingsCache();
@@ -144,7 +144,7 @@ router.patch('/:field', protect, admin, async (req, res) => {
 // ========================================
 // RESET SETTINGS TO DEFAULTS (ADMIN)
 // ========================================
-router.post('/reset', protect, admin, async (req, res) => {
+router.post('/reset', protect, checkPermission('settings', 'full'), async (req, res) => {
     try {
         const defaultSettings = {
             key: 'site_settings',
@@ -167,14 +167,14 @@ router.post('/reset', protect, admin, async (req, res) => {
         const settings = await Setting.findOneAndUpdate(
             { key: 'site_settings' },
             defaultSettings,
-            { 
-                new: true, 
+            {
+                new: true,
                 upsert: true,
                 select: '-__v'
             }
         )
-        .maxTimeMS(5000)
-        .exec();
+            .maxTimeMS(5000)
+            .exec();
 
         // Clear cache after reset
         clearSettingsCache();
@@ -189,7 +189,7 @@ router.post('/reset', protect, admin, async (req, res) => {
 // ========================================
 // CLEAR SETTINGS CACHE (ADMIN)
 // ========================================
-router.post('/clear-cache', protect, admin, async (req, res) => {
+router.post('/clear-cache', protect, checkPermission('settings', 'limited'), async (req, res) => {
     try {
         clearSettingsCache();
         res.json({ message: 'Settings cache cleared successfully' });
@@ -201,7 +201,7 @@ router.post('/clear-cache', protect, admin, async (req, res) => {
 // ========================================
 // GET CACHE STATUS (ADMIN)
 // ========================================
-router.get('/cache/status', protect, admin, (req, res) => {
+router.get('/cache/status', protect, checkPermission('settings', 'view'), (req, res) => {
     const cacheInfo = {
         size: cache.size,
         entries: Array.from(cache.keys()).map(key => ({
@@ -210,7 +210,7 @@ router.get('/cache/status', protect, admin, (req, res) => {
             expiresIn: Math.max(0, Math.round((CACHE_DURATION - (Date.now() - cache.get(key).timestamp)) / 1000)) + 's'
         }))
     };
-    
+
     res.json(cacheInfo);
 });
 

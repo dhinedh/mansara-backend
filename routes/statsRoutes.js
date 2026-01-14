@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const User = require('../models/User');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 
 // Try to load Product model with fallback
 let Product;
@@ -59,7 +59,7 @@ const getCachedOrFetch = async (key, fetchFn, duration = CACHE_DURATION) => {
 // ========================================
 // GET DASHBOARD STATS (BULLETPROOF VERSION)
 // ========================================
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
         console.log('[STATS] Fetching dashboard stats...');
 
@@ -234,7 +234,7 @@ router.get('/', protect, admin, async (req, res) => {
 // ========================================
 // GET SALES ANALYTICS (OPTIMIZED - 75% FASTER)
 // ========================================
-router.get('/sales', protect, admin, async (req, res) => {
+router.get('/sales', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
         const { period = '7days' } = req.query;
         const cacheKey = `sales-analytics-${period}`;
@@ -308,7 +308,7 @@ router.get('/sales', protect, admin, async (req, res) => {
 // ========================================
 // GET PRODUCT PERFORMANCE (OPTIMIZED)
 // ========================================
-router.get('/products', protect, admin, async (req, res) => {
+router.get('/products', protect, checkPermission('products', 'view'), async (req, res) => {
     try {
         const cacheKey = 'product-performance';
 
@@ -365,7 +365,7 @@ router.get('/products', protect, admin, async (req, res) => {
 // ========================================
 // GET CUSTOMER ANALYTICS (OPTIMIZED)
 // ========================================
-router.get('/customers', protect, admin, async (req, res) => {
+router.get('/customers', protect, checkPermission('customers', 'view'), async (req, res) => {
     try {
         const cacheKey = 'customer-analytics';
 
@@ -424,7 +424,7 @@ router.get('/customers', protect, admin, async (req, res) => {
 // ========================================
 // GET ORDER STATUS DISTRIBUTION (OPTIMIZED)
 // ========================================
-router.get('/order-status', protect, admin, async (req, res) => {
+router.get('/order-status', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
         const cacheKey = 'order-status-distribution';
 
@@ -465,7 +465,7 @@ router.get('/order-status', protect, admin, async (req, res) => {
 // ========================================
 // CLEAR CACHE (FOR TESTING)
 // ========================================
-router.post('/clear-cache', protect, admin, async (req, res) => {
+router.post('/clear-cache', protect, checkPermission('orders', 'limited'), async (req, res) => {
     try {
         cache.clear();
         console.log('[STATS] Cache cleared');
