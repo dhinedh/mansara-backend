@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const Hero = require('./models/Hero');
 
 console.log('Env Keys:', Object.keys(process.env).filter(k => k.includes('MONGO') || k.includes('DB')));
-console.log('Attempting to connect with URI length:', process.env.MONGO_URI ? process.env.MONGO_URI.length : 'UNDEFINED');
+console.log('Attempting to connect with URI length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 'UNDEFINED');
 
 const heroData = {
     key: 'home',
@@ -28,7 +28,7 @@ const heroData = {
 
 const seedHero = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect(process.env.MONGODB_URI);
         console.log('MongoDB Connected');
 
         // Check if exists

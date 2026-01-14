@@ -60,8 +60,8 @@ const clearContentCache = () => {
 // CONTENT ROUTES
 // ========================================
 
-// Get all content pages (CACHED)
-router.get('/pages', cacheMiddleware(1800000), async (req, res) => {
+// Get all content pages (CACHED - 1ms flush)
+router.get('/pages', cacheMiddleware(1), async (req, res) => {
     try {
         const pages = await Content.find({ isPublished: true })
             .select('slug sections isPublished')
@@ -294,8 +294,8 @@ router.patch('/banners/:id/active', protect, checkPermission('banners', 'limited
 // HERO ROUTES
 // ========================================
 
-// Get all hero configs (CACHED)
-router.get('/hero', cacheMiddleware(1800000), async (req, res) => {
+// Get all hero configs (CACHED - 1ms flush)
+router.get('/hero', cacheMiddleware(1), async (req, res) => {
     try {
         const heroes = await Hero.find({ isActive: true })
             .select('key data')
