@@ -457,22 +457,124 @@ router.get('/order-status', protect, checkPermission('orders', 'view'), async (r
 
         res.json(distribution);
     } catch (error) {
-        console.error('[STATS ERROR] Get order status distribution failed:', error);
-        res.status(500).json({ message: 'Failed to fetch order status distribution' });
+        console.error('[STATS ERROR] Clear cache failed:', error);
+        res.status(500).json({ message: 'Failed to clear cache' });
     }
 });
 
 // ========================================
-// CLEAR CACHE (FOR TESTING)
+// GET CATEGORY SALES ANALYTICS
 // ========================================
-router.post('/clear-cache', protect, checkPermission('orders', 'limited'), async (req, res) => {
+router.get('/categories', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
-        cache.clear();
-        console.log('[STATS] Cache cleared');
-        res.json({ message: 'Cache cleared successfully' });
+        const cacheKey = 'category-sales-analytics';
+        const analytics = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const categoryStats = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    { $unwind: '$items' },
+                    {
+                        $lookup: {
+                            from: 'products',
+                            localField: 'items.product',
+                            foreignField: '_id',
+                            as: 'productInfo'
+                        }
+                    },
+                    { $unwind: '$productInfo' },
+                    {
+                        $lookup: {
+                            from: 'categories',
+                            localField: 'productInfo.category',
+                            foreignField: '_id',
+                            as: 'categoryInfo'
+                        }
+                    },
+                    { $unwind: '$categoryInfo' },
+                    {
+                        $group: {
+                            _id: '$categoryInfo.name',
+                            totalSold: { $sum: '$items.quantity' },
+                            revenue: { $sum: { $multiply: ['$items.quantity', '$items.price'] } }
+                        }
+                    },
+                    { $sort: { revenue: -1 } }
+                ]).maxTimeMS(15000).exec();
+                return categoryStats || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Category analytics failed:', error.message);
+                return [];
+            }
+        }, 300000); // 5 minutes cache
+        res.json(analytics);
     } catch (error) {
-        console.error('[STATS ERROR] Clear cache failed:', error);
-        res.status(500).json({ message: 'Failed to clear cache' });
+        console.error('[STATS ERROR] Get category analytics failed:', error);
+        res.status(500).json({ message: 'Failed to fetch category analytics' });
+    }
+});
+
+// ========================================
+// GET PAYMENT METHOD ANALYTICS
+// ========================================
+router.get('/payment-methods', protect, checkPermission('orders', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'payment-method-analytics';
+        const analytics = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const paymentStats = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    {
+                        $group: {
+                            _id: '$paymentMethod',
+                            count: { $sum: 1 },
+                            totalRevenue: { $sum: '$total' }
+                        }
+                    },
+                    { $sort: { count: -1 } }
+                ]).maxTimeMS(5000).exec();
+                return paymentStats || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Payment method analytics failed:', error.message);
+                return [];
+            }
+        }, 300000);
+        res.json(analytics);
+    } catch (error) {
+        console.error('[STATS ERROR] Get payment method analytics failed:', error);
+        res.status(500).json({ message: 'Failed to fetch payment method analytics' });
+    }
+});
+
+// ========================================
+// GET STOCK HEALTH ANALYTICS
+// ========================================
+router.get('/stock-health', protect, checkPermission('products', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'stock-health-analytics';
+        const analytics = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                if (!Product) return { inStock: 0, lowStock: 0, outOfStock: 0 };
+
+                const [inStock, lowStock, outOfStock] = await Promise.all([
+                    Product.countDocuments({ isActive: true, stock: { $gt: 10 } }),
+                    Product.countDocuments({ isActive: true, stock: { $gt: 0, $lte: 10 } }),
+                    Product.countDocuments({ isActive: true, stock: 0 })
+                ]);
+
+                return {
+                    inStock,
+                    lowStock,
+                    outOfStock
+                };
+            } catch (error) {
+                console.error('[STATS ERROR] Stock health analytics failed:', error.message);
+                return { inStock: 0, lowStock: 0, outOfStock: 0 };
+            }
+        }, 60000); // 1 minute cache
+        res.json(analytics);
+    } catch (error) {
+        console.error('[STATS ERROR] Get stock health analytics failed:', error);
+        res.status(500).json({ message: 'Failed to fetch stock health analytics' });
     }
 });
 
