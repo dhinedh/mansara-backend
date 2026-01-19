@@ -255,32 +255,6 @@ router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => 
         const { status, paymentStatus, search } = req.query;
 
         // AUTO-CLOSE LOGIC (Lazy Check)
-        // Find delivered orders older than 5 days with pending feedback and close them
-        try {
-            const fiveDaysAgo = new Date();
-            fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-
-            await Order.updateMany(
-                {
-                    orderStatus: 'Delivered',
-                    feedbackStatus: { $ne: 'Received' }, // Not specifically marked as Received
-                    $or: [
-                        { actualDeliveryDate: { $lt: fiveDaysAgo } },
-                        { actualDeliveryDate: { $exists: false }, updatedAt: { $lt: fiveDaysAgo } }
-                    ]
-                },
-                {
-                    $set: {
-                        orderStatus: 'Closed',
-                        feedbackStatus: 'Not Received',
-                        feedbackDate: new Date()
-                    }
-                }
-            );
-        } catch (err) {
-            console.error('[WARN] Auto-close failed:', err);
-            // Continue even if auto-close fails
-        }
 
         // Build query
         const query = {};
