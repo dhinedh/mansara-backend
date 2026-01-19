@@ -292,7 +292,7 @@ router.post('/', protect, async (req, res) => {
             images,
             video,
             isVerifiedPurchase: true,
-            isApproved: false
+            isApproved: true
         });
 
         // OPTIMIZATION: Send admin notification asynchronously (non-blocking)

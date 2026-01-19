@@ -110,7 +110,14 @@ router.post('/', protect, async (req, res) => {
         // 4. SHIPPING CALCULATION (Server Side)
         // ========================================
         // SHIPPING REMOVED AS PER REQUIREMENT
-        const shippingCharge = 0;
+        const SHIPPING_THRESHOLD = 1000;
+        const SHIPPING_CHARGE = 50;
+        let shippingCharge = 0;
+
+        // Calculate shipping based on ITEM total (dbTotal)
+        if (dbTotal < SHIPPING_THRESHOLD) {
+            shippingCharge = SHIPPING_CHARGE;
+        }
 
         // Final authoritative total
         // We trust our DB prices + our shipping logic
