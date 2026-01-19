@@ -492,6 +492,12 @@ router.put('/:id/status', protect, checkPermission('orders', 'limited'), async (
             if (order.user && (order.user.email || order.user.phone)) {
                 notificationService.sendOrderStatusUpdate(order, order.user, status)
                     .catch(err => console.error('[ERROR] Status update notification failed:', err));
+
+                // Trigger Review Request if Delivered
+                if (status === 'Delivered') {
+                    notificationService.sendReviewRequest(order, order.user)
+                        .catch(err => console.error('[ERROR] Review request notification failed:', err));
+                }
             }
         });
 

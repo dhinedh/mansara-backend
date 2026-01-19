@@ -371,6 +371,13 @@ router.post('/verify-email', async (req, res) => {
         // Delete temp user asynchronously
         TempUser.findByIdAndDelete(tempUser._id).exec().catch(() => { });
 
+        // Send Welcome Notification (Async)
+        const notificationService = require('../utils/notificationService');
+        process.nextTick(() => {
+            notificationService.sendWelcomeMessage(newUser)
+                .catch(err => console.error('[ERROR] Welcome notification failed:', err));
+        });
+
         res.json({
             _id: newUser._id,
             name: newUser.name,

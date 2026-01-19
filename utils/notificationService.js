@@ -804,7 +804,113 @@ We hope to serve you again soon! 🙏`;
         }
     },
 
-    // 8. Review Request (After Delivery)
+    // 8. Welcome Message (New User)
+    sendWelcomeMessage: async (user) => {
+        try {
+            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
+
+                try {
+                    const emailMessage = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        </head>
+                        <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                
+                                <!-- Header -->
+                                <div style="background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); padding: 30px; text-align: center;">
+                                    <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to Mansara Foods! 🌿</h1>
+                                </div>
+
+                                <!-- Content -->
+                                <div style="padding: 30px;">
+                                    <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
+                                    <p style="font-size: 14px; color: #666; line-height: 1.6;">We're thrilled to have you on board! Thank you for joining our community of healthy living enthusiasts.</p>
+                                    
+                                    <p style="font-size: 14px; color: #666; line-height: 1.6;">At Mansara Foods, we bring you the finest natural and organic products directly to your doorstep.</p>
+
+                                    <!-- Features -->
+                                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                                        <h3 style="margin: 0 0 15px 0; color: #333; font-size: 16px;">What you can expect:</h3>
+                                        <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
+                                            <li>🌱 100% Natural & Organic Products</li>
+                                            <li>🚚 Fast & Reliable Delivery</li>
+                                            <li>🎁 Exclusive Offers & Discounts</li>
+                                            <li>👩‍🍳 Healthy Recipes & Tips</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- CTA Button -->
+                                    <div style="text-align: center; margin: 35px 0;">
+                                        <a href="${frontendUrl}/products" style="display: inline-block; background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Start Shopping</a>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                                    <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                                    <p style="margin: 5px 0; color: #999; font-size: 12px;">Healthy Living, Naturally</p>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                    `;
+
+                    await sendEmail({
+                        email: user.email,
+                        name: user.name,
+                        subject: 'Welcome to Mansara Foods! 🌿',
+                        html: emailMessage
+                    });
+                    console.log('[✓] Welcome email sent');
+                } catch (err) {
+                    console.error('[✗] Welcome email failed:', err.message);
+                }
+            })();
+
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = user.whatsapp || user.phone;
+                if (!whatsappNumber) return;
+
+                try {
+                    const message = `*Mansara Foods* 🌿
+                    
+👋 *Welcome to the Family!*
+
+Hi *${user.name}*, we're so happy to have you here! 🎉
+
+At Mansara Foods, we're committed to bringing you the best in natural and healthy food products.
+
+🛍️ *Start exploring our products:*
+${frontendUrl}/products
+
+If you have any questions, feel free to reply to this message.
+
+Happy Shopping! 🛒`;
+
+                    await sendWhatsApp(whatsappNumber, message);
+                    console.log('[✓] Welcome WhatsApp sent');
+                } catch (err) {
+                    console.error('[✗] Welcome WhatsApp failed:', err.message);
+                }
+            })();
+
+            await Promise.allSettled([emailPromise, whatsappPromise]);
+
+        } catch (error) {
+            console.error('[ERROR] sendWelcomeMessage:', error.message);
+        }
+    },
+
+    // 9. Review Request (After Delivery)
     sendReviewRequest: async (order, user) => {
         try {
             const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
@@ -817,67 +923,71 @@ We hope to serve you again soon! 🙏`;
             const emailPromise = (async () => {
                 if (!user.email) return;
 
-                const emailMessage = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    </head>
-                    <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
-                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            
-                            <!-- Header -->
-                            <div style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); padding: 30px; text-align: center;">
-                                <h1 style="color: #ffffff; margin: 0; font-size: 28px;">How was your order? ⭐</h1>
-                            </div>
-
-                            <!-- Content -->
-                            <div style="padding: 30px;">
-                                <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
-                                <p style="font-size: 14px; color: #666; line-height: 1.6;">
-                                    Your order <strong>#${order.orderId}</strong> has been delivered. We hope you love your products!
-                                </p>
-                                <p style="font-size: 14px; color: #666; line-height: 1.6;">
-                                    We'd love to hear your feedback. Your reviews help us improve and help others make better choices.
-                                </p>
+                try {
+                    const emailMessage = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        </head>
+                        <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 
-                                <!-- Product List (First 3) -->
-                                <div style="margin: 20px 0;">
-                                    ${order.items.slice(0, 3).map(item => `
-                                        <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
-                                            <span style="font-weight: bold; color: #333;">${item.name}</span>
-                                        </div>
-                                    `).join('')}
-                                    ${order.items.length > 3 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${order.items.length - 3} more items...</div>` : ''}
+                                <!-- Header -->
+                                <div style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); padding: 30px; text-align: center;">
+                                    <h1 style="color: #ffffff; margin: 0; font-size: 28px;">How was your order? ⭐</h1>
                                 </div>
 
-                                <!-- CTA Button -->
-                                <div style="text-align: center; margin: 35px 0;">
-                                    <a href="${reviewLink}" style="display: inline-block; background-color: #f39c12; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Write a Review</a>
+                                <!-- Content -->
+                                <div style="padding: 30px;">
+                                    <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
+                                    <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                        Your order <strong>#${order.orderId}</strong> has been delivered. We hope you love your products!
+                                    </p>
+                                    <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                        We'd love to hear your feedback. Your reviews help us improve and help others make better choices.
+                                    </p>
+                                    
+                                    <!-- Product List (First 3) -->
+                                    <div style="margin: 20px 0;">
+                                        ${order.items.slice(0, 3).map(item => `
+                                            <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                                <span style="font-weight: bold; color: #333;">${item.name}</span>
+                                            </div>
+                                        `).join('')}
+                                        ${order.items.length > 3 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${order.items.length - 3} more items...</div>` : ''}
+                                    </div>
+
+                                    <!-- CTA Button -->
+                                    <div style="text-align: center; margin: 35px 0;">
+                                        <a href="${reviewLink}" style="display: inline-block; background-color: #f39c12; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Write a Review</a>
+                                    </div>
+                                    
+                                    <p style="font-size: 14px; color: #999; text-align: center;">
+                                        You can upload photos and videos to share your experience! 📸 🎥
+                                    </p>
                                 </div>
-                                
-                                <p style="font-size: 14px; color: #999; text-align: center;">
-                                    You can upload photos and videos to share your experience! 📸 🎥
-                                </p>
-                            </div>
 
-                            <!-- Footer -->
-                            <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                                <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                                <!-- Footer -->
+                                <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                                    <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                                </div>
                             </div>
-                        </div>
-                    </body>
-                    </html>
-                `;
+                        </body>
+                        </html>
+                    `;
 
-                await sendEmail({
-                    email: user.email,
-                    name: user.name,
-                    subject: `Rate your experience with Mansara Foods! ⭐`,
-                    html: emailMessage
-                });
-                console.log('[✓] Review request email sent');
+                    await sendEmail({
+                        email: user.email,
+                        name: user.name,
+                        subject: `Rate your experience with Mansara Foods! ⭐`,
+                        html: emailMessage
+                    });
+                    console.log('[✓] Review request email sent');
+                } catch (err) {
+                    console.error('[✗] Review request email failed:', err.message);
+                }
             })();
 
             // WHATSAPP NOTIFICATION
