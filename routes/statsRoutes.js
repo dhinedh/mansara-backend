@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const User = require('../models/User');
@@ -139,7 +139,6 @@ router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => 
                         }
                     }
                 ])
-                    .maxTimeMS(10000)
                     .exec();
 
                 // Extract order stats
@@ -163,7 +162,6 @@ router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => 
                 if (Product) {
                     console.log('[STATS] Fetching product count...');
                     totalProducts = await Product.countDocuments({ isActive: true })
-                        .maxTimeMS(3000)
                         .exec();
                     console.log('[STATS] Product count fetched:', totalProducts);
                 } else {
@@ -178,7 +176,6 @@ router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => 
             try {
                 console.log('[STATS] Fetching user count...');
                 totalUsers = await User.countDocuments()
-                    .maxTimeMS(3000)
                     .exec();
                 console.log('[STATS] User count fetched:', totalUsers);
             } catch (error) {
@@ -288,7 +285,6 @@ router.get('/sales', protect, checkPermission('orders', 'view'), async (req, res
                         }
                     }
                 ])
-                    .maxTimeMS(10000)
                     .exec();
 
                 return salesData || [];
@@ -345,7 +341,6 @@ router.get('/products', protect, checkPermission('products', 'view'), async (req
                         }
                     }
                 ])
-                    .maxTimeMS(10000)
                     .exec();
 
                 return productStats || [];
@@ -404,7 +399,6 @@ router.get('/customers', protect, checkPermission('customers', 'view'), async (r
                         }
                     }
                 ])
-                    .maxTimeMS(10000)
                     .exec();
 
                 return customerStats || [];
@@ -445,7 +439,6 @@ router.get('/order-status', protect, checkPermission('orders', 'view'), async (r
                         }
                     }
                 ])
-                    .maxTimeMS(5000)
                     .exec();
 
                 return statusStats || [];
@@ -499,7 +492,6 @@ router.get('/categories', protect, checkPermission('orders', 'view'), async (req
                         }
                     },
                     { $sort: { revenue: -1 } }
-                ]).maxTimeMS(15000).exec();
                 return categoryStats || [];
             } catch (error) {
                 console.error('[STATS ERROR] Category analytics failed:', error.message);
@@ -531,7 +523,6 @@ router.get('/payment-methods', protect, checkPermission('orders', 'view'), async
                         }
                     },
                     { $sort: { count: -1 } }
-                ]).maxTimeMS(5000).exec();
                 return paymentStats || [];
             } catch (error) {
                 console.error('[STATS ERROR] Payment method analytics failed:', error.message);
@@ -589,13 +580,16 @@ router.get('/insights/bundling', protect, checkPermission('orders', 'view'), asy
         const insights = await getCachedOrFetch(cacheKey, async () => {
             try {
                 // Find orders with more than 1 item
-                const orders = await Order.find({
-                    'items.1': { $exists: true },
-                    orderStatus: { $ne: 'Cancelled' }
-                })
-                    .select('items.product')
-                    .limit(1000) // Limit analysis to last 1000 multi-item orders for performance
-                    .lean();
+                const orders = await Order.aggregate([
+                    {
+                        $match: {
+                            'items.1': { $exists: true },
+                            orderStatus: { $ne: 'Cancelled' }
+                        }
+                    },
+                    { $project: { 'items.product': 1 } },
+                    { $limit: 1000 }
+                ]);
 
                 const pairCounts = {};
 
@@ -699,7 +693,6 @@ router.get('/insights/inactive-customers', protect, checkPermission('customers',
                     },
                     { $sort: { totalSpent: -1 } },
                     { $limit: 10 }
-                ]).maxTimeMS(10000).exec();
 
                 return inactiveVIPs || [];
             } catch (error) {
@@ -746,10 +739,22 @@ router.get('/insights/slow-moving', protect, checkPermission('products', 'view')
                 recentSales.forEach(s => salesMap[s._id.toString()] = s.soldCount);
 
                 // 2. Find products with high stock but low sales
-                const products = await Product.find({
-                    isActive: true,
-                    stock: { $gt: 20 }
-                }).select('name stock price image').lean();
+                const products = await Product.aggregate([
+                    {
+                        $match: {
+                            isActive: true,
+                            stock: { $gt: 20 }
+                        }
+                    },
+                    {
+                        $project: {
+                            name: 1,
+                            stock: 1,
+                            price: 1,
+                            image: 1
+                        }
+                    }
+                ]);
 
                 const slowMoving = products
                     .map(p => ({
@@ -799,7 +804,6 @@ router.get('/insights/peak-times', protect, checkPermission('orders', 'view'), a
                     },
                     { $sort: { orderCount: -1 } },
                     { $limit: 20 }
-                ]).maxTimeMS(5000).exec();
 
                 return peakTimes || [];
             } catch (error) {
@@ -841,13 +845,12 @@ router.get('/insights/customer-segments', protect, checkPermission('customers', 
                             }
                         }
                     }
-                ]).maxTimeMS(5000).exec();
 
                 // Map bucket IDs to readable names
                 const segmentMap = {
-                    0: 'New/Low (< ₹2k)',
-                    2000: 'Regular (₹2k-10k)',
-                    10000: 'VIP (> ₹10k)'
+                    0: 'New/Low (< â‚¹2k)',
+                    2000: 'Regular (â‚¹2k-10k)',
+                    10000: 'VIP (> â‚¹10k)'
                 };
 
                 return segments.map(s => ({
