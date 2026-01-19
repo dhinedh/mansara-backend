@@ -57,164 +57,175 @@ const getCachedOrFetch = async (key, fetchFn, duration = CACHE_DURATION) => {
 };
 
 // ========================================
-let totalRevenue = 0;
-let recentOrders = [];
-let totalProducts = 0;
-let totalUsers = 0;
-
-// Fetch order stats
-try {
-    console.log('[STATS] Fetching order stats...');
-    const orderStatsAgg = await Order.aggregate([
-        {
-            $facet: {
-                // Total count
-                total: [
-                    { $count: 'count' }
-                ],
-                // Pending orders count
-                pending: [
-                    { $match: { orderStatus: { $in: ['Ordered', 'Processing'] } } },
-                    { $count: 'count' }
-                ],
-                // Today's orders
-                today: [
-                    {
-                        $match: {
-                            createdAt: {
-                                $gte: new Date(new Date().setHours(0, 0, 0, 0))
-                            }
-                        }
-                    },
-                    { $count: 'count' }
-                ],
-                // Total revenue (excluding cancelled)
-                revenue: [
-                    {
-                        $match: {
-                            orderStatus: { $ne: 'Cancelled' }
-                        }
-                    },
-                    {
-                        $group: {
-                            _id: null,
-                            total: { $sum: '$total' }
-                        }
-                    }
-                ],
-                // Recent orders (limited fields)
-                recent: [
-                    { $sort: { createdAt: -1 } },
-                    { $limit: 5 },
-                    {
-                        $lookup: {
-                            from: 'users',
-                            localField: 'user',
-                            foreignField: '_id',
-                            as: 'userInfo'
-                        }
-                    },
-                    {
-                        $project: {
-                            orderId: 1,
-                            total: 1,
-                            orderStatus: 1,
-                            createdAt: 1,
-                            'userInfo.name': 1,
-                            'userInfo.email': 1
-                        }
-                    }
-                ]
-            }
-        }
-    ])
-        .exec();
-
-    // Extract order stats
-    if (orderStatsAgg && orderStatsAgg[0]) {
-        const orderStats = orderStatsAgg[0];
-        totalOrders = orderStats.total[0]?.count || 0;
-        pendingOrders = orderStats.pending[0]?.count || 0;
-        todayOrders = orderStats.today[0]?.count || 0;
-        totalRevenue = orderStats.revenue[0]?.total || 0;
-        recentOrders = orderStats.recent || [];
-
-        console.log('[STATS] Order stats fetched successfully');
-    }
-} catch (error) {
-    console.error('[STATS ERROR] Failed to fetch order stats:', error.message);
-    // Continue with default values
-}
-
-// Fetch product count
-try {
-    if (Product) {
-        console.log('[STATS] Fetching product count...');
-        totalProducts = await Product.countDocuments({ isActive: true })
-            .exec();
-        console.log('[STATS] Product count fetched:', totalProducts);
-    } else {
-        console.warn('[STATS] Product model not available');
-    }
-} catch (error) {
-    console.error('[STATS ERROR] Failed to fetch product count:', error.message);
-    // Continue with default value
-}
-
-// Fetch user count
-try {
-    console.log('[STATS] Fetching user count...');
-    totalUsers = await User.countDocuments()
-        .exec();
-    console.log('[STATS] User count fetched:', totalUsers);
-} catch (error) {
-    console.error('[STATS ERROR] Failed to fetch user count:', error.message);
-    // Continue with default value
-}
-
-// Format recent orders
-const formattedRecentOrders = recentOrders.map(order => {
+// GET DASHBOARD STATS (BULLETPROOF VERSION)
+// ========================================
+router.get('/', protect, checkPermission('orders', 'view'), async (req, res) => {
     try {
-        return {
-            ...order,
-            user: order.userInfo?.[0] || { name: 'Unknown', email: '' }
-        };
-    } catch (error) {
-        console.error('[STATS ERROR] Failed to format order:', error.message);
-        return order;
-    }
-});
+        console.log('[STATS] Fetching dashboard stats...');
 
-const result = {
-    totalOrders,
-    totalProducts,
-    totalCustomers: totalUsers,
-    pendingOrders,
-    todayOrders,
-    totalRevenue: Math.round(totalRevenue * 100) / 100,
-    recentOrders: formattedRecentOrders
-};
+        const stats = await getCachedOrFetch('dashboard-stats', async () => {
+            // Initialize default stats
+            let totalOrders = 0;
+            let pendingOrders = 0;
+            let todayOrders = 0;
+            let totalRevenue = 0;
+            let recentOrders = [];
+            let totalProducts = 0;
+            let totalUsers = 0;
 
-console.log('[STATS] Dashboard stats compiled successfully:', result);
-return result;
+            // Fetch order stats
+            try {
+                console.log('[STATS] Fetching order stats...');
+                const orderStatsAgg = await Order.aggregate([
+                    {
+                        $facet: {
+                            // Total count
+                            total: [
+                                { $count: 'count' }
+                            ],
+                            // Pending orders count
+                            pending: [
+                                { $match: { orderStatus: { $in: ['Ordered', 'Processing'] } } },
+                                { $count: 'count' }
+                            ],
+                            // Today's orders
+                            today: [
+                                {
+                                    $match: {
+                                        createdAt: {
+                                            $gte: new Date(new Date().setHours(0, 0, 0, 0))
+                                        }
+                                    }
+                                },
+                                { $count: 'count' }
+                            ],
+                            // Total revenue (excluding cancelled)
+                            revenue: [
+                                {
+                                    $match: {
+                                        orderStatus: { $ne: 'Cancelled' }
+                                    }
+                                },
+                                {
+                                    $group: {
+                                        _id: null,
+                                        total: { $sum: '$total' }
+                                    }
+                                }
+                            ],
+                            // Recent orders (limited fields)
+                            recent: [
+                                { $sort: { createdAt: -1 } },
+                                { $limit: 5 },
+                                {
+                                    $lookup: {
+                                        from: 'users',
+                                        localField: 'user',
+                                        foreignField: '_id',
+                                        as: 'userInfo'
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        orderId: 1,
+                                        total: 1,
+                                        orderStatus: 1,
+                                        createdAt: 1,
+                                        'userInfo.name': 1,
+                                        'userInfo.email': 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ])
+                    .exec();
+
+                // Extract order stats
+                if (orderStatsAgg && orderStatsAgg[0]) {
+                    const orderStats = orderStatsAgg[0];
+                    totalOrders = orderStats.total[0]?.count || 0;
+                    pendingOrders = orderStats.pending[0]?.count || 0;
+                    todayOrders = orderStats.today[0]?.count || 0;
+                    totalRevenue = orderStats.revenue[0]?.total || 0;
+                    recentOrders = orderStats.recent || [];
+
+                    console.log('[STATS] Order stats fetched successfully');
+                }
+            } catch (error) {
+                console.error('[STATS ERROR] Failed to fetch order stats:', error.message);
+                // Continue with default values
+            }
+
+            // Fetch product count
+            try {
+                if (Product) {
+                    console.log('[STATS] Fetching product count...');
+                    totalProducts = await Product.countDocuments({ isActive: true })
+                        .exec();
+                    console.log('[STATS] Product count fetched:', totalProducts);
+                } else {
+                    console.warn('[STATS] Product model not available');
+                }
+            } catch (error) {
+                console.error('[STATS ERROR] Failed to fetch product count:', error.message);
+                // Continue with default value
+            }
+
+            // Fetch user count
+            try {
+                console.log('[STATS] Fetching user count...');
+                totalUsers = await User.countDocuments()
+                    .exec();
+                console.log('[STATS] User count fetched:', totalUsers);
+            } catch (error) {
+                console.error('[STATS ERROR] Failed to fetch user count:', error.message);
+                // Continue with default value
+            }
+
+            // Format recent orders
+            const formattedRecentOrders = recentOrders.map(order => {
+                try {
+                    return {
+                        ...order,
+                        user: order.userInfo?.[0] || { name: 'Unknown', email: '' }
+                    };
+                } catch (error) {
+                    console.error('[STATS ERROR] Failed to format order:', error.message);
+                    return order;
+                }
+            });
+
+            const result = {
+                totalOrders,
+                totalProducts,
+                totalCustomers: totalUsers,
+                pendingOrders,
+                todayOrders,
+                totalRevenue: Math.round(totalRevenue * 100) / 100,
+                recentOrders: formattedRecentOrders
+            };
+
+            console.log('[STATS] Dashboard stats compiled successfully:', result);
+            return result;
         }, 180000); // 3 minute cache
 
-res.json(stats);
+        res.json(stats);
     } catch (error) {
-    console.error('[STATS ERROR] Get dashboard stats failed:', error);
-    console.error('[STATS ERROR] Stack:', error.stack);
+        console.error('[STATS ERROR] Get dashboard stats failed:', error);
+        console.error('[STATS ERROR] Stack:', error.stack);
 
-    // Return empty stats instead of error
-    res.json({
-        totalOrders: 0,
-        totalProducts: 0,
-        totalCustomers: 0,
-        pendingOrders: 0,
-        todayOrders: 0,
-        totalRevenue: 0,
-        recentOrders: []
-    });
-}
+        // Return empty stats instead of error
+        res.json({
+            totalOrders: 0,
+            totalProducts: 0,
+            totalCustomers: 0,
+            pendingOrders: 0,
+            todayOrders: 0,
+            totalRevenue: 0,
+            recentOrders: []
+        });
+    }
 });
 
 // ========================================
