@@ -579,3 +579,290 @@ router.get('/stock-health', protect, checkPermission('products', 'view'), async 
 });
 
 module.exports = router;
+
+// ========================================
+// GET BUNDLING INSIGHTS
+// ========================================
+router.get('/insights/bundling', protect, checkPermission('orders', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'bundling-insights';
+        const insights = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                // Find orders with more than 1 item
+                const orders = await Order.find({
+                    'items.1': { $exists: true },
+                    orderStatus: { $ne: 'Cancelled' }
+                })
+                    .select('items.product')
+                    .limit(1000) // Limit analysis to last 1000 multi-item orders for performance
+                    .lean();
+
+                const pairCounts = {};
+
+                orders.forEach(order => {
+                    const products = order.items.map(item => item.product.toString()).sort();
+                    // Generate pairs
+                    for (let i = 0; i < products.length; i++) {
+                        for (let j = i + 1; j < products.length; j++) {
+                            const pair = `${products[i]}|${products[j]}`;
+                            pairCounts[pair] = (pairCounts[pair] || 0) + 1;
+                        }
+                    }
+                });
+
+                // Convert to array and sort
+                const sortedPairs = Object.entries(pairCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 5);
+
+                // Hydrate product details
+                const hydratedPairs = await Promise.all(sortedPairs.map(async ([pair, count]) => {
+                    const [p1Id, p2Id] = pair.split('|');
+                    const [p1, p2] = await Promise.all([
+                        Product.findById(p1Id).select('name image'),
+                        Product.findById(p2Id).select('name image')
+                    ]);
+                    if (!p1 || !p2) return null;
+                    return {
+                        products: [p1, p2],
+                        count
+                    };
+                }));
+
+                return hydratedPairs.filter(p => p !== null);
+            } catch (error) {
+                console.error('[STATS ERROR] Bundling insights failed:', error.message);
+                return [];
+            }
+        }, 600000); // 10 minutes cache
+        res.json(insights);
+    } catch (error) {
+        console.error('[STATS ERROR] Get bundling insights failed:', error);
+        res.status(500).json({ message: 'Failed to fetch bundling insights' });
+    }
+});
+
+// ========================================
+// GET INACTIVE VIP CUSTOMERS
+// ========================================
+router.get('/insights/inactive-customers', protect, checkPermission('customers', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'inactive-customers-insights';
+        const insights = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const fortyFiveDaysAgo = new Date();
+                fortyFiveDaysAgo.setDate(fortyFiveDaysAgo.getDate() - 45);
+
+                const inactiveVIPs = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    {
+                        $group: {
+                            _id: '$user',
+                            totalSpent: { $sum: '$total' },
+                            lastOrderDate: { $max: '$createdAt' },
+                            orderCount: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $match: {
+                            totalSpent: { $gt: 5000 }, // VIP Threshold
+                            lastOrderDate: { $lt: fortyFiveDaysAgo }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: '_id',
+                            foreignField: '_id',
+                            as: 'userInfo'
+                        }
+                    },
+                    { $unwind: '$userInfo' },
+                    {
+                        $project: {
+                            _id: 0,
+                            userId: '$_id',
+                            name: '$userInfo.name',
+                            email: '$userInfo.email',
+                            phone: '$userInfo.phone',
+                            totalSpent: 1,
+                            lastOrderDate: 1,
+                            daysSinceLastOrder: {
+                                $trunc: {
+                                    $divide: [
+                                        { $subtract: [new Date(), '$lastOrderDate'] },
+                                        1000 * 60 * 60 * 24
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    { $sort: { totalSpent: -1 } },
+                    { $limit: 10 }
+                ]).maxTimeMS(10000).exec();
+
+                return inactiveVIPs || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Inactive customers insights failed:', error.message);
+                return [];
+            }
+        }, 300000);
+        res.json(insights);
+    } catch (error) {
+        console.error('[STATS ERROR] Get inactive customers insights failed:', error);
+        res.status(500).json({ message: 'Failed to fetch inactive customers' });
+    }
+});
+
+// ========================================
+// GET SLOW MOVING STOCK
+// ========================================
+router.get('/insights/slow-moving', protect, checkPermission('products', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'slow-moving-insights';
+        const insights = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                // 1. Get sales count for all products in last 30 days
+                const recentSales = await Order.aggregate([
+                    {
+                        $match: {
+                            createdAt: { $gte: thirtyDaysAgo },
+                            orderStatus: { $ne: 'Cancelled' }
+                        }
+                    },
+                    { $unwind: '$items' },
+                    {
+                        $group: {
+                            _id: '$items.product',
+                            soldCount: { $sum: '$items.quantity' }
+                        }
+                    }
+                ]);
+
+                const salesMap = {};
+                recentSales.forEach(s => salesMap[s._id.toString()] = s.soldCount);
+
+                // 2. Find products with high stock but low sales
+                const products = await Product.find({
+                    isActive: true,
+                    stock: { $gt: 20 }
+                }).select('name stock price image').lean();
+
+                const slowMoving = products
+                    .map(p => ({
+                        ...p,
+                        soldLast30Days: salesMap[p._id.toString()] || 0
+                    }))
+                    .filter(p => p.soldLast30Days < 5)
+                    .sort((a, b) => b.stock - a.stock)
+                    .slice(0, 10);
+
+                return slowMoving;
+            } catch (error) {
+                console.error('[STATS ERROR] Slow moving stock insights failed:', error.message);
+                return [];
+            }
+        }, 300000);
+        res.json(insights);
+    } catch (error) {
+        console.error('[STATS ERROR] Get slow moving stock insights failed:', error);
+        res.status(500).json({ message: 'Failed to fetch slow moving stock' });
+    }
+});
+
+// ========================================
+// GET PEAK SALES TIMES
+// ========================================
+router.get('/insights/peak-times', protect, checkPermission('orders', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'peak-times-insights';
+        const insights = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const peakTimes = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    {
+                        $project: {
+                            dayOfWeek: { $dayOfWeek: '$createdAt' }, // 1 (Sun) - 7 (Sat)
+                            hour: { $hour: '$createdAt' },
+                            total: 1
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: { day: '$dayOfWeek', hour: '$hour' },
+                            orderCount: { $sum: 1 },
+                            revenue: { $sum: '$total' }
+                        }
+                    },
+                    { $sort: { orderCount: -1 } },
+                    { $limit: 20 }
+                ]).maxTimeMS(5000).exec();
+
+                return peakTimes || [];
+            } catch (error) {
+                console.error('[STATS ERROR] Peak times insights failed:', error.message);
+                return [];
+            }
+        }, 600000);
+        res.json(insights);
+    } catch (error) {
+        console.error('[STATS ERROR] Get peak times insights failed:', error);
+        res.status(500).json({ message: 'Failed to fetch peak times' });
+    }
+});
+
+// ========================================
+// GET CUSTOMER SEGMENTS
+// ========================================
+router.get('/insights/customer-segments', protect, checkPermission('customers', 'view'), async (req, res) => {
+    try {
+        const cacheKey = 'customer-segments-insights';
+        const insights = await getCachedOrFetch(cacheKey, async () => {
+            try {
+                const segments = await Order.aggregate([
+                    { $match: { orderStatus: { $ne: 'Cancelled' } } },
+                    {
+                        $group: {
+                            _id: '$user',
+                            totalSpent: { $sum: '$total' }
+                        }
+                    },
+                    {
+                        $bucket: {
+                            groupBy: '$totalSpent',
+                            boundaries: [0, 2000, 10000, Infinity],
+                            default: 'Other',
+                            output: {
+                                count: { $sum: 1 },
+                                totalRevenue: { $sum: '$totalSpent' }
+                            }
+                        }
+                    }
+                ]).maxTimeMS(5000).exec();
+
+                // Map bucket IDs to readable names
+                const segmentMap = {
+                    0: 'New/Low (< ₹2k)',
+                    2000: 'Regular (₹2k-10k)',
+                    10000: 'VIP (> ₹10k)'
+                };
+
+                return segments.map(s => ({
+                    name: segmentMap[s._id] || 'Unknown',
+                    count: s.count,
+                    revenue: s.totalRevenue
+                }));
+            } catch (error) {
+                console.error('[STATS ERROR] Customer segments insights failed:', error.message);
+                return [];
+            }
+        }, 600000);
+        res.json(insights);
+    } catch (error) {
+        console.error('[STATS ERROR] Get customer segments insights failed:', error);
+        res.status(500).json({ message: 'Failed to fetch customer segments' });
+    }
+});

@@ -648,4 +648,61 @@ router.get('/recent/list', protect, checkPermission('orders', 'view'), async (re
     }
 });
 
+// ========================================
+// MANUAL NOTIFICATION TRIGGERS
+// ========================================
+
+// Trigger Review Request
+router.post('/:id/notify/review', protect, checkPermission('orders', 'edit'), async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).populate('user');
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        if (order.orderStatus !== 'Delivered') {
+            return res.status(400).json({ message: 'Can only request review for delivered orders' });
+        }
+
+        // Send notification (non-blocking)
+        notificationService.sendReviewRequest(order, order.user || {
+            name: order.deliveryAddress.firstName,
+            email: null, // Fallback if guest checkout
+            phone: order.deliveryAddress.phone
+        });
+
+        res.json({ message: 'Review request sent successfully' });
+    } catch (error) {
+        console.error('Failed to send review request:', error);
+        res.status(500).json({ message: 'Failed to send review request' });
+    }
+});
+
+// Send Custom Message
+router.post('/:id/notify/message', protect, checkPermission('orders', 'edit'), async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) {
+            return res.status(400).json({ message: 'Message content is required' });
+        }
+
+        const order = await Order.findById(req.params.id).populate('user');
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Send notification (non-blocking)
+        notificationService.sendCustomMessage(order, order.user || {
+            name: order.deliveryAddress.firstName,
+            email: null,
+            phone: order.deliveryAddress.phone
+        }, message);
+
+        res.json({ message: 'Message sent successfully' });
+    } catch (error) {
+        console.error('Failed to send message:', error);
+        res.status(500).json({ message: 'Failed to send message' });
+    }
+});
+
 module.exports = router;

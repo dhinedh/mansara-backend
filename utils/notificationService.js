@@ -925,58 +925,58 @@ Happy Shopping! 🛒`;
 
                 try {
                     const emailMessage = `
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        </head>
-                        <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
-                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                
-                                <!-- Header -->
-                                <div style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); padding: 30px; text-align: center;">
-                                    <h1 style="color: #ffffff; margin: 0; font-size: 28px;">How was your order? ⭐</h1>
-                                </div>
+    <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-                                <!-- Content -->
-                                <div style="padding: 30px;">
-                                    <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
-                                    <p style="font-size: 14px; color: #666; line-height: 1.6;">
-                                        Your order <strong>#${order.orderId}</strong> has been delivered. We hope you love your products!
-                                    </p>
-                                    <p style="font-size: 14px; color: #666; line-height: 1.6;">
-                                        We'd love to hear your feedback. Your reviews help us improve and help others make better choices.
-                                    </p>
-                                    
-                                    <!-- Product List (First 3) -->
-                                    <div style="margin: 20px 0;">
-                                        ${order.items.slice(0, 3).map(item => `
+                            <!-- Header -->
+                            <div style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); padding: 30px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px;">How was your order? ⭐</h1>
+                            </div>
+
+                            <!-- Content -->
+                            <div style="padding: 30px;">
+                                <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
+                                <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                    Your order <strong>#${order.orderId}</strong> has been delivered. We hope you love your products!
+                                </p>
+                                <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                    We'd love to hear your feedback. Your reviews help us improve and help others make better choices.
+                                </p>
+
+                                <!-- Product List (First 3) -->
+                                <div style="margin: 20px 0;">
+                                    ${order.items.slice(0, 3).map(item => `
                                             <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
                                                 <span style="font-weight: bold; color: #333;">${item.name}</span>
                                             </div>
                                         `).join('')}
-                                        ${order.items.length > 3 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${order.items.length - 3} more items...</div>` : ''}
-                                    </div>
-
-                                    <!-- CTA Button -->
-                                    <div style="text-align: center; margin: 35px 0;">
-                                        <a href="${reviewLink}" style="display: inline-block; background-color: #f39c12; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Write a Review</a>
-                                    </div>
-                                    
-                                    <p style="font-size: 14px; color: #999; text-align: center;">
-                                        You can upload photos and videos to share your experience! 📸 🎥
-                                    </p>
+                                    ${order.items.length > 3 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${order.items.length - 3} more items...</div>` : ''}
                                 </div>
 
-                                <!-- Footer -->
-                                <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
-                                    <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                                <!-- CTA Button -->
+                                <div style="text-align: center; margin: 35px 0;">
+                                    <a href="${reviewLink}" style="display: inline-block; background-color: #f39c12; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Write a Review</a>
                                 </div>
+
+                                <p style="font-size: 14px; color: #999; text-align: center;">
+                                    You can upload photos and videos to share your experience! 📸 🎥
+                                </p>
                             </div>
-                        </body>
-                        </html>
-                    `;
+
+                            <!-- Footer -->
+                            <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                                <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+                `;
 
                     await sendEmail({
                         email: user.email,
@@ -997,17 +997,17 @@ Happy Shopping! 🛒`;
 
                 const message = `*Mansara Foods* 🌿
 
-⭐ *How was your order?*
+                ⭐ *How was your order?*
 
-Hi *${user.name}*, your order *${order.orderId}* has been delivered! 🎉
+                Hi *${user.name}*, your order *${order.orderId}* has been delivered! 🎉
 
-We'd love to know what you think about our products. Please take a moment to review your purchase.
+                We'd love to know what you think about our products. Please take a moment to review your purchase.
 
-📝 *Write a Review:* ${reviewLink}
+                📝 *Write a Review:* ${reviewLink}
 
-You can also upload photos and videos! 📸
+                You can also upload photos and videos! 📸
 
-Thank you for your support! 🙏`;
+                Thank you for your support! 🙏`;
 
                 const sendWhatsApp = require('./sendWhatsApp');
                 await sendWhatsApp(whatsappNumber, message);
@@ -1018,6 +1018,88 @@ Thank you for your support! 🙏`;
 
         } catch (error) {
             console.error('[ERROR] sendReviewRequest:', error.message);
+        }
+    },
+
+    // 10. Custom Message (Manual Trigger)
+    sendCustomMessage: async (order, user, messageContent) => {
+        try {
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
+
+                try {
+                    const emailMessage = `
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            </head>
+                            <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+                                    <!-- Header -->
+                                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+                                        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Message from Mansara Foods</h1>
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div style="padding: 30px;">
+                                        <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
+
+                                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+                                            <p style="font-size: 14px; color: #333; line-height: 1.6; white-space: pre-wrap;">${messageContent}</p>
+                                        </div>
+
+                                        <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                            Regarding Order: <strong>#${order.orderId}</strong>
+                                        </p>
+                                    </div>
+
+                                    <!-- Footer -->
+                                    <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                                        <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                                    </div>
+                                </div>
+                            </body>
+                        </html>
+                        `;
+
+                    await sendEmail({
+                        email: user.email,
+                        name: user.name,
+                        subject: `Message regarding Order #${order.orderId}`,
+                        html: emailMessage
+                    });
+                    console.log('[✓] Custom email sent');
+                } catch (err) {
+                    console.error('[✗] Custom email failed:', err.message);
+                }
+            })();
+
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                if (!whatsappNumber) return;
+
+                const message = `*Mansara Foods* 🌿
+
+                        Hi *${user.name}*,
+
+                        ${messageContent}
+
+                        Order ID: ${order.orderId}`;
+
+                const sendWhatsApp = require('./sendWhatsApp');
+                await sendWhatsApp(whatsappNumber, message);
+                console.log('[✓] Custom WhatsApp sent');
+            })();
+
+            await Promise.allSettled([emailPromise, whatsappPromise]);
+
+        } catch (error) {
+            console.error('[ERROR] sendCustomMessage:', error.message);
         }
     }
 };
