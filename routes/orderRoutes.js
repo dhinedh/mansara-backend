@@ -91,117 +91,75 @@ router.post('/', protect, async (req, res) => {
                 }
                 product.stock -= item.quantity;
                 product.markModified('variants');
+                let verifiedPaymentStatus = 'Pending';
+                let verifiedPaymentInfo = null;
 
-            } else {
-                // Simple Product
-                if (product.stock < item.quantity) {
-                    throw new Error(`Insufficient stock for ${item.name}`);
+                if (paymentMethod === 'Online' || paymentInfo) {
+                    if (!paymentInfo || !paymentInfo.id || !paymentInfo.orderId || !paymentInfo.signature) {
+                        if (paymentMethod === 'Online') {
+                            throw new Error('Payment information missing for online order');
+                        }
+                    } else {
+                        const sign = paymentInfo.orderId + "|" + paymentInfo.id;
+                        const expectedSign = crypto
+                            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+                            .update(sign.toString())
+                            .digest("hex");
+
+                        if (paymentInfo.signature === expectedSign) {
+                            verifiedPaymentStatus = 'Paid';
+                            verifiedPaymentInfo = paymentInfo;
+                        } else {
+                            throw new Error('Payment verification failed! Invalid signature.');
+                        }
+                    }
+                } else if (paymentMethod === 'Cash on Delivery') {
+                    // Ensure COD is actually allowed? (User requested NO COD earlier, but let's keep logic robust)
+                    verifiedPaymentStatus = 'Pending';
                 }
-                product.stock -= item.quantity;
+
+                const order = new Order({
+                    user: req.user._id,
+                    orderId,
+                    items,
+                    total: finalTotal, // Enforce server-side pricing
+                    paymentMethod,
+                    deliveryAddress,
+                    orderStatus: 'Ordered',
+                    paymentStatus: verifiedPaymentStatus,
+                    paymentInfo: verifiedPaymentInfo,
+                    trackingSteps
+                });
+
+                // Save order
+                const createdOrder = await order.save();
+
+                // ========================================
+                // CRITICAL STOCK MANAGEMENT
+                // ========================================
+                // Clear user's cart in DB immediately.
+                // This prevents 'restore stock' logic from triggering when frontend calls clearCart().
+                // OPTIMIZATION: Use findByIdAndUpdate because req.user is lean() (no save() method)
+                await User.findByIdAndUpdate(req.user._id, { $set: { cart: [] } });
+
+                // ========================================
+                // OPTIMIZATION: TRULY NON-BLOCKING NOTIFICATION
+                // Previous code used setImmediate but still awaited Promise.allSettled
+                // Now we don't await anything - fire and forget
+                // ========================================
+                process.nextTick(() => {
+                    notificationService.sendOrderPlaced(createdOrder, req.user)
+                        .catch(err => console.error('[ERROR] Order notification failed:', err));
+                });
+
+                // Return response IMMEDIATELY without waiting for notification
+                res.status(201).json(createdOrder);
+
+            } catch (error) {
+                console.error('[ERROR] Order Creation:', error);
+                res.status(400).json({ message: error.message });
             }
-
-            // Add to server-calculated total
-            dbTotal += (item.price * item.quantity);
-
-            await product.save();
-        }
-
-        // ========================================
-        // 4. SHIPPING CALCULATION (Server Side)
-        // ========================================
-        const SHIPPING_THRESHOLD = 1000;
-        const SHIPPING_CHARGE = 50;
-        let shippingCharge = 0;
-
-        // Calculate shipping based on ITEM total (dbTotal)
-        if (dbTotal < SHIPPING_THRESHOLD) {
-            shippingCharge = SHIPPING_CHARGE;
-        }
-
-        // Final authoritative total
-        // We trust our DB prices + our shipping logic
-        const finalTotal = dbTotal + shippingCharge;
-
-        // Validate Client Total (Optional Warning)
-        if (Math.abs(finalTotal - total) > 1.0) {
-            console.warn(`[WARN] Price mismatch! Client: ${total}, Server: ${finalTotal}`);
-            // We could throw error, but if payment is already captured for 'total', 
-            // switching to 'finalTotal' might create discrepancy.
-            // For now, we enforce Server Total as the Order Value.
-        }
-
-        // ========================================
-        // 3. SECURITY: VERIFY PAYMENT SIGNATURE
-        // ========================================
-        let verifiedPaymentStatus = 'Pending';
-        let verifiedPaymentInfo = null;
-
-        if (paymentMethod === 'Online' || paymentInfo) {
-            if (!paymentInfo || !paymentInfo.id || !paymentInfo.orderId || !paymentInfo.signature) {
-                if (paymentMethod === 'Online') {
-                    throw new Error('Payment information missing for online order');
-                }
-            } else {
-                const sign = paymentInfo.orderId + "|" + paymentInfo.id;
-                const expectedSign = crypto
-                    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-                    .update(sign.toString())
-                    .digest("hex");
-
-                if (paymentInfo.signature === expectedSign) {
-                    verifiedPaymentStatus = 'Paid';
-                    verifiedPaymentInfo = paymentInfo;
-                } else {
-                    throw new Error('Payment verification failed! Invalid signature.');
-                }
-            }
-        } else if (paymentMethod === 'Cash on Delivery') {
-            // Ensure COD is actually allowed? (User requested NO COD earlier, but let's keep logic robust)
-            verifiedPaymentStatus = 'Pending';
-        }
-
-        const order = new Order({
-            user: req.user._id,
-            orderId,
-            items,
-            total: finalTotal, // Enforce server-side pricing
-            paymentMethod,
-            deliveryAddress,
-            orderStatus: 'Ordered',
-            paymentStatus: verifiedPaymentStatus,
-            paymentInfo: verifiedPaymentInfo,
-            trackingSteps
         });
-
-        // Save order
-        const createdOrder = await order.save();
-
-        // ========================================
-        // CRITICAL STOCK MANAGEMENT
-        // ========================================
-        // Clear user's cart in DB immediately.
-        // This prevents 'restore stock' logic from triggering when frontend calls clearCart().
-        // OPTIMIZATION: Use findByIdAndUpdate because req.user is lean() (no save() method)
-        await User.findByIdAndUpdate(req.user._id, { $set: { cart: [] } });
-
-        // ========================================
-        // OPTIMIZATION: TRULY NON-BLOCKING NOTIFICATION
-        // Previous code used setImmediate but still awaited Promise.allSettled
-        // Now we don't await anything - fire and forget
-        // ========================================
-        process.nextTick(() => {
-            notificationService.sendOrderPlaced(createdOrder, req.user)
-                .catch(err => console.error('[ERROR] Order notification failed:', err));
-        });
-
-        // Return response IMMEDIATELY without waiting for notification
-        res.status(201).json(createdOrder);
-
-    } catch (error) {
-        console.error('[ERROR] Order Creation:', error);
-        res.status(400).json({ message: error.message });
-    }
-});
 
 // ========================================
 // GET USER ORDERS (OPTIMIZED WITH BETTER PAGINATION)
