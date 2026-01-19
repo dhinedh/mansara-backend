@@ -18,6 +18,13 @@ const notificationService = {
         return `${baseUrl}/order-tracking/${orderId}`;
     },
 
+    // Helper to get Google Maps link
+    _getGoogleMapsLink: (address) => {
+        if (!address) return '';
+        const query = `${address.street}, ${address.city}, ${address.state} - ${address.zip}`;
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    },
+
     // Helper to format delivery date
     _formatDeliveryDate: (date) => {
         const deliveryDate = date || new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
@@ -42,6 +49,7 @@ const notificationService = {
     sendOrderPlaced: async (order, user) => {
         try {
             const trackingLink = notificationService._getTrackingLink(order.orderId);
+            const mapLink = notificationService._getGoogleMapsLink(order.deliveryAddress);
 
             // Generate Invoice Table Rows
             const invoiceRows = order.items.map(item => `
@@ -120,6 +128,9 @@ const notificationService = {
                                             ${order.deliveryAddress.city}, ${order.deliveryAddress.state} - ${order.deliveryAddress.zip}<br>
                                             📞 ${order.deliveryAddress.phone}
                                         </p>
+                                        <p style="margin-top: 10px;">
+                                            <a href="${mapLink}" style="color: #667eea; text-decoration: none; font-size: 14px;">🗺️ View on Google Maps</a>
+                                        </p>
                                     </div>
 
                                     <!-- CTA Button -->
@@ -179,6 +190,7 @@ ${order.items.map(item => `• ${item.quantity}x ${item.name} - ₹${item.price 
 ${order.deliveryAddress.firstName} ${order.deliveryAddress.lastName || ''}
 ${order.deliveryAddress.street}
 ${order.deliveryAddress.city} - ${order.deliveryAddress.zip}
+🗺️ Map: ${mapLink}
 
 We'll notify you once your order is confirmed with delivery details!
 
@@ -205,6 +217,7 @@ Thank you for choosing Mansara Foods! 🙏`;
     sendOrderConfirmed: async (order, user = {}) => {
         try {
             const trackingLink = notificationService._getTrackingLink(order.orderId);
+            const mapLink = notificationService._getGoogleMapsLink(order.deliveryAddress);
             const formattedDate = notificationService._formatDeliveryDate(order.estimatedDeliveryDate);
 
             // Send Email and WhatsApp in parallel
@@ -281,6 +294,9 @@ Thank you for choosing Mansara Foods! 🙏`;
                                             ${order.deliveryAddress.city}, ${order.deliveryAddress.state} - ${order.deliveryAddress.zip}<br>
                                             📞 ${order.deliveryAddress.phone}
                                         </p>
+                                        <p style="margin-top: 10px;">
+                                            <a href="${mapLink}" style="color: #11998e; text-decoration: none; font-size: 14px;">🗺️ View on Google Maps</a>
+                                        </p>
                                     </div>
 
                                     <!-- CTA Button -->
@@ -343,6 +359,7 @@ Expected Delivery: *${formattedDate}*
 ${order.deliveryAddress.firstName} ${order.deliveryAddress.lastName || ''}
 ${order.deliveryAddress.street}
 ${order.deliveryAddress.city} - ${order.deliveryAddress.zip}
+🗺️ Map: ${mapLink}
 
 📦 Track: ${trackingLink}
 
@@ -784,6 +801,113 @@ We hope to serve you again soon! 🙏`;
         } catch (error) {
             console.error('[ERROR] sendStockAlert:', error.message);
             return 0;
+        }
+    },
+
+    // 8. Review Request (After Delivery)
+    sendReviewRequest: async (order, user) => {
+        try {
+            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+
+            // We'll link to the first product in the order for simplicity, or the order details page
+            // Ideally link to a page where they can review all items
+            const reviewLink = `${frontendUrl}/account/orders`; // User can go to order history to review
+
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
+
+                const emailMessage = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            
+                            <!-- Header -->
+                            <div style="background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); padding: 30px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px;">How was your order? ⭐</h1>
+                            </div>
+
+                            <!-- Content -->
+                            <div style="padding: 30px;">
+                                <p style="font-size: 16px; color: #333; margin-bottom: 20px;">Hi <strong>${user.name}</strong>,</p>
+                                <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                    Your order <strong>#${order.orderId}</strong> has been delivered. We hope you love your products!
+                                </p>
+                                <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                                    We'd love to hear your feedback. Your reviews help us improve and help others make better choices.
+                                </p>
+                                
+                                <!-- Product List (First 3) -->
+                                <div style="margin: 20px 0;">
+                                    ${order.items.slice(0, 3).map(item => `
+                                        <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                            <span style="font-weight: bold; color: #333;">${item.name}</span>
+                                        </div>
+                                    `).join('')}
+                                    ${order.items.length > 3 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${order.items.length - 3} more items...</div>` : ''}
+                                </div>
+
+                                <!-- CTA Button -->
+                                <div style="text-align: center; margin: 35px 0;">
+                                    <a href="${reviewLink}" style="display: inline-block; background-color: #f39c12; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Write a Review</a>
+                                </div>
+                                
+                                <p style="font-size: 14px; color: #999; text-align: center;">
+                                    You can upload photos and videos to share your experience! 📸 🎥
+                                </p>
+                            </div>
+
+                            <!-- Footer -->
+                            <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                                <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                await sendEmail({
+                    email: user.email,
+                    name: user.name,
+                    subject: `Rate your experience with Mansara Foods! ⭐`,
+                    html: emailMessage
+                });
+                console.log('[✓] Review request email sent');
+            })();
+
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                if (!whatsappNumber) return;
+
+                const message = `*Mansara Foods* 🌿
+
+⭐ *How was your order?*
+
+Hi *${user.name}*, your order *${order.orderId}* has been delivered! 🎉
+
+We'd love to know what you think about our products. Please take a moment to review your purchase.
+
+📝 *Write a Review:* ${reviewLink}
+
+You can also upload photos and videos! 📸
+
+Thank you for your support! 🙏`;
+
+                const sendWhatsApp = require('./sendWhatsApp');
+                await sendWhatsApp(whatsappNumber, message);
+                console.log('[✓] Review request WhatsApp sent');
+            })();
+
+            await Promise.allSettled([emailPromise, whatsappPromise]);
+
+        } catch (error) {
+            console.error('[ERROR] sendReviewRequest:', error.message);
         }
     }
 };
