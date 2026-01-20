@@ -790,31 +790,22 @@ We hope to serve you again soon! 🙏`;
             await sendBulkWhatsApp(messages, 500);
 
             // Mark as sent
-            await Notification.updateMany(
-                { product: product._id, status: 'pending' },
-                { $set: { status: 'sent', sentAt: new Date() } }
-            );
-
-            console.log(`[✓] Stock alerts sent via BotBiz to ${pendingNotifications.length} users`);
-            return pendingNotifications.length;
-
         } catch (error) {
             console.error('[ERROR] sendStockAlert:', error.message);
-            return 0;
         }
     },
 
     // 8. Welcome Message (New User)
-    sendWelcomeMessage: async (user) => {
-        try {
-            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
-
-            // EMAIL NOTIFICATION
-            const emailPromise = (async () => {
-                if (!user.email) return;
-
+            sendWelcomeMessage: async (user) => {
                 try {
-                    const emailMessage = `
+                    const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+
+                    // EMAIL NOTIFICATION
+                    const emailPromise = (async () => {
+                        if (!user.email) return;
+
+                        try {
+                            const emailMessage = `
                         <!DOCTYPE html>
                         <html>
                         <head>
@@ -863,25 +854,25 @@ We hope to serve you again soon! 🙏`;
                         </html>
                     `;
 
-                    await sendEmail({
-                        email: user.email,
-                        name: user.name,
-                        subject: 'Welcome to Mansara Foods! 🌿',
-                        html: emailMessage
-                    });
-                    console.log('[✓] Welcome email sent');
-                } catch (err) {
-                    console.error('[✗] Welcome email failed:', err.message);
-                }
-            })();
+                            await sendEmail({
+                                email: user.email,
+                                name: user.name,
+                                subject: 'Welcome to Mansara Foods! 🌿',
+                                html: emailMessage
+                            });
+                            console.log('[✓] Welcome email sent');
+                        } catch (err) {
+                            console.error('[✗] Welcome email failed:', err.message);
+                        }
+                    })();
 
-            // WHATSAPP NOTIFICATION
-            const whatsappPromise = (async () => {
-                const whatsappNumber = user.whatsapp || user.phone;
-                if (!whatsappNumber) return;
+                    // WHATSAPP NOTIFICATION
+                    const whatsappPromise = (async () => {
+                        const whatsappNumber = user.whatsapp || user.phone;
+                        if (!whatsappNumber) return;
 
-                try {
-                    const message = `*Mansara Foods* 🌿
+                        try {
+                            const message = `*Mansara Foods* 🌿
                     
 👋 *Welcome to the Family!*
 
@@ -896,35 +887,35 @@ If you have any questions, feel free to reply to this message.
 
 Happy Shopping! 🛒`;
 
-                    await sendWhatsApp(whatsappNumber, message);
-                    console.log('[✓] Welcome WhatsApp sent');
-                } catch (err) {
-                    console.error('[✗] Welcome WhatsApp failed:', err.message);
+                            await sendWhatsApp(whatsappNumber, message);
+                            console.log('[✓] Welcome WhatsApp sent');
+                        } catch (err) {
+                            console.error('[✗] Welcome WhatsApp failed:', err.message);
+                        }
+                    })();
+
+                    await Promise.allSettled([emailPromise, whatsappPromise]);
+
+                } catch (error) {
+                    console.error('[ERROR] sendWelcomeMessage:', error.message);
                 }
-            })();
+            },
 
-            await Promise.allSettled([emailPromise, whatsappPromise]);
+                // 9. Review Request (After Delivery)
+                sendReviewRequest: async (order, user) => {
+                    try {
+                        const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
 
-        } catch (error) {
-            console.error('[ERROR] sendWelcomeMessage:', error.message);
-        }
-    },
+                        // We'll link to the first product in the order for simplicity, or the order details page
+                        // Ideally link to a page where they can review all items
+                        const reviewLink = `${frontendUrl}/account/orders`; // User can go to order history to review
 
-    // 9. Review Request (After Delivery)
-    sendReviewRequest: async (order, user) => {
-        try {
-            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+                        // EMAIL NOTIFICATION
+                        const emailPromise = (async () => {
+                            if (!user.email) return;
 
-            // We'll link to the first product in the order for simplicity, or the order details page
-            // Ideally link to a page where they can review all items
-            const reviewLink = `${frontendUrl}/account/orders`; // User can go to order history to review
-
-            // EMAIL NOTIFICATION
-            const emailPromise = (async () => {
-                if (!user.email) return;
-
-                try {
-                    const emailMessage = `
+                            try {
+                                const emailMessage = `
     <!DOCTYPE html>
         <html>
             <head>
@@ -978,24 +969,24 @@ Happy Shopping! 🛒`;
                 </html>
                 `;
 
-                    await sendEmail({
-                        email: user.email,
-                        name: user.name,
-                        subject: `Rate your experience with Mansara Foods! ⭐`,
-                        html: emailMessage
-                    });
-                    console.log('[✓] Review request email sent');
-                } catch (err) {
-                    console.error('[✗] Review request email failed:', err.message);
-                }
-            })();
+                                await sendEmail({
+                                    email: user.email,
+                                    name: user.name,
+                                    subject: `Rate your experience with Mansara Foods! ⭐`,
+                                    html: emailMessage
+                                });
+                                console.log('[✓] Review request email sent');
+                            } catch (err) {
+                                console.error('[✗] Review request email failed:', err.message);
+                            }
+                        })();
 
-            // WHATSAPP NOTIFICATION
-            const whatsappPromise = (async () => {
-                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
-                if (!whatsappNumber) return;
+                        // WHATSAPP NOTIFICATION
+                        const whatsappPromise = (async () => {
+                            const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                            if (!whatsappNumber) return;
 
-                const message = `*Mansara Foods* 🌿
+                            const message = `*Mansara Foods* 🌿
 
                 ⭐ *How was your order?*
 
@@ -1009,27 +1000,27 @@ Happy Shopping! 🛒`;
 
                 Thank you for your support! 🙏`;
 
-                const sendWhatsApp = require('./sendWhatsApp');
-                await sendWhatsApp(whatsappNumber, message);
-                console.log('[✓] Review request WhatsApp sent');
-            })();
+                            const sendWhatsApp = require('./sendWhatsApp');
+                            await sendWhatsApp(whatsappNumber, message);
+                            console.log('[✓] Review request WhatsApp sent');
+                        })();
 
-            await Promise.allSettled([emailPromise, whatsappPromise]);
+                        await Promise.allSettled([emailPromise, whatsappPromise]);
 
-        } catch (error) {
-            console.error('[ERROR] sendReviewRequest:', error.message);
-        }
-    },
+                    } catch (error) {
+                        console.error('[ERROR] sendReviewRequest:', error.message);
+                    }
+                },
 
-    // 10. Custom Message (Manual Trigger)
-    sendCustomMessage: async (order, user, messageContent) => {
-        try {
-            // EMAIL NOTIFICATION
-            const emailPromise = (async () => {
-                if (!user.email) return;
+                    // 10. Custom Message (Manual Trigger)
+                    sendCustomMessage: async (order, user, messageContent) => {
+                        try {
+                            // EMAIL NOTIFICATION
+                            const emailPromise = (async () => {
+                                if (!user.email) return;
 
-                try {
-                    const emailMessage = `
+                                try {
+                                    const emailMessage = `
                 <!DOCTYPE html>
                 <html>
                     <head>
@@ -1066,24 +1057,24 @@ Happy Shopping! 🛒`;
                         </html>
                         `;
 
-                    await sendEmail({
-                        email: user.email,
-                        name: user.name,
-                        subject: `Message regarding Order #${order.orderId}`,
-                        html: emailMessage
-                    });
-                    console.log('[✓] Custom email sent');
-                } catch (err) {
-                    console.error('[✗] Custom email failed:', err.message);
-                }
-            })();
+                                    await sendEmail({
+                                        email: user.email,
+                                        name: user.name,
+                                        subject: `Message regarding Order #${order.orderId}`,
+                                        html: emailMessage
+                                    });
+                                    console.log('[✓] Custom email sent');
+                                } catch (err) {
+                                    console.error('[✗] Custom email failed:', err.message);
+                                }
+                            })();
 
-            // WHATSAPP NOTIFICATION
-            const whatsappPromise = (async () => {
-                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
-                if (!whatsappNumber) return;
+                            // WHATSAPP NOTIFICATION
+                            const whatsappPromise = (async () => {
+                                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                                if (!whatsappNumber) return;
 
-                const message = `*Mansara Foods* 🌿
+                                const message = `*Mansara Foods* 🌿
 
                         Hi *${user.name}*,
 
@@ -1091,17 +1082,17 @@ Happy Shopping! 🛒`;
 
                         Order ID: ${order.orderId}`;
 
-                const sendWhatsApp = require('./sendWhatsApp');
-                await sendWhatsApp(whatsappNumber, message);
-                console.log('[✓] Custom WhatsApp sent');
-            })();
+                                const sendWhatsApp = require('./sendWhatsApp');
+                                await sendWhatsApp(whatsappNumber, message);
+                                console.log('[✓] Custom WhatsApp sent');
+                            })();
 
-            await Promise.allSettled([emailPromise, whatsappPromise]);
+                            await Promise.allSettled([emailPromise, whatsappPromise]);
 
-        } catch (error) {
-            console.error('[ERROR] sendCustomMessage:', error.message);
-        }
-    }
-};
+                        } catch (error) {
+                            console.error('[ERROR] sendCustomMessage:', error.message);
+                        }
+                    }
+        };
 
-module.exports = notificationService;
+        module.exports = notificationService;
