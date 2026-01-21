@@ -796,16 +796,16 @@ We hope to serve you again soon! 🙏`;
     },
 
     // 8. Welcome Message (New User)
-            sendWelcomeMessage: async (user) => {
+    sendWelcomeMessage: async (user) => {
+        try {
+            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
+
                 try {
-                    const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
-
-                    // EMAIL NOTIFICATION
-                    const emailPromise = (async () => {
-                        if (!user.email) return;
-
-                        try {
-                            const emailMessage = `
+                    const emailMessage = `
                         <!DOCTYPE html>
                         <html>
                         <head>
@@ -854,25 +854,25 @@ We hope to serve you again soon! 🙏`;
                         </html>
                     `;
 
-                            await sendEmail({
-                                email: user.email,
-                                name: user.name,
-                                subject: 'Welcome to Mansara Foods! 🌿',
-                                html: emailMessage
-                            });
-                            console.log('[✓] Welcome email sent');
-                        } catch (err) {
-                            console.error('[✗] Welcome email failed:', err.message);
-                        }
-                    })();
+                    await sendEmail({
+                        email: user.email,
+                        name: user.name,
+                        subject: 'Welcome to Mansara Foods! 🌿',
+                        html: emailMessage
+                    });
+                    console.log('[✓] Welcome email sent');
+                } catch (err) {
+                    console.error('[✗] Welcome email failed:', err.message);
+                }
+            })();
 
-                    // WHATSAPP NOTIFICATION
-                    const whatsappPromise = (async () => {
-                        const whatsappNumber = user.whatsapp || user.phone;
-                        if (!whatsappNumber) return;
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = user.whatsapp || user.phone;
+                if (!whatsappNumber) return;
 
-                        try {
-                            const message = `*Mansara Foods* 🌿
+                try {
+                    const message = `*Mansara Foods* 🌿
                     
 👋 *Welcome to the Family!*
 
@@ -887,35 +887,35 @@ If you have any questions, feel free to reply to this message.
 
 Happy Shopping! 🛒`;
 
-                            await sendWhatsApp(whatsappNumber, message);
-                            console.log('[✓] Welcome WhatsApp sent');
-                        } catch (err) {
-                            console.error('[✗] Welcome WhatsApp failed:', err.message);
-                        }
-                    })();
-
-                    await Promise.allSettled([emailPromise, whatsappPromise]);
-
-                } catch (error) {
-                    console.error('[ERROR] sendWelcomeMessage:', error.message);
+                    await sendWhatsApp(whatsappNumber, message);
+                    console.log('[✓] Welcome WhatsApp sent');
+                } catch (err) {
+                    console.error('[✗] Welcome WhatsApp failed:', err.message);
                 }
-            },
+            })();
 
-                // 9. Review Request (After Delivery)
-                sendReviewRequest: async (order, user) => {
-                    try {
-                        const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+            await Promise.allSettled([emailPromise, whatsappPromise]);
 
-                        // We'll link to the first product in the order for simplicity, or the order details page
-                        // Ideally link to a page where they can review all items
-                        const reviewLink = `${frontendUrl}/account/orders`; // User can go to order history to review
+        } catch (error) {
+            console.error('[ERROR] sendWelcomeMessage:', error.message);
+        }
+    },
 
-                        // EMAIL NOTIFICATION
-                        const emailPromise = (async () => {
-                            if (!user.email) return;
+    // 9. Review Request (After Delivery)
+    sendReviewRequest: async (order, user) => {
+        try {
+            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
 
-                            try {
-                                const emailMessage = `
+            // We'll link to the first product in the order for simplicity, or the order details page
+            // Ideally link to a page where they can review all items
+            const reviewLink = `${frontendUrl}/account/orders`; // User can go to order history to review
+
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
+
+                try {
+                    const emailMessage = `
     <!DOCTYPE html>
         <html>
             <head>
@@ -969,24 +969,24 @@ Happy Shopping! 🛒`;
                 </html>
                 `;
 
-                                await sendEmail({
-                                    email: user.email,
-                                    name: user.name,
-                                    subject: `Rate your experience with Mansara Foods! ⭐`,
-                                    html: emailMessage
-                                });
-                                console.log('[✓] Review request email sent');
-                            } catch (err) {
-                                console.error('[✗] Review request email failed:', err.message);
-                            }
-                        })();
+                    await sendEmail({
+                        email: user.email,
+                        name: user.name,
+                        subject: `Rate your experience with Mansara Foods! ⭐`,
+                        html: emailMessage
+                    });
+                    console.log('[✓] Review request email sent');
+                } catch (err) {
+                    console.error('[✗] Review request email failed:', err.message);
+                }
+            })();
 
-                        // WHATSAPP NOTIFICATION
-                        const whatsappPromise = (async () => {
-                            const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
-                            if (!whatsappNumber) return;
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                if (!whatsappNumber) return;
 
-                            const message = `*Mansara Foods* 🌿
+                const message = `*Mansara Foods* 🌿
 
                 ⭐ *How was your order?*
 
@@ -1000,27 +1000,27 @@ Happy Shopping! 🛒`;
 
                 Thank you for your support! 🙏`;
 
-                            const sendWhatsApp = require('./sendWhatsApp');
-                            await sendWhatsApp(whatsappNumber, message);
-                            console.log('[✓] Review request WhatsApp sent');
-                        })();
+                const sendWhatsApp = require('./sendWhatsApp');
+                await sendWhatsApp(whatsappNumber, message);
+                console.log('[✓] Review request WhatsApp sent');
+            })();
 
-                        await Promise.allSettled([emailPromise, whatsappPromise]);
+            await Promise.allSettled([emailPromise, whatsappPromise]);
 
-                    } catch (error) {
-                        console.error('[ERROR] sendReviewRequest:', error.message);
-                    }
-                },
+        } catch (error) {
+            console.error('[ERROR] sendReviewRequest:', error.message);
+        }
+    },
 
-                    // 10. Custom Message (Manual Trigger)
-                    sendCustomMessage: async (order, user, messageContent) => {
-                        try {
-                            // EMAIL NOTIFICATION
-                            const emailPromise = (async () => {
-                                if (!user.email) return;
+    // 10. Custom Message (Manual Trigger)
+    sendCustomMessage: async (order, user, messageContent) => {
+        try {
+            // EMAIL NOTIFICATION
+            const emailPromise = (async () => {
+                if (!user.email) return;
 
-                                try {
-                                    const emailMessage = `
+                try {
+                    const emailMessage = `
                 <!DOCTYPE html>
                 <html>
                     <head>
@@ -1057,24 +1057,24 @@ Happy Shopping! 🛒`;
                         </html>
                         `;
 
-                                    await sendEmail({
-                                        email: user.email,
-                                        name: user.name,
-                                        subject: `Message regarding Order #${order.orderId}`,
-                                        html: emailMessage
-                                    });
-                                    console.log('[✓] Custom email sent');
-                                } catch (err) {
-                                    console.error('[✗] Custom email failed:', err.message);
-                                }
-                            })();
+                    await sendEmail({
+                        email: user.email,
+                        name: user.name,
+                        subject: `Message regarding Order #${order.orderId}`,
+                        html: emailMessage
+                    });
+                    console.log('[✓] Custom email sent');
+                } catch (err) {
+                    console.error('[✗] Custom email failed:', err.message);
+                }
+            })();
 
-                            // WHATSAPP NOTIFICATION
-                            const whatsappPromise = (async () => {
-                                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
-                                if (!whatsappNumber) return;
+            // WHATSAPP NOTIFICATION
+            const whatsappPromise = (async () => {
+                const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
+                if (!whatsappNumber) return;
 
-                                const message = `*Mansara Foods* 🌿
+                const message = `*Mansara Foods* 🌿
 
                         Hi *${user.name}*,
 
@@ -1082,17 +1082,87 @@ Happy Shopping! 🛒`;
 
                         Order ID: ${order.orderId}`;
 
-                                const sendWhatsApp = require('./sendWhatsApp');
-                                await sendWhatsApp(whatsappNumber, message);
-                                console.log('[✓] Custom WhatsApp sent');
-                            })();
+                const sendWhatsApp = require('./sendWhatsApp');
+                await sendWhatsApp(whatsappNumber, message);
+                console.log('[✓] Custom WhatsApp sent');
+            })();
 
-                            await Promise.allSettled([emailPromise, whatsappPromise]);
+            await Promise.allSettled([emailPromise, whatsappPromise]);
 
-                        } catch (error) {
-                            console.error('[ERROR] sendCustomMessage:', error.message);
-                        }
-                    }
-        };
+        } catch (error) {
+            console.error('[ERROR] sendCustomMessage:', error.message);
+        }
+    },
 
-        module.exports = notificationService;
+    // 11. Contact Form Message
+    sendContactMessage: async (data) => {
+        try {
+            const adminEmail = process.env.EMAIL_FEEDBACK_TO || process.env.EMAIL_FROM;
+
+            if (!adminEmail) {
+                console.log('[ℹ] No admin email configured for contact form');
+                return;
+            }
+
+            const emailMessage = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <body style="margin: 0; padding: 0; background-color: #f4f4f4;">
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); padding: 30px; text-align: center;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">New Contact Message 📬</h1>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="padding: 30px;">
+                            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">You have received a new message from the website contact form.</p>
+                            
+                            <!-- Sender Info -->
+                            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                <p style="margin: 5px 0; color: #333;"><strong>Name:</strong> ${data.name}</p>
+                                <p style="margin: 5px 0; color: #333;"><strong>Email:</strong> ${data.email}</p>
+                                <p style="margin: 5px 0; color: #333;"><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
+                                <p style="margin: 5px 0; color: #333;"><strong>Subject:</strong> ${data.subject}</p>
+                            </div>
+
+                            <!-- Message -->
+                            <div style="background-color: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3498db;">
+                                <h3 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 16px;">Message:</h3>
+                                <p style="margin: 0; color: #34495e; white-space: pre-wrap;">${data.message}</p>
+                            </div>
+
+                            <p style="font-size: 14px; color: #999; text-align: center; margin-top: 30px;">
+                                Reply directly to this email to contact the user.
+                            </p>
+                        </div>
+
+                        <!-- Footer -->
+                        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+                            <p style="margin: 5px 0; color: #666; font-size: 14px;"><strong>Mansara Foods</strong> 🌿</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            await sendEmail({
+                email: adminEmail,
+                subject: `Contact: ${data.subject} | ${data.name}`,
+                html: emailMessage,
+                replyTo: data.email
+            });
+            console.log('[✓] Contact form email sent to admin');
+
+        } catch (error) {
+            console.error('[ERROR] sendContactMessage:', error.message);
+        }
+    }
+};
+
+module.exports = notificationService;
