@@ -905,10 +905,51 @@ Happy Shopping! 🛒`;
     sendReviewRequest: async (order, user) => {
         try {
             const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+            const { Product } = require('../models/Product'); // Lazy load to avoid circular dependency issues
 
-            // We'll link to the first product in the order for simplicity, or the order details page
-            // Ideally link to a page where they can review all items
-            const reviewLink = `${frontendUrl}/account/orders`; // User can go to order history to review
+            // Helper to get product slugs
+            const getProductLinks = async () => {
+                const links = [];
+                const productIds = [];
+
+                // Collect IDs that need fetching
+                order.items.forEach(item => {
+                    if (!item.product || (!item.product.slug && !item.slug)) {
+                        const pid = item.product?._id || item.product;
+                        if (pid) productIds.push(pid);
+                    }
+                });
+
+                let productMap = {};
+                if (productIds.length > 0) {
+                    try {
+                        const products = await Product.find({ _id: { $in: productIds } }).select('_id slug');
+                        products.forEach(p => productMap[p._id.toString()] = p.slug);
+                    } catch (e) {
+                        console.error('Failed to fetch product slugs', e);
+                    }
+                }
+
+                // Generate links
+                for (const item of order.items) {
+                    let slug = null;
+                    if (item.product && item.product.slug) slug = item.product.slug;
+                    else if (item.slug) slug = item.slug; // If stored in item directly
+                    else {
+                        const pid = item.product?._id || item.product;
+                        if (pid) slug = productMap[pid.toString()];
+                    }
+
+                    const link = slug ? `${frontendUrl}/product/${slug}#reviews` : `${frontendUrl}/account/orders`;
+                    links.push({ name: item.name, link });
+                }
+                return links;
+            };
+
+            const reviewLinks = await getProductLinks();
+
+            // Fallback generic link if something fails or list is empty
+            const genericLink = `${frontendUrl}/account/orders`;
 
             // EMAIL NOTIFICATION
             const emailPromise = (async () => {
@@ -940,24 +981,26 @@ Happy Shopping! 🛒`;
                                     We'd love to hear your feedback. Your reviews help us improve and help others make better choices.
                                 </p>
 
-                                <!-- Product List (First 3) -->
-                                <div style="margin: 20px 0;">
-                                    ${order.items.slice(0, 3).map(item => `
-                                            <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                                <!-- Product List with specific links -->
+                                <div style="margin: 25px 0;">
+                                    <h3 style="font-size: 16px; color: #333; margin-bottom: 15px;">Rate your items:</h3>
+                                    ${reviewLinks.slice(0, 5).map(item => `
+                                            <div style="padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between;">
                                                 <span style="font-weight: bold; color: #333;">${item.name}</span>
+                                                <a href="${item.link}" style="background-color: #f39c12; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; font-weight: bold;">Review</a>
                                             </div>
                                         `).join('')}
-                                    ${order.items.length > 3 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${order.items.length - 3} more items...</div>` : ''}
+                                    ${reviewLinks.length > 5 ? `<div style="padding: 10px; color: #999; font-size: 12px;">+ ${reviewLinks.length - 5} more items...</div>` : ''}
                                 </div>
 
-                                <!-- CTA Button -->
-                                <div style="text-align: center; margin: 35px 0;">
-                                    <a href="${reviewLink}" style="display: inline-block; background-color: #f39c12; color: white; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">Write a Review</a>
-                                </div>
-
-                                <p style="font-size: 14px; color: #999; text-align: center;">
+                                <p style="font-size: 14px; color: #999; text-align: center; margin-top: 20px;">
                                     You can upload photos and videos to share your experience! 📸 🎥
                                 </p>
+
+                                <!-- Generic CTA Button -->
+                                <div style="text-align: center; margin: 25px 0;">
+                                    <a href="${genericLink}" style="display: inline-block; border: 2px solid #f39c12; color: #f39c12; padding: 10px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px;">View All Orders</a>
+                                </div>
                             </div>
 
                             <!-- Footer -->
@@ -986,19 +1029,22 @@ Happy Shopping! 🛒`;
                 const whatsappNumber = notificationService._getWhatsAppNumber(order, user);
                 if (!whatsappNumber) return;
 
+                // Format links for WhatsApp
+                const linksList = reviewLinks.map(l => `📝 *${l.name}*: ${l.link}`).join('\n');
+
                 const message = `*Mansara Foods* 🌿
 
-                ⭐ *How was your order?*
+⭐ *How was your order?*
 
-                Hi *${user.name}*, your order *${order.orderId}* has been delivered! 🎉
+Hi *${user.name}*, your order *${order.orderId}* has been delivered! 🎉
 
-                We'd love to know what you think about our products. Please take a moment to review your purchase.
+We'd love to know what you think about our products. Please take a moment to review your purchase.
 
-                📝 *Write a Review:* ${reviewLink}
+${linksList}
 
-                You can also upload photos and videos! 📸
+You can also upload photos and videos! 📸
 
-                Thank you for your support! 🙏`;
+Thank you for your support! 🙏`;
 
                 const sendWhatsApp = require('./sendWhatsApp');
                 await sendWhatsApp(whatsappNumber, message);
