@@ -628,7 +628,9 @@ router.get('/recent/list', protect, checkPermission('orders', 'view'), async (re
 // Trigger Review Request
 router.post('/:id/notify/review', protect, checkPermission('orders', 'edit'), async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id).populate('user');
+        const order = await Order.findById(req.params.id)
+            .populate('user')
+            .populate('items.product');
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
