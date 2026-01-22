@@ -434,6 +434,7 @@ Thank you for choosing Mansara Foods! 🙏`;
                                     ${newStatus === 'Shipped' ? `
                                     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
                                         <p style="margin: 0; color: #666; text-align: center;">📦 Your order is on its way!</p>
+                                        ${order.trackingNumber ? `<p style="margin: 10px 0 0 0; color: #333; text-align: center;"><strong>Tracking #:</strong> ${order.trackingNumber} (${order.courier || 'iCarry'})</p>` : ''}
                                     </div>
                                     ` : ''}
 
@@ -492,7 +493,9 @@ Thank you for choosing Mansara Foods! 🙏`;
                     let message = `*Mansara Foods* 🌿\n\n${config.emoji} *Order Status Update*\n\nHi *${user.name}*,\n\nOrder ID: *${order.orderId}*\nNew Status: *${newStatus}*\n\n`;
 
                     if (newStatus === 'Shipped') {
-                        message += `Your order is on its way! 📦\n\n`;
+                        message += `Your order is on its way! 📦\n`;
+                        if (order.trackingNumber) message += `Tracking: ${order.trackingNumber} (${order.courier || 'iCarry'})\n\n`;
+                        else message += `\n`;
                     } else if (newStatus === 'Out for Delivery') {
                         message += `Your order will be delivered today! 🚚\n\n`;
                     } else if (newStatus === 'Delivered') {

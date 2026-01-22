@@ -678,6 +678,48 @@ router.post('/:id/notify/message', protect, checkPermission('orders', 'edit'), a
     }
 });
 
+// Ship Order via iCarry
+router.post('/:id/ship', protect, checkPermission('orders', 'edit'), async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id)
+            .populate('user')
+            .populate('items.product'); // Need product details (weight etc)
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        if (['Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].includes(order.orderStatus)) {
+            return res.status(400).json({ message: `Order is already ${order.orderStatus}` });
+        }
+
+        const iCarryService = require('../utils/iCarryService');
+        const shipment = await iCarryService.createShipment(order);
+
+        if (shipment.success) {
+            order.trackingNumber = shipment.trackingNumber;
+            order.courier = shipment.courier;
+            order.orderStatus = 'Shipped';
+            order.trackingSteps.find(s => s.status === 'Shipped').completed = true;
+            order.trackingSteps.find(s => s.status === 'Shipped').date = new Date();
+
+            await order.save();
+
+            // Notify User
+            notificationService.sendOrderStatusUpdate(order, order.user, 'Shipped')
+                .catch(err => console.error('Failed to notify shipment:', err));
+
+            res.json({ message: 'Shipment created successfully', shipment });
+        } else {
+            res.status(400).json({ message: 'Failed to create shipment', error: shipment.error });
+        }
+
+    } catch (error) {
+        console.error('Shipment creation failed:', error);
+        res.status(500).json({ message: 'Shipment creation failed', error: error.message });
+    }
+});
+
 // ========================================
 // DELETE ORDER (ADMIN)
 // ========================================

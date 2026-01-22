@@ -134,6 +134,10 @@ const orderSchema = new mongoose.Schema({
     actualDeliveryDate: Date,
     notes: String,
 
+    // Shipment Details
+    trackingNumber: String,
+    courier: String,
+
     // Additional tracking fields
     cancellationReason: String,
     cancelledBy: {
