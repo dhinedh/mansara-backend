@@ -22,6 +22,13 @@ const categories = [
         description: 'Wholesome Millet fusion blends',
         isActive: true,
         order: 3
+    },
+    {
+        name: 'Health drink mix',
+        value: 'health-drink-mixes',
+        description: 'Nutritious and delicious health drink blends',
+        isActive: true,
+        order: 4
     }
 ];
 

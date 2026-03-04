@@ -121,6 +121,30 @@ const products = [
             "/products/millet-idly-podi-back.jpg",
             "/products/millet-idly-podi-side.jpg"
         ]
+    },
+    {
+        name: "Ragi Choco Malt",
+        categoryName: "Health drink mix",
+        price: 180,
+        offerPrice: 180,
+        stock: 100,
+        weight: "250g",
+        short_description: "A nutritious millet-based chocolate drink made with wholesome natural ingredients for daily energy and growth.",
+        description: "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa. Specially formulated to provide sustained energy, it is enriched with almonds, cashews, and traditional spices like cardamom and saffron. Perfect for growing children and health-conscious adults, it offers a clean, preservative-free alternative to commercial health drinks. Rich in calcium and dietary fiber, it supports bone health and overall wellness.",
+        highlights: [
+            "No preservatives",
+            "Millet-based with natural cocoa",
+            "Rich in calcium",
+            "Kids friendly (2+ years)",
+            "Enriched with Saffron & Almonds"
+        ],
+        ingredients: "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
+        howToUse: "Mix 2 tbsp (approx. 25g) with milk or water. Cook on low flame with continuous stirring until smooth. Add sugar or jaggery if required. Serve warm as a hot drink or cold as a milkshake.",
+        storage: "Store in a cool, dry place. Keep the container tightly closed. Use only a dry spoon.",
+        image: "https://images.unsplash.com/photo-1542990253-a781e5e41602?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        images: [
+            "https://images.unsplash.com/photo-1542990253-a781e5e41602?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+        ]
     }
 ];
 
