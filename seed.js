@@ -15,11 +15,15 @@ const categories = [
 ];
 
 const products = [
-    { name: "Urad Porridge Mix – Classic", category: "Urad Porridge Mix", price: 70, weight: "100g", image: "/products/urad-classic-front.jpg", stock: 50, isActive: true, isFeatured: true, variants: [{ weight: "100g", price: 70 }, { weight: "200g", price: 105 }] },
+    { name: "Urad Porridge Mix – Classic", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-classic-front.jpg", stock: 50, isActive: true, isFeatured: true, variants: [{ weight: "100g", price: 55 }, { weight: "200g", price: 105 }] },
+    { name: "Urad Porridge Mix – Salt & Pepper", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-salt-pepper-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 55 }, { weight: "200g", price: 105 }] },
+    { name: "Urad Porridge Mix – Millet Magic", category: "Urad Porridge Mix", price: 60, weight: "100g", image: "/products/urad-millet-magic-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 60 }, { weight: "200g", price: 115 }] },
+    { name: "Urad Porridge Mix – Premium", category: "Urad Porridge Mix", price: 65, weight: "100g", image: "/products/urad-premium-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 65 }, { weight: "200g", price: 125 }] },
+    { name: "Black Rice Delight Porridge Mix", category: "Black Rice mix", price: 70, weight: "100g", image: "/products/black-rice-delight-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 70 }, { weight: "200g", price: 135 }] },
     { name: "Ragi Choco Malt", category: "Health drink mix", price: 70, weight: "100g", image: "/products/RagiChocoMalt.PNG", stock: 50, isActive: true, isNewArrival: true, isFeatured: true, variants: [{ weight: "100g", price: 70 }, { weight: "250g", price: 180 }] },
     { name: "NutriMix Super Health Mix", category: "Health drink mix", price: 200, weight: "250g", image: "/products/NutriMix.PNG", stock: 100, isActive: true, isFeatured: true, tasteProfile: "Mild, nutty, traditional" },
     { name: "Traditional Idly Podi", category: "Idly Podi", price: 80, weight: "100g", image: "/products/TraditionalIdlyPodi.PNG", stock: 100, isActive: true, tasteProfile: "Spicy, traditional" },
-    { name: "Millet Fusion Idly Podi", category: "Idly Podi", price: 90, weight: "100g", image: "/products/MilletFusionIdlyPodi.PNG", stock: 100, isActive: true, tasteProfile: "Spicy, nutty" },
+    { name: "Millet Fusion Idly Podi", category: "Idly Podi", price: 75, weight: "100g", image: "/products/MilletFusionIdlyPodi.PNG", stock: 100, isActive: true, tasteProfile: "Spicy, nutty" },
     { name: "Home Style Paruppu Podi", category: "Rice Mixes", price: 80, weight: "100g", image: "/products/HomeStyleParuppu.PNG", stock: 100, isActive: true, tasteProfile: "Spicy, dal-forward" },
     { name: "Karuveppillai Special", category: "Rice Mixes", price: 80, weight: "100g", image: "/products/KaruveppillaiSpecial.PNG", stock: 100, isActive: true, tasteProfile: "Spicy, aromatic" },
     { name: "Kotha Malli Aroma", category: "Rice Mixes", price: 80, weight: "100g", image: "/products/KothamalliAroma.PNG", stock: 100, isActive: true, tasteProfile: "Spicy, coriander-rich" },
@@ -35,15 +39,14 @@ async function seed() {
         // Seed Categories
         const categoryMap = {};
         for (const cat of categories) {
-            const savedCat = await Category.findOneAndUpdate({ name: cat.name }, cat, { upsert: true, new: true });
+            const savedCat = await Category.findOneAndUpdate({ name: cat.name }, cat, { upsert: true, new: true, setDefaultsOnInsert: true });
             categoryMap[cat.name] = savedCat._id;
         }
 
         // Seed Products
         for (const p of products) {
             const productData = { ...p, category: categoryMap[p.category], slug: p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') };
-            delete productData.categoryName;
-            await Product.findOneAndUpdate({ name: p.name }, productData, { upsert: true, new: true });
+            await Product.findOneAndUpdate({ name: p.name }, productData, { upsert: true, new: true, setDefaultsOnInsert: true });
         }
 
         console.log('Seeding complete');

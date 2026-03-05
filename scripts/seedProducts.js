@@ -5,7 +5,7 @@ const products = [
     {
         name: "Urad Porridge Mix – Classic",
         categoryName: "Urad Porridge Mix",
-        price: 70,
+        price: 55,
         stock: 50,
         weight: "100g",
         short_description: "A traditional, wholesome porridge made with simple, time-tested ingredients for daily nourishment and easy digestion.",
@@ -19,12 +19,12 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: true,
-        variants: [{ weight: "100g", price: 70, stock: 50 }, { weight: "200g", price: 105, stock: 50 }]
+        variants: [{ weight: "100g", price: 55, stock: 50 }, { weight: "200g", price: 105, stock: 50 }]
     },
     {
         name: "Urad Porridge Mix – Salt & Pepper",
         categoryName: "Urad Porridge Mix",
-        price: 70,
+        price: 55,
         stock: 50,
         weight: "100g",
         short_description: "A savoury porridge variant infused with pepper and cumin.",
@@ -38,12 +38,12 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 70, stock: 50 }, { weight: "200g", price: 105, stock: 50 }]
+        variants: [{ weight: "100g", price: 55, stock: 50 }, { weight: "200g", price: 105, stock: 50 }]
     },
     {
         name: "Urad Porridge Mix – Millet Magic",
         categoryName: "Urad Porridge Mix",
-        price: 70,
+        price: 60,
         stock: 50,
         weight: "100g",
         short_description: "A nutritious porridge mix crafted with premium black gram and a carefully balanced selection of traditional millets.",
@@ -57,12 +57,12 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 70, stock: 50 }, { weight: "200g", price: 115, stock: 50 }]
+        variants: [{ weight: "100g", price: 60, stock: 50 }, { weight: "200g", price: 115, stock: 50 }]
     },
     {
         name: "Urad Porridge Mix – Premium",
         categoryName: "Urad Porridge Mix",
-        price: 70,
+        price: 65,
         stock: 50,
         weight: "100g",
         short_description: "A premium porridge blend formulated with black gram, ragi, and diverse rice varieties.",
@@ -76,7 +76,7 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 70, stock: 50 }, { weight: "200g", price: 125, stock: 50 }]
+        variants: [{ weight: "100g", price: 65, stock: 50 }, { weight: "200g", price: 125, stock: 50 }]
     },
     {
         name: "Black Rice Delight Porridge Mix",
@@ -163,7 +163,7 @@ const products = [
     {
         name: "Millet Fusion Idly Podi",
         categoryName: "Idly Podi",
-        price: 90,
+        price: 75,
         stock: 100,
         weight: "100g",
         description: "A nutritious millet-enriched idly podi.",
@@ -180,7 +180,7 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 90, stock: 100 }]
+        variants: [{ weight: "100g", price: 75, stock: 100 }]
     },
     {
         name: "Home Style Paruppu Podi",
