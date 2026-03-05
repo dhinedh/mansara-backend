@@ -29,6 +29,20 @@ const categories = [
         description: 'Nutritious and delicious health drink blends',
         isActive: true,
         order: 4
+    },
+    {
+        name: 'Idly Podi',
+        value: 'idly-podi',
+        description: 'Traditional and Millet enriched idly podis',
+        isActive: true,
+        order: 5
+    },
+    {
+        name: 'Rice Mixes',
+        value: 'rice-mixes',
+        description: 'Authentic and nutritious rice mixes',
+        isActive: true,
+        order: 6
     }
 ];
 

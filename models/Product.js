@@ -144,7 +144,12 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    lastRestocked: Date
+    lastRestocked: Date,
+    tasteProfile: String,
+    suitableFor: String,
+    shelfLife: String,
+    packagingType: String,
+    certifications: [String]
 }, {
     timestamps: true,
     minimize: false
