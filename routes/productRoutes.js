@@ -29,7 +29,10 @@ const cacheMiddleware = (duration = 600000) => { // 10 minutes default
         const key = req.originalUrl;
         const cached = cache.get(key);
 
-        if (cached && Date.now() - cached.timestamp < duration) {
+        // Bypass cache if _t (timestamp) is present
+        if (req.query._t) {
+            console.log(`[CACHE BYPASS] ${key}`);
+        } else if (cached && Date.now() - cached.timestamp < duration) {
             console.log(`[CACHE HIT] ${key}`);
             return res.json(cached.data);
         }
