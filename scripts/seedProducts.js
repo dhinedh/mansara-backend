@@ -3,177 +3,144 @@ const mongoose = require('mongoose');
 
 const products = [
     {
-        name: "Urad Porridge Mix – Classic",
+        name: "Urad Health Mix – Classic",
         categoryName: "Urad Porridge Mix",
         price: 55,
         stock: 50,
         weight: "100g",
-        short_description: "A traditional, wholesome porridge made with simple, time-tested ingredients for daily nourishment and easy digestion.",
-        description: "Mansara Urad Porridge Mix – Classic is a time-honoured South Indian health drink made using carefully selected urad dal, processed using traditional roasting techniques to retain nutrition and flavour.",
+        short_description: "A traditional, wholesome health mix.",
+        description: "Mansara Classic Urad Health Mix is a time-honoured South Indian health drink.",
         ingredients: "Black Gram (67%), Black Rice (33%), Dry Ginger, Cardamom.",
-        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
-        storage: "Store in a cool, dry place; keep airtight.",
-        highlights: ["No preservatives", "Single-source ingredients", "Rich in Calcium & Iron"],
+        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes.",
+        storage: "Store in a cool, dry place.",
+        highlights: ["No preservatives", "Rich in Calcium & Iron"],
         image: "/products/urad-classic-front.jpg",
         images: ["/products/urad-classic-front.jpg"],
         isActive: true,
         isNewArrival: false,
         isFeatured: true,
-        variants: [{ weight: "100g", price: 55, stock: 50 }, { weight: "200g", price: 105, stock: 50 }]
+        variants: [
+            { weight: "100g", price: 55, stock: 50 },
+            { weight: "200g", price: 105, stock: 50 },
+            { weight: "250g", price: 140, stock: 50 }
+        ]
     },
     {
-        name: "Urad Porridge Mix – Salt & Pepper",
+        name: "Urad Health Mix – Salt n Pepper",
         categoryName: "Urad Porridge Mix",
         price: 55,
         stock: 50,
         weight: "100g",
-        short_description: "A savoury porridge variant infused with pepper and cumin.",
-        description: "Mansara Urad Porridge Mix – Salt & Pepper is a savoury twist on the traditional ulunthankanji.",
-        ingredients: "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
-        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously.",
+        description: "Mansara Urad Health Mix – Salt n Pepper is a savoury twist on the traditional kanji.",
+        ingredients: "Black Gram, Kavuni Rice, Black Pepper, Cumin Seeds, Salt.",
+        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes.",
         storage: "Store in a cool, dry place.",
-        highlights: ["No artificial flavours", "Digestive spices", "Savoury taste"],
+        highlights: ["Digestive spices", "Savoury taste"],
         image: "/products/urad-salt-pepper-front.jpg",
         images: ["/products/urad-salt-pepper-front.jpg"],
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 55, stock: 50 }, { weight: "200g", price: 105, stock: 50 }]
+        variants: [
+            { weight: "100g", price: 55, stock: 50 },
+            { weight: "200g", price: 105, stock: 50 },
+            { weight: "250g", price: 140, stock: 50 }
+        ]
     },
     {
-        name: "Urad Porridge Mix – Millet Magic",
+        name: "Urad Health Mix – Millet Magic",
         categoryName: "Urad Porridge Mix",
         price: 60,
         stock: 50,
         weight: "100g",
-        short_description: "A nutritious porridge mix crafted with premium black gram and a carefully balanced selection of traditional millets.",
-        description: "Mansara Millet Magic Urad Porridge Mix blends the goodness of urad dal with selected traditional millets.",
-        ingredients: "Black Gram (49.02%), Foxtail Millet (12.75%), Little Millet (12.75%), Barnyard Millet (12.75%), Kodo Millet (12.75%).",
-        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously.",
+        description: "Mansara Millet Magic Urad Health Mix blends black gram with traditional millets.",
+        ingredients: "Black Gram, Finger Millet, Foxtail Millet...",
+        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook for 10 minutes.",
         storage: "Store in a cool, dry place.",
-        highlights: ["Millet-based", "Clean label", "High Fibre"],
+        highlights: ["Millet-based", "High Fibre"],
         image: "/products/urad-millet-magic-front.jpg",
         images: ["/products/urad-millet-magic-front.jpg"],
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 60, stock: 50 }, { weight: "200g", price: 115, stock: 50 }]
+        variants: [
+            { weight: "100g", price: 60, stock: 50 },
+            { weight: "200g", price: 115, stock: 50 },
+            { weight: "250g", price: 150, stock: 50 }
+        ]
     },
     {
-        name: "Urad Porridge Mix – Premium",
+        name: "Urad Health Mix – Premium",
         categoryName: "Urad Porridge Mix",
         price: 65,
         stock: 50,
         weight: "100g",
-        short_description: "A premium porridge blend formulated with black gram, ragi, and diverse rice varieties.",
-        description: "Mansara Premium Urad Porridge Mix is a carefully crafted blend designed for those who want maximum nutrition.",
-        ingredients: "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
-        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously.",
+        description: "Mansara Premium Urad Health Mix is designed for maximum nutrition.",
+        ingredients: "Black Gram, Ragi, Kavuni Rice...",
+        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook for 10 minutes.",
         storage: "Store in a cool, dry place.",
-        highlights: ["Multi-Grain", "High Nutrition", "Immunity Support"],
+        highlights: ["Multi-Grain", "Immunity Support"],
         image: "/products/urad-premium-front.jpg",
         images: ["/products/urad-premium-front.jpg"],
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 65, stock: 50 }, { weight: "200g", price: 125, stock: 50 }]
+        variants: [
+            { weight: "100g", price: 65, stock: 50 },
+            { weight: "200g", price: 125, stock: 50 },
+            { weight: "250g", price: 160, stock: 50 }
+        ]
     },
     {
-        name: "Black Rice Delight Porridge Mix",
+        name: "Health Mix – Black Rice Delight",
         categoryName: "Black Rice mix",
         price: 70,
         stock: 50,
         weight: "100g",
-        short_description: "A wholesome porridge blend formulated with traditional black rice (kavuni).",
-        description: "Mansara Black Rice Delight Porridge Mix is made using traditional black rice (Karuppu Kavuni Arisi).",
-        ingredients: "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",
-        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes.",
+        description: "Mansara Black Rice Delight Health Mix is made using Karuppu Kavuni Arisi.",
+        ingredients: "Kavuni Rice, Samba Wheat, Barley...",
+        howToUse: "Take 2 tablespoons of mix. Add 250 ml of water, cook for 10 minutes.",
         storage: "Store in a cool, dry place.",
-        highlights: ["Antioxidant Rich", "Iron Rich", "Heart Healthy"],
+        highlights: ["Antioxidant Rich", "Heart Healthy"],
         image: "/products/black-rice-delight-front.jpg",
         images: ["/products/black-rice-delight-front.jpg"],
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 70, stock: 50 }, { weight: "200g", price: 135, stock: 50 }]
+        variants: [
+            { weight: "100g", price: 70, stock: 50 },
+            { weight: "200g", price: 135, stock: 50 },
+            { weight: "250g", price: 180, stock: 50 }
+        ]
     },
     {
-        name: "Ragi Choco Malt",
-        categoryName: "Health drink mix",
-        price: 70,
-        stock: 50,
-        weight: "100g",
-        short_description: "A nutritious millet-based chocolate drink.",
-        description: "Mansara Ragi Choco Malt combines the nutrition of Ragi with premium cocoa.",
-        ingredients: "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
-        howToUse: "Mix 2 tbsp with milk or water. Cook on low flame.",
-        storage: "Store in a cool, dry place.",
-        highlights: ["No preservatives", "Millet-based with cocoa", "Rich in calcium"],
-        image: "/products/RagiChocoMalt.PNG",
-        images: ["/products/RagiChocoMalt.PNG", "/products/RagiChocoMaltLabel.PNG"],
-        isActive: true,
-        isNewArrival: true,
-        isFeatured: true,
-        variants: [{ weight: "100g", price: 70, stock: 50 }, { weight: "250g", price: 180, stock: 50 }]
-    },
-    {
-        name: "NutriMix Super Health Mix",
-        categoryName: "Health drink mix",
-        price: 200,
-        stock: 100,
-        weight: "250g",
-        description: "A traditional 27-ingredient multi-grain health mix.",
-        ingredients: "Ragi, Kollu, Green Gram, Badam, Barley, Red Rice, Samba Wheat, Cashew, Kambu...",
-        tasteProfile: "Mild, nutty, traditional",
-        suitableFor: "Kids (8+ months), adults, elderly",
-        howToUse: "Mix 2 tbsp with water, cook on low flame.",
-        storage: "Store in a cool, dry place.",
-        shelfLife: "6 months",
-        packagingType: "PET Jar",
-        highlights: ["27 ingredients", "High protein"],
-        image: "/products/NutriMix.PNG",
-        images: ["/products/NutriMix.PNG"],
-        isActive: true,
-        isNewArrival: false,
-        isFeatured: true,
-        variants: [{ weight: "250g", price: 200, stock: 100 }]
-    },
-    {
-        name: "Traditional Idly Podi",
+        name: "Idly Podi – Traditional",
         categoryName: "Idly Podi",
-        price: 80,
+        price: 75,
         stock: 100,
         weight: "100g",
         description: "A classic South Indian idly podi.",
         ingredients: "Black Gram, Bengal Gram, Green Gram...",
-        tasteProfile: "Spicy, traditional",
-        suitableFor: "All age groups",
         howToUse: "Mix with gingelly oil or ghee.",
         storage: "Store in a cool, dry place.",
-        shelfLife: "6 months",
-        packagingType: "PET Jar",
         highlights: ["Authentic roast & grind"],
         image: "/products/TraditionalIdlyPodi.PNG",
         images: ["/products/TraditionalIdlyPodi.PNG"],
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 80, stock: 100 }]
+        variants: [{ weight: "100g", price: 75, stock: 100 }]
     },
     {
-        name: "Millet Fusion Idly Podi",
+        name: "Idly Podi – Millet Fusion",
         categoryName: "Idly Podi",
         price: 75,
         stock: 100,
         weight: "100g",
         description: "A nutritious millet-enriched idly podi.",
         ingredients: "Urad Dal, Bengal Gram, Millets...",
-        tasteProfile: "Spicy, nutty",
-        suitableFor: "All age groups",
         howToUse: "Mix with gingelly oil or ghee.",
         storage: "Store in a cool, dry place.",
-        shelfLife: "6 months",
-        packagingType: "PET Jar",
         highlights: ["Millet enriched"],
         image: "/products/MilletFusionIdlyPodi.PNG",
         images: ["/products/MilletFusionIdlyPodi.PNG"],
@@ -183,15 +150,13 @@ const products = [
         variants: [{ weight: "100g", price: 75, stock: 100 }]
     },
     {
-        name: "Home Style Paruppu Podi",
+        name: "Rice Podi Mix",
         categoryName: "Rice Mixes",
-        price: 80,
+        price: 85,
         stock: 100,
         weight: "100g",
-        description: "A homestyle protein-rich paruppu podi.",
+        description: "A homestyle rice podi mix.",
         ingredients: "Toor Daal, Bengal Gram...",
-        tasteProfile: "Spicy, dal-forward",
-        suitableFor: "All age groups",
         howToUse: "Mix with hot rice and ghee.",
         storage: "Store in a cool, dry place.",
         highlights: ["Protein rich"],
@@ -200,18 +165,16 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 80, stock: 100 }]
+        variants: [{ weight: "100g", price: 85, stock: 100 }]
     },
     {
-        name: "Karuveppillai Special",
+        name: "Curry Leaves Rice Podi Mix",
         categoryName: "Rice Mixes",
-        price: 80,
+        price: 85,
         stock: 100,
         weight: "100g",
         description: "A flavourful curry leaf rice mix.",
         ingredients: "Toor Dhal, Curry Leaves...",
-        tasteProfile: "Spicy, aromatic",
-        suitableFor: "All age groups",
         howToUse: "Mix with hot rice.",
         storage: "Store in a cool, dry place.",
         highlights: ["Curry leaf rich"],
@@ -220,18 +183,16 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 80, stock: 100 }]
+        variants: [{ weight: "100g", price: 85, stock: 100 }]
     },
     {
-        name: "Kotha Malli Aroma",
+        name: "Coriander Rice Podi Mix",
         categoryName: "Rice Mixes",
-        price: 80,
+        price: 85,
         stock: 100,
         weight: "100g",
-        description: "A fragrant coriander-based rice mix.",
+        description: "A fragrant coriander rice mix.",
         ingredients: "Dhaniya, Urad Dhal...",
-        tasteProfile: "Spicy, coriander-rich",
-        suitableFor: "All age groups",
         howToUse: "Mix with hot rice.",
         storage: "Store in a cool, dry place.",
         highlights: ["Rich coriander aroma"],
@@ -240,18 +201,16 @@ const products = [
         isActive: true,
         isNewArrival: false,
         isFeatured: false,
-        variants: [{ weight: "100g", price: 80, stock: 100 }]
+        variants: [{ weight: "100g", price: 85, stock: 100 }]
     },
     {
-        name: "Murungai Vital",
+        name: "Moringa Rice Podi Mix",
         categoryName: "Rice Mixes",
         price: 85,
         stock: 100,
         weight: "100g",
         description: "A nutritious moringa leaf rice mix.",
         ingredients: "Murungai Keerai...",
-        tasteProfile: "Spicy, herbal",
-        suitableFor: "All age groups",
         howToUse: "Mix with hot rice.",
         storage: "Store in a cool, dry place.",
         highlights: ["Moringa rich"],
@@ -263,15 +222,13 @@ const products = [
         variants: [{ weight: "100g", price: 85, stock: 100 }]
     },
     {
-        name: "Pirandai Power",
+        name: "Pirandai Rice Podi Mix",
         categoryName: "Rice Mixes",
         price: 85,
         stock: 100,
         weight: "100g",
-        description: "A traditional pirandai-based rice mix.",
+        description: "A traditional pirandai rice mix.",
         ingredients: "Pirandai, Tamarind...",
-        tasteProfile: "Spicy, tangy",
-        suitableFor: "All age groups",
         howToUse: "Mix with hot rice.",
         storage: "Store in a cool, dry place.",
         highlights: ["Traditional herbal"],
@@ -281,6 +238,37 @@ const products = [
         isNewArrival: false,
         isFeatured: false,
         variants: [{ weight: "100g", price: 85, stock: 100 }]
+    },
+    {
+        name: "Ragi Choco Malt",
+        categoryName: "Health drink mix",
+        price: 250,
+        stock: 100,
+        weight: "250g",
+        description: "A nutritious millet-based chocolate health drink.",
+        ingredients: "Ragi, Cocoa Powder, Saffron, Almonds...",
+        howToUse: "Mix with milk or water and cook.",
+        storage: "Store in a cool, dry place.",
+        highlights: ["No preservatives", "Calcium rich"],
+        image: "/products/RagiChocoMalt.PNG",
+        images: ["/products/RagiChocoMalt.PNG"],
+        isActive: true,
+        isNewArrival: true,
+        isFeatured: true,
+        variants: [{ weight: "250g", price: 250, stock: 100 }]
+    },
+    {
+        name: "Nutriminix – Multi Grain Health Mix",
+        categoryName: "Health drink mix",
+        price: 200,
+        stock: 100,
+        weight: "250g",
+        image: "/products/NutriMix.PNG",
+        images: ["/products/NutriMix.PNG"],
+        isActive: true,
+        isNewArrival: false,
+        isFeatured: true,
+        variants: [{ weight: "250g", price: 200, stock: 100 }]
     }
 ];
 
@@ -294,17 +282,14 @@ async function seedProducts() {
         for (const item of products) {
             const category = await Category.findOne({ name: item.categoryName });
             if (!category) { console.warn(`⚠️ Category not found for ${item.name}: ${item.categoryName}`); continue; }
-
             const productData = { ...item, category: category._id };
             productData.slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             delete productData.categoryName;
-
             await Product.findOneAndUpdate({ name: item.name }, productData, { upsert: true, new: true });
             console.log(`   ✓ Processed: ${item.name}`);
         }
-        console.log(`✅ Successfully seeded ${products.length} products.`);
-    } catch (error) {
-        console.error('❌ Error seeding products:', error);
-    } finally { await mongoose.disconnect(); process.exit(0); }
+        console.log('✅ Seeding complete.');
+    } catch (error) { console.error('❌ Error:', error); }
+    finally { await mongoose.disconnect(); process.exit(0); }
 }
 seedProducts();
