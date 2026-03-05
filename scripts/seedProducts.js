@@ -21,7 +21,6 @@ const products = [
         isFeatured: true,
         variants: [
             { weight: "100g", price: 55, stock: 50 },
-            { weight: "200g", price: 105, stock: 50 },
             { weight: "250g", price: 140, stock: 50 }
         ]
     },
@@ -43,7 +42,6 @@ const products = [
         isFeatured: false,
         variants: [
             { weight: "100g", price: 55, stock: 50 },
-            { weight: "200g", price: 105, stock: 50 },
             { weight: "250g", price: 140, stock: 50 }
         ]
     },
@@ -65,7 +63,6 @@ const products = [
         isFeatured: false,
         variants: [
             { weight: "100g", price: 60, stock: 50 },
-            { weight: "200g", price: 115, stock: 50 },
             { weight: "250g", price: 150, stock: 50 }
         ]
     },
@@ -87,7 +84,6 @@ const products = [
         isFeatured: false,
         variants: [
             { weight: "100g", price: 65, stock: 50 },
-            { weight: "200g", price: 125, stock: 50 },
             { weight: "250g", price: 160, stock: 50 }
         ]
     },
@@ -109,7 +105,6 @@ const products = [
         isFeatured: false,
         variants: [
             { weight: "100g", price: 70, stock: 50 },
-            { weight: "200g", price: 135, stock: 50 },
             { weight: "250g", price: 180, stock: 50 }
         ]
     },

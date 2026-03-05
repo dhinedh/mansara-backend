@@ -15,11 +15,11 @@ const categories = [
 ];
 
 const products = [
-    { name: "Urad Health Mix – Classic", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-classic-front.jpg", stock: 50, isActive: true, isFeatured: true, variants: [{ weight: "100g", price: 55 }, { weight: "200g", price: 105 }, { weight: "250g", price: 140 }] },
-    { name: "Urad Health Mix – Salt n Pepper", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-salt-pepper-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 55 }, { weight: "200g", price: 105 }, { weight: "250g", price: 140 }] },
-    { name: "Urad Health Mix – Millet Magic", category: "Urad Porridge Mix", price: 60, weight: "100g", image: "/products/urad-millet-magic-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 60 }, { weight: "200g", price: 115 }, { weight: "250g", price: 150 }] },
-    { name: "Urad Health Mix – Premium", category: "Urad Porridge Mix", price: 65, weight: "100g", image: "/products/urad-premium-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 65 }, { weight: "200g", price: 125 }, { weight: "250g", price: 160 }] },
-    { name: "Health Mix – Black Rice Delight", category: "Black Rice mix", price: 70, weight: "100g", image: "/products/black-rice-delight-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 70 }, { weight: "200g", price: 135 }, { weight: "250g", price: 180 }] },
+    { name: "Urad Health Mix – Classic", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-classic-front.jpg", stock: 50, isActive: true, isFeatured: true, variants: [{ weight: "100g", price: 55 }, { weight: "250g", price: 140 }] },
+    { name: "Urad Health Mix – Salt n Pepper", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-salt-pepper-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 55 }, { weight: "250g", price: 140 }] },
+    { name: "Urad Health Mix – Millet Magic", category: "Urad Porridge Mix", price: 60, weight: "100g", image: "/products/urad-millet-magic-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 60 }, { weight: "250g", price: 150 }] },
+    { name: "Urad Health Mix – Premium", category: "Urad Porridge Mix", price: 65, weight: "100g", image: "/products/urad-premium-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 65 }, { weight: "250g", price: 160 }] },
+    { name: "Health Mix – Black Rice Delight", category: "Black Rice mix", price: 70, weight: "100g", image: "/products/black-rice-delight-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 70 }, { weight: "250g", price: 180 }] },
     { name: "Ragi Choco Malt", category: "Health drink mix", price: 250, weight: "250g", image: "/products/RagiChocoMalt.PNG", stock: 100, isActive: true, isNewArrival: true, isFeatured: true, variants: [{ weight: "250g", price: 250 }] },
     { name: "Nutriminix – Multi Grain Health Mix", category: "Health drink mix", price: 200, weight: "250g", image: "/products/NutriMix.PNG", stock: 100, isActive: true, isFeatured: true },
     { name: "Idly Podi – Traditional", category: "Idly Podi", price: 75, weight: "100g", image: "/products/TraditionalIdlyPodi.PNG", stock: 100, isActive: true },
