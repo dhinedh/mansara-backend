@@ -141,10 +141,10 @@ const products = [
         ingredients: "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
         howToUse: "Mix 2 tbsp (approx. 25g) with milk or water. Cook on low flame with continuous stirring until smooth. Add sugar or jaggery if required. Serve warm as a hot drink or cold as a milkshake.",
         storage: "Store in a cool, dry place. Keep the container tightly closed. Use only a dry spoon.",
-        image: "/products/ragi-choco-malt-front.jpg",
+        image: "/products/ragi-choco-malt-front.png",
         images: [
-            "/products/ragi-choco-malt-front.jpg",
-            "/products/ragi-choco-malt-label.jpg"
+            "/products/ragi-choco-malt-front.png",
+            "/products/ragi-choco-malt-label.png"
         ]
     }
 ];
