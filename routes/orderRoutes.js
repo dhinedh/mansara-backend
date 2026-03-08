@@ -100,8 +100,10 @@ router.post('/', protect, async (req, res) => {
                 product.stock -= item.quantity;
             }
 
-            // Add to server-calculated total
-            dbTotal += (item.price * item.quantity);
+            const itemPrice = (product.offerPrice && product.offerPrice > 0) ? product.offerPrice : product.price;
+
+            // Add to server-calculated total using the authoritative price from DB
+            dbTotal += (itemPrice * item.quantity);
 
             await product.save();
         }
