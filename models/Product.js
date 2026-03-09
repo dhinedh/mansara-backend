@@ -66,6 +66,7 @@ const productSchema = new mongoose.Schema({
         weight: String,
         price: Number,
         offerPrice: Number,
+        originalPrice: Number,
         stock: Number,
         sku: String
     }],

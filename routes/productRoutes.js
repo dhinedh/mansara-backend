@@ -1,5 +1,5 @@
 const express = require('express');
-// Force restart 6
+// Force restart 7
 const router = express.Router();
 const { Product, Combo } = require('../models/Product');
 const Notification = require('../models/Notification');
@@ -535,6 +535,18 @@ router.patch('/:id/stock', protect, checkPermission('stocks', 'limited'), async 
         res.json({ stock: product.stock });
     } catch (error) {
         console.error('[ERROR] Update stock:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// ========================================
+// CLEAR PRODUCT CACHE (ADMIN)
+// ========================================
+router.post('/cache/clear', protect, checkPermission('products', 'limited'), (req, res) => {
+    try {
+        clearProductCache();
+        res.json({ message: 'Product cache cleared successfully' });
+    } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
