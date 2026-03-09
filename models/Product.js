@@ -234,7 +234,7 @@ productSchema.virtual('savings').get(function () {
 
 // Virtual for average rating display
 productSchema.virtual('ratingDisplay').get(function () {
-    return this.rating.toFixed(1);
+    return (this.rating || 0).toFixed(1);
 });
 
 // Virtual for stock status
