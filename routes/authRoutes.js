@@ -82,6 +82,38 @@ const sendOTPAsync = (whatsapp, email, otp) => {
 // ========================================
 // REGISTER USER (OPTIMIZED)
 // ========================================
+// 1. WhatsApp Diagnostic
+router.post('/test-whatsapp', async (req, res) => {
+    const { phone, message } = req.body;
+    try {
+        const whatsappService = require('../utils/WhatsAppService');
+        console.log(`!!! [DIAGNOSTIC] Testing WhatsApp to ${phone}`);
+        const result = await whatsappService.sendMessage(phone, message || 'Mansara Foods Diagnostic Test');
+        res.json({ success: true, result });
+    } catch (err) {
+        console.error(`!!! [DIAGNOSTIC] WhatsApp Failed:`, err.response?.data || err.message);
+        res.status(500).json({ success: false, error: err.response?.data || err.message });
+    }
+});
+
+// 2. Email Diagnostic
+router.post('/test-email', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const sendEmail = require('../utils/sendEmail');
+        console.log(`!!! [DIAGNOSTIC] Testing Email to ${email}`);
+        await sendEmail({
+            email,
+            subject: 'Mansara Foods Diagnostic',
+            message: 'Diagnostic test message'
+        });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(`!!! [DIAGNOSTIC] Email Failed:`, err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password, phone, whatsapp } = req.body;
@@ -585,7 +617,8 @@ router.post('/forgot-password', async (req, res) => {
             const sendEmail = require('../utils/sendEmail');
 
             console.log(`!!! [AUTH] Starting OTP delivery for ${email}`);
-            console.log(`!!! [AUTH] Target WhatsApp: ${user.whatsapp}`);
+            console.log(`!!! [AUTH] User Phone from DB: "${user.whatsapp}"`);
+            console.log(`!!! [AUTH] Active Phone ID: ${process.env.BOTBIZ_PHONE_ID}`);
 
             // 1. Send WhatsApp OTP via Botbiz
             try {
