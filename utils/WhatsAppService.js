@@ -7,6 +7,7 @@ class WhatsAppService {
         this.phoneId = process.env.BOTBIZ_PHONE_ID;
 
         console.log(`!!! [WHATSAPP SERVICE] Initializing...`);
+        console.log(`!!! [WHATSAPP SERVICE] Environment: ${process.env.NODE_ENV || 'not set'}`);
         console.log(`!!! [WHATSAPP SERVICE] API Key: ${this.apiKey ? '✓ Loaded' : '✗ MISSING'}`);
         console.log(`!!! [WHATSAPP SERVICE] Phone ID: ${this.phoneId || '✗ MISSING'}`);
         console.log(`!!! [WHATSAPP SERVICE] Base URL: ${this.baseUrl}`);
