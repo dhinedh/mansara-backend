@@ -17,16 +17,28 @@ class WhatsAppService {
     }
 
     /**
+     * Helper to normalize phone number (adds 91 for Indian numbers if missing)
+     */
+    _normalizePhone(phone) {
+        let clean = phone.replace(/\D/g, '');
+        if (clean.length === 10) {
+            clean = '91' + clean;
+        }
+        return clean;
+    }
+
+    /**
      * Create or update a subscriber
      */
     async createSubscriber(phone, name, details = {}) {
         try {
+            const normalizedPhone = this._normalizePhone(phone);
             const response = await this.client.post('/whatsapp/subscriber/create', {
-                phone: phone.replace(/\D/g, ''), // Ensure numeric only
+                phone: normalizedPhone,
                 name: name,
                 ...details
             });
-            console.log(`[WHATSAPP] Subscriber created: ${phone}`);
+            console.log(`[WHATSAPP] Subscriber created: ${normalizedPhone}`);
             return response.data;
         } catch (error) {
             console.error('[WHATSAPP SERVICE] Error creating subscriber:', error.response?.data || error.message);
@@ -39,12 +51,13 @@ class WhatsAppService {
      */
     async sendMessage(phone, message) {
         try {
+            const normalizedPhone = this._normalizePhone(phone);
             const response = await this.client.post('/whatsapp/send', {
-                phone: phone.replace(/\D/g, ''),
+                phone: normalizedPhone,
                 message: message,
                 phone_id: this.phoneId
             });
-            console.log(`[WHATSAPP] Message sent to: ${phone}`);
+            console.log(`[WHATSAPP] Message sent to: ${normalizedPhone}`);
             return response.data;
         } catch (error) {
             console.error('[WHATSAPP SERVICE] Error sending message:', error.response?.data || error.message);
@@ -53,16 +66,44 @@ class WhatsAppService {
     }
 
     /**
+     * Send OTP via WhatsApp
+     */
+    async sendOTP(phone, otp) {
+        const message = `Your Mansara Foods verification code is: *${otp}*.\n\nValid for 10 minutes. Do not share this code with anyone. 🙏`;
+        return this.sendMessage(phone, message);
+    }
+
+    /**
+     * Send bulk WhatsApp messages with delay
+     */
+    async sendBulkWhatsApp(messagesList, delay = 1000) {
+        console.log(`[WHATSAPP] Sending ${messagesList.length} bulk messages with ${delay}ms delay`);
+        const results = { success: [], failed: [] };
+
+        for (const item of messagesList) {
+            try {
+                await this.sendMessage(item.phone, item.message);
+                results.success.push(item.phone);
+            } catch (error) {
+                results.failed.push({ phone: item.phone, error: error.message });
+            }
+            if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
+        }
+
+        return results;
+    }
+
+    /**
      * Assign labels (Loyalty Tagger)
      */
     async assignLabels(phone, labels) {
         try {
-            // Note: Botbiz usually needs subscriber ID, but if phone is matched internally:
+            const normalizedPhone = this._normalizePhone(phone);
             const response = await this.client.post('/whatsapp/subscriber/chat/assign-labels', {
-                phone: phone.replace(/\D/g, ''),
+                phone: normalizedPhone,
                 labels: Array.isArray(labels) ? labels : [labels]
             });
-            console.log(`[WHATSAPP] Labels assigned to ${phone}: ${labels}`);
+            console.log(`[WHATSAPP] Labels assigned to ${normalizedPhone}: ${labels}`);
             return response.data;
         } catch (error) {
             console.error('[WHATSAPP SERVICE] Error assigning labels:', error.response?.data || error.message);
@@ -75,7 +116,8 @@ class WhatsAppService {
      */
     async getConversation(phone) {
         try {
-            const response = await this.client.get(`/whatsapp/get/conversation?phone=${phone.replace(/\D/g, '')}`);
+            const normalizedPhone = this._normalizePhone(phone);
+            const response = await this.client.get(`/whatsapp/get/conversation?phone=${normalizedPhone}`);
             return response.data;
         } catch (error) {
             console.error('[WHATSAPP SERVICE] Error fetching conversation:', error.response?.data || error.message);

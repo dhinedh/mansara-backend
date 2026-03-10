@@ -34,31 +34,47 @@ const generateToken = (id) => {
 
 // Send WhatsApp OTP (non-blocking helper)
 const sendOTPAsync = (whatsapp, email, otp) => {
-    setImmediate(() => {
+    const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes.`;
+
+    setImmediate(async () => {
         const whatsappService = require('../utils/WhatsAppService');
         const sendEmail = require('../utils/sendEmail');
 
-        // Send WhatsApp OTP via Botbiz
-        whatsappService.sendOTP(whatsapp, otp).catch(err =>
-            console.error('[ERROR] WhatsApp OTP send failed:', err.message)
-        );
+        console.log(`[AUTH] Starting Registration OTP delivery for ${email}`);
 
-        // Send Email
+        // 1. WhatsApp
+        try {
+            await whatsappService.sendOTP(whatsapp, otp);
+            console.log(`[WHATSAPP] ✓ Registration OTP sent to ${whatsapp}`);
+        } catch (err) {
+            console.error(`[WHATSAPP] ✗ Registration OTP failed for ${whatsapp}:`, err.response?.data || err.message);
+        }
+
+        // 2. Email
         if (email) {
-            sendEmail({
-                email: email,
-                subject: 'Your Verification Code - Mansara Foods',
-                message: message,
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #333;">Verification Code</h2>
-                        <p>Your verification code is:</p>
-                        <h1 style="color: #4CAF50; letter-spacing: 5px;">${otp}</h1>
-                        <p>This code is valid for 10 minutes.</p>
-                        <p>If you didn't request this code, please ignore this email.</p>
-                    </div>
-                `
-            }).catch(err => console.error('[ERROR] Email OTP send failed:', err.message));
+            try {
+                await sendEmail({
+                    email: email,
+                    subject: 'Verification Code - Mansara Foods',
+                    message: message,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                            <h2 style="color: #333; text-align: center;">Welcome to Mansara Foods!</h2>
+                            <p style="font-size: 16px;">Namaste! 🙏</p>
+                            <p style="font-size: 14px; color: #666;">Thank you for joining us. To complete your registration, please use the following verification code:</p>
+                            <div style="background: #fdf2f8; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                                <h1 style="color: #db2777; letter-spacing: 8px; margin: 0; font-size: 32px;">${otp}</h1>
+                            </div>
+                            <p style="font-size: 13px; color: #999;">This code is valid for 10 minutes. If you didn't create an account, please ignore this email.</p>
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 12px; color: #bbb; text-align: center;">Mansara Foods - Pure. Authentic. Traditional.</p>
+                        </div>
+                    `
+                });
+                console.log(`[EMAIL] ✓ Registration OTP sent to ${email}`);
+            } catch (err) {
+                console.error(`[EMAIL] ✗ Registration OTP failed for ${email}:`, err.message);
+            }
         }
     });
 };
@@ -564,30 +580,44 @@ router.post('/forgot-password', async (req, res) => {
 
         // Send OTP asynchronously
         const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
-        setImmediate(() => {
+        setImmediate(async () => {
             const whatsappService = require('../utils/WhatsAppService');
             const sendEmail = require('../utils/sendEmail');
 
-            // Send WhatsApp OTP via Botbiz
-            whatsappService.sendOTP(user.whatsapp, otp).catch(err => {
-                console.error('[ERROR] WhatsApp send failed:', err);
-            });
+            console.log(`[AUTH] Starting OTP delivery for ${email}`);
 
-            // Send Email
-            sendEmail({
-                email: email,
-                subject: 'Password Reset Code - Mansara Foods',
-                message: message,
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #333;">Password Reset</h2>
-                        <p>Your password reset code is:</p>
-                        <h1 style="color: #E91E63; letter-spacing: 5px;">${otp}</h1>
-                        <p>This code is valid for 10 minutes.</p>
-                        <p>If you didn't request this code, please ignore this email.</p>
-                    </div>
-                `
-            }).catch(err => console.error('[ERROR] Email send failed:', err.message));
+            // 1. Send WhatsApp OTP via Botbiz
+            try {
+                await whatsappService.sendOTP(user.whatsapp, otp);
+                console.log(`[WHATSAPP] ✓ OTP sent to ${user.whatsapp}`);
+            } catch (err) {
+                console.error(`[WHATSAPP] ✗ Failed to send to ${user.whatsapp}:`, err.response?.data || err.message);
+            }
+
+            // 2. Send Email
+            try {
+                await sendEmail({
+                    email: email,
+                    subject: 'Password Reset Code - Mansara Foods',
+                    message: message,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                            <h2 style="color: #333; text-align: center;">Password Reset</h2>
+                            <p style="font-size: 16px;">Namaste! 🙏</p>
+                            <p style="font-size: 14px; color: #666;">You requested a password reset for your Mansara Foods account. Your verification code is:</p>
+                            <div style="background: #fdf2f8; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                                <h1 style="color: #db2777; letter-spacing: 8px; margin: 0; font-size: 32px;">${otp}</h1>
+                            </div>
+                            <p style="font-size: 13px; color: #999;">This code is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                            <p style="font-size: 12px; color: #bbb; text-align: center;">Mansara Foods - Pure. Authentic. Traditional.</p>
+                        </div>
+                    `
+                });
+                console.log(`[EMAIL] ✓ OTP sent to ${email}`);
+            } catch (err) {
+                console.error(`[EMAIL] ✗ Failed to send to ${email}:`, err.message);
+            }
         });
 
         res.status(200).json({
