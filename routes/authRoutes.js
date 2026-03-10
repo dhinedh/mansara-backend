@@ -547,23 +547,23 @@ router.put('/profile', protect, async (req, res) => {
 // ========================================
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
-    console.log(`[AUTH] Forgot Password request received for: ${email}`);
 
     try {
         if (!email) {
             return res.status(400).json({ message: 'Please provide an email address' });
         }
 
-        // Load full user doc to ensure save() validation passes for required fields
-        const user = await User.findOne({ email }).maxTimeMS(10000);
+        // OPTIMIZATION: Only select needed fields + token fields for saving
+        const user = await User.findOne({ email })
+            .select('whatsapp resetPasswordToken resetPasswordExpire name email')
+            .maxTimeMS(5000)
+            .exec();
 
         if (!user) {
-            console.log(`[AUTH] ✗ No account found for email: ${email}`);
             return res.status(404).json({ message: 'No account found with this email address' });
         }
 
         if (!user.whatsapp) {
-            console.log(`[AUTH] ✗ No WhatsApp number registered for user: ${email}`);
             return res.status(400).json({
                 message: 'No WhatsApp number registered with this account. Please contact support.'
             });
@@ -576,10 +576,7 @@ router.post('/forgot-password', async (req, res) => {
         // Update user
         user.resetPasswordToken = resetPasswordToken;
         user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
-
-        console.log(`[AUTH] Saving reset token for ${email}...`);
         await user.save();
-        console.log(`[AUTH] ✓ User record updated with reset token`);
 
         // Send OTP asynchronously
         const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
@@ -587,14 +584,15 @@ router.post('/forgot-password', async (req, res) => {
             const whatsappService = require('../utils/WhatsAppService');
             const sendEmail = require('../utils/sendEmail');
 
-            console.log(`[AUTH] → Delivery Service: Starting delivery for ${email}`);
+            console.log(`!!! [AUTH] Starting OTP delivery for ${email}`);
+            console.log(`!!! [AUTH] Target WhatsApp: ${user.whatsapp}`);
 
             // 1. Send WhatsApp OTP via Botbiz
             try {
-                await whatsappService.sendOTP(user.whatsapp, otp);
-                console.log(`[WHATSAPP] ✓ OTP sent successfully to ${user.whatsapp}`);
+                const result = await whatsappService.sendOTP(user.whatsapp, otp);
+                console.log(`!!! [WHATSAPP] ✓ Success:`, JSON.stringify(result));
             } catch (err) {
-                console.error(`[WHATSAPP] ✗ Failed to send to ${user.whatsapp}:`, err.response?.data || err.message);
+                console.error(`!!! [WHATSAPP] ✗ Fatal Error:`, err.response?.data || err.message);
             }
 
             // 2. Send Email
@@ -617,9 +615,9 @@ router.post('/forgot-password', async (req, res) => {
                         </div>
                     `
                 });
-                console.log(`[EMAIL] ✓ OTP sent successfully to ${email}`);
+                console.log(`[EMAIL] ✓ OTP sent to ${email}`);
             } catch (err) {
-                console.error(`[EMAIL] ✗ Failed to send email to ${email}:`, err.message);
+                console.error(`[EMAIL] ✗ Failed to send to ${email}:`, err.message);
             }
         });
 
@@ -629,7 +627,7 @@ router.post('/forgot-password', async (req, res) => {
         });
     } catch (error) {
         console.error('[ERROR] Forgot password:', error);
-        res.status(500).json({ message: error.message || 'Server error. Please try again later.' });
+        res.status(500).json({ message: 'Server error. Please try again later.' });
     }
 });
 

@@ -6,6 +6,11 @@ class WhatsAppService {
         this.baseUrl = process.env.BOTBIZ_BASE_URL || 'https://dash.botbiz.io/api/v1';
         this.phoneId = process.env.BOTBIZ_PHONE_ID;
 
+        console.log(`!!! [WHATSAPP SERVICE] Initializing...`);
+        console.log(`!!! [WHATSAPP SERVICE] API Key: ${this.apiKey ? '✓ Loaded' : '✗ MISSING'}`);
+        console.log(`!!! [WHATSAPP SERVICE] Phone ID: ${this.phoneId || '✗ MISSING'}`);
+        console.log(`!!! [WHATSAPP SERVICE] Base URL: ${this.baseUrl}`);
+
         this.client = axios.create({
             baseURL: this.baseUrl,
             headers: {
@@ -52,15 +57,21 @@ class WhatsAppService {
     async sendMessage(phone, message) {
         try {
             const normalizedPhone = this._normalizePhone(phone);
+            console.log(`!!! [WHATSAPP SERVICE] Sending POST to ${this.baseUrl}/whatsapp/send`);
+            console.log(`!!! [WHATSAPP SERVICE] Data:`, JSON.stringify({
+                phone: normalizedPhone,
+                phone_id: this.phoneId
+            }));
+
             const response = await this.client.post('/whatsapp/send', {
                 phone: normalizedPhone,
                 message: message,
                 phone_id: this.phoneId
             });
-            console.log(`[WHATSAPP] Message sent to: ${normalizedPhone}`);
+            console.log(`!!! [WHATSAPP] ✓ API Response:`, JSON.stringify(response.data));
             return response.data;
         } catch (error) {
-            console.error('[WHATSAPP SERVICE] Error sending message:', error.response?.data || error.message);
+            console.error('!!! [WHATSAPP SERVICE] ✗ API Error:', error.response?.status, JSON.stringify(error.response?.data || error.message));
             throw error;
         }
     }
