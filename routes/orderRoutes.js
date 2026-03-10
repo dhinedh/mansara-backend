@@ -4,6 +4,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const User = require('../models/User');
 const { Product, Combo } = require('../models/Product');
+const whatsappService = require('../utils/WhatsAppService');
 const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 const notificationService = require('../utils/notificationService');
 const crypto = require('crypto'); // REQUIRED FOR SIGNATURE VERIFICATION
@@ -190,6 +191,17 @@ router.post('/', protect, async (req, res) => {
         process.nextTick(() => {
             notificationService.sendOrderPlaced(createdOrder, req.user)
                 .catch(err => console.error('[ERROR] Order notification failed:', err));
+
+            // Botbiz WhatsApp Confirmation
+            whatsappService.sendOrderConfirmation(createdOrder, req.user)
+                .catch(err => console.error('[ERROR] WhatsApp Order confirmation failed:', err));
+
+            // Loyalty Tagger
+            const categories = [...new Set(items.map(item => item.categoryName))].filter(Boolean);
+            if (categories.length > 0) {
+                whatsappService.assignLabels(req.user.whatsapp || req.user.phone, categories)
+                    .catch(err => console.error('[ERROR] Loyalty tagger failed:', err));
+            }
         });
 
         // Return response IMMEDIATELY without waiting for notification
@@ -467,8 +479,16 @@ router.put('/:id/status', protect, checkPermission('orders', 'limited'), async (
 
                 // Trigger Review Request if Delivered
                 if (status === 'Delivered') {
-                    notificationService.sendReviewRequest(order, order.user)
-                        .catch(err => console.error('[ERROR] Review request notification failed:', err));
+                    if (order.user) {
+                        notificationService.sendReviewRequest(order, order.user)
+                            .catch(err => console.error('[ERROR] Review request notification failed:', err));
+                    }
+                }
+
+                // Botbiz WhatsApp Status Update (Shipped/Delivered)
+                if (['Shipped', 'Delivered'].includes(status) && order.user) {
+                    whatsappService.sendStatusNotification(order, order.user, status)
+                        .catch(err => console.error('[ERROR] WhatsApp Status notification failed:', err));
                 }
             }
         });

@@ -35,14 +35,11 @@ const generateToken = (id) => {
 // Send WhatsApp OTP (non-blocking helper)
 const sendOTPAsync = (whatsapp, email, otp) => {
     setImmediate(() => {
-        const sendWhatsApp = require('../utils/sendWhatsApp');
+        const whatsappService = require('../utils/WhatsAppService');
         const sendEmail = require('../utils/sendEmail');
 
-        // Using text message for OTP via Whapi.cloud
-        const message = `Your Mansara Foods verification code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
-
-        // Send WhatsApp
-        sendWhatsApp(whatsapp, message).catch(err =>
+        // Send WhatsApp OTP via Botbiz
+        whatsappService.sendOTP(whatsapp, otp).catch(err =>
             console.error('[ERROR] WhatsApp OTP send failed:', err.message)
         );
 
@@ -568,11 +565,11 @@ router.post('/forgot-password', async (req, res) => {
         // Send OTP asynchronously
         const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
         setImmediate(() => {
-            const sendWhatsApp = require('../utils/sendWhatsApp');
+            const whatsappService = require('../utils/WhatsAppService');
             const sendEmail = require('../utils/sendEmail');
 
-            // Send WhatsApp
-            sendWhatsApp(user.whatsapp, message).catch(err => {
+            // Send WhatsApp OTP via Botbiz
+            whatsappService.sendOTP(user.whatsapp, otp).catch(err => {
                 console.error('[ERROR] WhatsApp send failed:', err);
             });
 

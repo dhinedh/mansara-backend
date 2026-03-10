@@ -1,5 +1,5 @@
 const sendEmail = require('./sendEmail');
-const sendWhatsApp = require('./sendWhatsApp');
+const whatsappService = require('./WhatsAppService');
 
 // ========================================
 // OPTIMIZED NOTIFICATION SERVICE WITH BOTBIZ
@@ -198,7 +198,7 @@ We'll notify you once your order is confirmed with delivery details!
 
 Thank you for choosing Mansara Foods! 🙏`;
 
-                    await sendWhatsApp(whatsappNumber, whatsappMessage);
+                    await whatsappService.sendMessage(whatsappNumber, whatsappMessage);
                     console.log('[✓] Order placed WhatsApp sent via BotBiz');
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
@@ -367,7 +367,7 @@ We'll keep you updated on your order status!
 
 Thank you for choosing Mansara Foods! 🙏`;
 
-                    await sendWhatsApp(whatsappNumber, whatsappMessage);
+                    await whatsappService.sendMessage(whatsappNumber, whatsappMessage);
                     console.log('[✓] Order confirmed WhatsApp sent via BotBiz');
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
@@ -504,7 +504,7 @@ Thank you for choosing Mansara Foods! 🙏`;
 
                     message += `📦 Track: ${trackingLink}\n\nThank you! 🙏`;
 
-                    await sendWhatsApp(whatsappNumber, message);
+                    await whatsappService.sendMessage(whatsappNumber, message);
                     console.log(`[✓] Status update WhatsApp sent via BotBiz: ${newStatus}`);
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
@@ -610,7 +610,7 @@ If you have any questions, please contact our support.
 
 We hope to serve you again soon! 🙏`;
 
-                    await sendWhatsApp(whatsappNumber, message);
+                    await whatsappService.sendMessage(whatsappNumber, message);
                     console.log('[✓] Cancellation WhatsApp sent via BotBiz');
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
@@ -772,7 +772,6 @@ We hope to serve you again soon! 🙏`;
         try {
             // Find pending notifications
             const Notification = require('../models/Notification');
-            const { sendBulkWhatsApp } = require('./sendWhatsApp');
 
             const pendingNotifications = await Notification.find({
                 product: product._id,
@@ -790,9 +789,15 @@ We hope to serve you again soon! 🙏`;
                 message: `*Mansara Foods* 🌿\n\nGood news! *${product.name}* is back in stock! 🎉\n\nOrder now before it runs out again!\n\n📦 Order here: ${process.env.FRONTEND_URL || 'https://mansarafoods.com'}/product/${product.slug}`
             }));
 
-            await sendBulkWhatsApp(messages, 500);
+            await whatsappService.sendBulkWhatsApp(messages, 500);
 
             // Mark as sent
+            await Notification.updateMany(
+                { _id: { $in: pendingNotifications.map(n => n._id) } },
+                { status: 'sent', sentAt: new Date() }
+            );
+
+            return pendingNotifications.length;
         } catch (error) {
             console.error('[ERROR] sendStockAlert:', error.message);
         }
@@ -890,7 +895,7 @@ If you have any questions, feel free to reply to this message.
 
 Happy Shopping! 🛒`;
 
-                    await sendWhatsApp(whatsappNumber, message);
+                    await whatsappService.sendMessage(whatsappNumber, message);
                     console.log('[✓] Welcome WhatsApp sent');
                 } catch (err) {
                     console.error('[✗] Welcome WhatsApp failed:', err.message);
@@ -1049,8 +1054,7 @@ You can also upload photos and videos! 📸
 
 Thank you for your support! 🙏`;
 
-                const sendWhatsApp = require('./sendWhatsApp');
-                await sendWhatsApp(whatsappNumber, message);
+                await whatsappService.sendMessage(whatsappNumber, message);
                 console.log('[✓] Review request WhatsApp sent');
             })();
 
@@ -1131,8 +1135,7 @@ Thank you for your support! 🙏`;
 
                         Order ID: ${order.orderId}`;
 
-                const sendWhatsApp = require('./sendWhatsApp');
-                await sendWhatsApp(whatsappNumber, message);
+                await whatsappService.sendMessage(whatsappNumber, message);
                 console.log('[✓] Custom WhatsApp sent');
             })();
 

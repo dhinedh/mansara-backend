@@ -112,6 +112,7 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/payment', require('./routes/paymentRoutes'));
 app.use('/api/webhooks', require('./routes/webhookRoutes'));
+app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
 
 /* ======================================================
    HEALTH CHECK

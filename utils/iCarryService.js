@@ -4,13 +4,46 @@ dotenv.config();
 
 const API_KEY = process.env.ICARRY_API_KEY;
 const USERNAME = process.env.ICARRY_USERNAME;
-const BASE_URL = process.env.ICARRY_BASE_URL || 'https://icarry.in/api_v3'; // Default to v3 or configured URL
 
 /**
  * iCarry Shipping Service
  * Handles interaction with iCarry API for shipment creation and tracking.
  */
 const iCarryService = {
+
+    /**
+     * Obtains a session api_token from iCarry login endpoint.
+     */
+    getSessionToken: async () => {
+        try {
+            if (!API_KEY || !USERNAME) {
+                throw new Error('iCarry API credentials not configured in .env');
+            }
+
+            const qs = require('querystring');
+            const loginUrl = 'https://www.icarry.in/api_login';
+
+            console.log('[iCarry] Attempting Login to obtain session token...');
+            const response = await axios.post(loginUrl, qs.stringify({
+                username: USERNAME,
+                Key: API_KEY
+            }), {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                timeout: 10000
+            });
+
+            if (response.data && response.data.api_token) {
+                console.log('[iCarry] Session token obtained successfully.');
+                return response.data.api_token;
+            } else {
+                const errorMsg = response.data?.error || 'Unknown login error';
+                throw new Error(`iCarry Login Failed: ${errorMsg}`);
+            }
+        } catch (error) {
+            console.error('[iCarry] Authentication Error:', error.message);
+            throw error;
+        }
+    },
 
     /**
      * Create a shipment in iCarry
@@ -23,101 +56,102 @@ const iCarryService = {
                 throw new Error('iCarry API credentials not configured');
             }
 
-            // Map Order to iCarry Payload
-            // Note: This payload structure is a BEST EFFORT estimation based on common logistics APIs.
-            // You may need to adjust field names based on the specific iCarry API documentation.
-
             // Calculate total weight
             let totalWeight = 0;
-            order.items.forEach(item => {
-                const productWeight = item.weight || (item.product ? item.product.weight : '0');
-                if (productWeight) {
-                    const str = productWeight.toString().toLowerCase().replace(/\s/g, '');
-                    let val = parseFloat(str);
-                    if (!isNaN(val)) {
-                        if (str.includes('gm') || str.includes('g') && !str.includes('kg')) {
-                            val = val / 1000;
-                        } else if (str.includes('ml')) {
-                            val = val / 1000; // Approx 1g = 1ml
-                        } else if (str.includes('l') || str.includes('ltr')) {
-                            // val is kg
+            if (order.items) {
+                order.items.forEach(item => {
+                    const productWeight = item.weight || (item.product ? item.product.weight : '0');
+                    if (productWeight) {
+                        const str = productWeight.toString().toLowerCase().replace(/\s/g, '');
+                        let val = parseFloat(str);
+                        if (!isNaN(val)) {
+                            if (str.includes('gm') || (str.includes('g') && !str.includes('kg'))) {
+                                val = val / 1000;
+                            } else if (str.includes('ml')) {
+                                val = val / 1000;
+                            }
+                            totalWeight += (val * item.quantity);
                         }
-                        totalWeight += (val * item.quantity);
                     }
-                }
-            });
+                });
+            }
 
-            // Default to 0.5kg if calculation fails or is too low
             if (totalWeight < 0.05) totalWeight = 0.5;
 
+            // 1. Get Session API Token
+            const sessionToken = await iCarryService.getSessionToken();
+
+            // 2. Fix base URL logic: Use .env BASE_URL if provided, else fallback to icarry.in
+            const rawBaseUrl = process.env.ICARRY_BASE_URL || 'https://www.icarry.in';
+            const baseUrl = rawBaseUrl.replace(/\/$/, '');
+
+            // Use the surface shipment endpoint
+            const endpoint = baseUrl.includes('api_') ? baseUrl : `${baseUrl}/api_add_shipment_surface`;
+            const finalUrl = `${endpoint}?api_token=${sessionToken}`;
+
+            // 3. Construct Payload with correct keys for iCarry Surface API
             const payload = {
                 username: USERNAME,
-                api_key: API_KEY,
-                action: 'create_order',
-
-                // Shipment Details
                 order_id: order.orderId,
                 order_date: new Date(order.createdAt).toISOString().split('T')[0],
-                payment_method: order.paymentMethod === 'Cash on Delivery' ? 'COD' : 'Prepaid',
-                cod_amount: order.paymentMethod === 'Cash on Delivery' ? order.total : 0,
-                total_amount: order.total,
-
-                // Consignee Details
-                consignee_name: order.deliveryAddress.firstName + ' ' + (order.deliveryAddress.lastName || ''),
+                consignee_name: `${order.deliveryAddress.firstName} ${order.deliveryAddress.lastName || ''}`.trim(),
                 consignee_address: order.deliveryAddress.street,
-                consignee_address_2: '',
                 consignee_city: order.deliveryAddress.city,
                 consignee_state: order.deliveryAddress.state,
+                consignee_country: 'India',
                 consignee_pincode: order.deliveryAddress.zip,
-                consignee_phone: order.deliveryAddress.phone,
+                consignee_mobile: order.deliveryAddress.phone,
                 consignee_email: order.user?.email || '',
-
-                // Package Details
-                weight: parseFloat(totalWeight.toFixed(2)),
+                parcel_type: order.paymentMethod === 'Cash on Delivery' ? 'C' : 'P', // C=COD, P=Prepaid
+                parcel_value: order.total,
+                parcel_contents: order.items ? order.items.map(i => i.name).join(', ') : 'Food Items',
+                weight: Math.round(totalWeight * 1000), // Convert to grams
+                weight_unit: 'gm',
+                pickup_address: 'Mansara Foods', // Default pickup name
+                pickup_pincode: process.env.ICARRY_PICKUP_PINCODE || '600001',
                 length: 10,
                 breadth: 10,
                 height: 5,
-
-                // Items
-                items: order.items.map(item => ({
-                    name: item.name,
-                    sku: (item.product && item.product.sku) ? item.product.sku : 'SKU',
-                    quantity: item.quantity,
-                    price: item.price
-                })),
-
-                // Pickup (Default or configured)
-                pickup_pincode: process.env.ICARRY_PICKUP_PINCODE || '110001',
+                package_type: 'Parcel'
             };
 
-            console.log('[iCarry] Creating Shipment:', JSON.stringify(payload));
+            console.log('[iCarry] Creating Shipment at:', finalUrl);
 
-            // Verify actual endpoint from docs
-            const response = await axios.post(`${BASE_URL}/shipment/create`, payload, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+            // Use application/x-www-form-urlencoded
+            const qs = require('querystring');
+            const response = await axios.post(finalUrl, qs.stringify(payload), {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                timeout: 30000
             });
 
-            console.log('[iCarry] Response:', response.data);
+            console.log('[iCarry] Response Status:', response.status);
+            console.log('[iCarry] Response Body:', JSON.stringify(response.data));
 
-            if (response.data && response.data.success) {
+            if (response.data && (response.data.success || response.data.status === 'success' || response.data.shipment_id)) {
                 return {
                     success: true,
-                    trackingNumber: response.data.awb || response.data.tracking_id,
-                    courier: 'iCarry',
+                    trackingNumber: response.data.awb_number || response.data.shipment_id || response.data.tracking_id,
+                    courier: response.data.courier_name || 'iCarry',
                     data: response.data
                 };
             } else {
-                throw new Error(response.data?.message || 'Failed to create shipment');
+                const errorMsg = response.data?.error || response.data?.message || 'Failed to create shipment';
+                console.error(`[iCarry] API returned error: ${errorMsg}`);
+                return {
+                    success: false,
+                    error: errorMsg
+                };
             }
 
         } catch (error) {
-            console.error('[iCarry] Create Shipment Error:', error.response?.data || error.message);
-            // Return error object rather than throwing to allow caller to handle gracefully
+            const status = error.response?.status;
+            const errorDetail = error.response?.data?.error || error.response?.data?.message || (error.code === 'ECONNABORTED' ? 'Gateway Timeout' : error.message);
+
+            console.error(`[iCarry] Create Shipment Error [Status ${status || 'Unknown'}]:`, JSON.stringify(error.response?.data || error.message));
+
             return {
                 success: false,
-                error: error.message
+                error: errorDetail
             };
         }
     },
@@ -127,10 +161,11 @@ const iCarryService = {
      */
     checkServiceability: async (pincode) => {
         try {
-            const response = await axios.get(`${BASE_URL}/pincode/check`, {
+            const sessionToken = await iCarryService.getSessionToken();
+            const response = await axios.get(`https://www.icarry.in/api_pincode_check`, {
                 params: {
                     username: USERNAME,
-                    api_key: API_KEY,
+                    api_token: sessionToken,
                     pincode: pincode
                 }
             });
