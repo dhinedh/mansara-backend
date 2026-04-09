@@ -1,0 +1,33 @@
+[
+  {
+    "_id": "69621fc200910beff3ca0864",
+    "product": "69620f7e7f9c4b0e78ddbc4d",
+    "whatsapp": "919876543210",
+    "user": null,
+    "status": "pending",
+    "createdAt": "2026-01-10T09:45:38.044Z",
+    "updatedAt": "2026-01-10T09:45:38.044Z",
+    "__v": 0
+  },
+  {
+    "_id": "696221207e8a7ff667fec999",
+    "product": "69620f7f7f9c4b0e78ddbc51",
+    "whatsapp": "+91 98765 43211",
+    "user": "6953f6c0e6641d54824612e7",
+    "status": "pending",
+    "createdAt": "2026-01-10T09:51:28.745Z",
+    "updatedAt": "2026-01-10T09:51:28.745Z",
+    "__v": 0
+  },
+  {
+    "_id": "696503c1de722e6d9194898b",
+    "product": "69620f7f7f9c4b0e78ddbc52",
+    "whatsapp": "9566094899",
+    "user": null,
+    "status": "sent",
+    "createdAt": "2026-01-12T14:22:57.974Z",
+    "updatedAt": "2026-01-12T14:27:48.436Z",
+    "__v": 0,
+    "sentAt": "2026-01-12T14:27:48.436Z"
+  }
+]

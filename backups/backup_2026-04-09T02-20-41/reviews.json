@@ -1,0 +1,53 @@
+[
+  {
+    "_id": "696e191eb72ecaee5a304710",
+    "user": "69540a4be08308eb4902835f",
+    "product": "69620f7f7f9c4b0e78ddbc51",
+    "order": "69671b9b455f78fbd78ca358",
+    "rating": 5,
+    "comment": "it is really good",
+    "images": [],
+    "video": "",
+    "isVerifiedPurchase": true,
+    "isApproved": false,
+    "helpful": 0,
+    "reported": false,
+    "createdAt": "2026-01-19T11:44:30.772Z",
+    "updatedAt": "2026-01-19T11:44:30.772Z",
+    "__v": 0
+  },
+  {
+    "_id": "696e22cf6ed16de1dc78d9dc",
+    "user": "69540a4be08308eb4902835f",
+    "product": "69620f7f7f9c4b0e78ddbc52",
+    "order": "69649c07ede4039401a46783",
+    "rating": 5,
+    "comment": "it realy good",
+    "images": [],
+    "video": "",
+    "isVerifiedPurchase": true,
+    "isApproved": true,
+    "helpful": 0,
+    "reported": false,
+    "createdAt": "2026-01-19T12:25:51.995Z",
+    "updatedAt": "2026-01-19T12:25:51.995Z",
+    "__v": 0
+  },
+  {
+    "_id": "6974b41e585bac86bc6da785",
+    "user": "696bcc818fe505a43dc1eddd",
+    "product": "69620f7f7f9c4b0e78ddbc52",
+    "order": "696bcdb98fe505a43dc1edf8",
+    "rating": 5,
+    "comment": "Very tasty and delicious thank you for sharing this recipe with us ",
+    "images": [],
+    "video": "",
+    "isVerifiedPurchase": true,
+    "isApproved": true,
+    "helpful": 0,
+    "reported": false,
+    "createdAt": "2026-01-24T11:59:26.514Z",
+    "updatedAt": "2026-01-24T11:59:26.514Z",
+    "__v": 0
+  }
+]

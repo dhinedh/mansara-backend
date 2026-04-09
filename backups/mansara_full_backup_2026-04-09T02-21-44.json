@@ -1,0 +1,5007 @@
+{
+  "users": [
+    {
+      "_id": "6953f6c0e6641d54824612e4",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "$2b$10$wMoy6Ol7J6defvDHp8Ma9eokTDfy/UDAmEYo/7ddLcb4BN3aAWjTi",
+      "phone": "+91 98765 43210",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "123, Green Park Residency, Main Load",
+          "city": "Bangalore",
+          "state": "Karnataka",
+          "zip": "560001",
+          "isDefault": true,
+          "_id": "6953f6c0e6641d54824612e5"
+        }
+      ],
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "cart": [],
+      "joinDate": "2025-12-30T15:58:56.846Z",
+      "createdAt": "2025-12-30T15:58:56.848Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 0
+    },
+    {
+      "_id": "6953f6c0e6641d54824612e7",
+      "name": "Deepika Harikrishnan",
+      "email": "mansara@deepikaharikrishnan.com",
+      "password": "$2b$10$wMoy6Ol7J6defvDHp8Ma9eokTDfy/UDAmEYo/7ddLcb4BN3aAWjTi",
+      "phone": "+91 98765 43211",
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "PANIMALAR ENGINEERING COLLEGE, Chennai",
+          "city": "CHENNAI",
+          "state": "Tamil Nadu",
+          "zip": "600056",
+          "isDefault": true,
+          "_id": "695414a781370bb545c4df9b"
+        }
+      ],
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "status": "Active",
+      "cart": [],
+      "joinDate": "2025-12-30T15:58:56.919Z",
+      "createdAt": "2025-12-30T15:58:56.920Z",
+      "updatedAt": "2026-01-14T16:23:22.408Z",
+      "__v": 3,
+      "whatsapp": "+91 98765 43211",
+      "authProvider": "local",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "lastLogin": "2026-01-14T16:23:22.408Z"
+    },
+    {
+      "_id": "69540a4be08308eb4902835f",
+      "name": "mugil",
+      "email": "mugil9451@gmail.com",
+      "password": "$2b$10$3v8mE1cqCXv.wnk/rp9GVe9C6I2R2EOKYX0dIlFK8egz/PxF95ydy",
+      "isVerified": true,
+      "otp": "639882",
+      "otpExpire": "2025-12-30T17:34:25.110Z",
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "oh\njp",
+          "city": "villupuram",
+          "state": "Tamil Nadu",
+          "zip": "605652",
+          "isDefault": false,
+          "_id": "695bf069f0255beeed367061"
+        },
+        {
+          "type": "Home",
+          "street": "PANIMALAR ENGINEERING COLLEGE",
+          "city": "CHENNAI",
+          "state": "Tamil Nadu",
+          "zip": "600056",
+          "isDefault": false,
+          "_id": "6964e8fc0c8783ad6f68a8de",
+          "landmark": "9g9h9",
+          "line1": "PANIMALAR ENGINEERING COLLEGE",
+          "line2": "9gb9"
+        },
+        {
+          "type": "Home",
+          "street": "L L",
+          "city": "L",
+          "state": "L L",
+          "zip": "L",
+          "isDefault": false,
+          "_id": "6964e9240c8783ad6f68a8ef"
+        }
+      ],
+      "cart": [
+        {
+          "id": "69620f7e7f9c4b0e78ddbc4d",
+          "type": "product",
+          "quantity": 1,
+          "price": 55,
+          "name": "Urad Health Mix – Classic",
+          "image": "/products/urad-classic-front.jpg"
+        }
+      ],
+      "joinDate": "2025-12-30T17:22:19.733Z",
+      "createdAt": "2025-12-30T17:22:19.734Z",
+      "updatedAt": "2026-03-10T15:04:46.155Z",
+      "__v": 1,
+      "authProvider": "google",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocLJsFYoEFiRModeV3aBmRIJniePglFxtRWMMEjW6bI-87AND7E=s96-c",
+      "googleId": "101499463949807991220",
+      "lastLogin": "2026-03-09T08:22:28.378Z",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocLJsFYoEFiRModeV3aBmRIJniePglFxtRWMMEjW6bI-87AND7E=s96-c",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "phone": "09342400879",
+      "whatsapp": "9342400879",
+      "resetPasswordExpire": "2026-03-10T15:14:46.154Z",
+      "resetPasswordToken": "ac3418853e3bca2c7105791801461634544b5c87ae286b8da71236018c35542a"
+    },
+    {
+      "_id": "69540d13e6b2021d8237a328",
+      "name": "hdiu",
+      "email": "zechsoft.it@gmail.com",
+      "password": "$2b$10$uKY2FrACWFLVkIjxrXmaSehfOsE0u/7FT.zaYKBD2VXbavV8LUtI6",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "villupuram , tamil nadu",
+          "city": "villupuram",
+          "state": "",
+          "zip": "605652",
+          "isDefault": true,
+          "_id": "69540db534bdb5b14a070dab"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2025-12-30T17:34:11.230Z",
+      "createdAt": "2025-12-30T17:34:11.234Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 11,
+      "phone": "9342400879",
+      "whatsapp": "9342400879"
+    },
+    {
+      "_id": "69563f5c4c477506494d009a",
+      "name": "mugil m",
+      "email": "dhanushpannimalar@gmail.com",
+      "password": "$2b$10$JZXUw4KQ5skw23ZMNpsWkeNCAX.w6eoKNSQiHcMotwXh9gk0PgUB2",
+      "phone": "+919976719422",
+      "whatsapp": "+919976719422",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "villupuram , tamil nadu",
+          "city": "villupuram",
+          "state": "",
+          "zip": "605652",
+          "isDefault": true,
+          "_id": "6956414fdbf574c185b21869"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-01T09:33:16.707Z",
+      "createdAt": "2026-01-01T09:33:16.710Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 3
+    },
+    {
+      "_id": "6958a2d6af7ccbdff5c18e9a",
+      "name": "aqwse",
+      "email": "mfiamvon@gmail.com",
+      "password": "$2b$10$DGROQj2.pE21jl0skzgTneBRr/.gevmAtMEizpfuZGj47xcpGS1Hq",
+      "phone": "9087654666",
+      "whatsapp": "9087654666",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-03T05:02:14.948Z",
+      "createdAt": "2026-01-03T05:02:14.955Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 0
+    },
+    {
+      "_id": "6958a2ebaf7ccbdff5c18e9f",
+      "name": "Ushehsbd",
+      "email": "ushehsbd5@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJ9xD51uGsly8dDXO8JZSCm-ceJnTI0w04FMNoxM3aI1FwWrg=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocJ9xD51uGsly8dDXO8JZSCm-ceJnTI0w04FMNoxM3aI1FwWrg=s96-c",
+      "googleId": "109894767898328289317",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "lastLogin": "2026-01-03T06:06:13.118Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-03T05:02:35.017Z",
+      "createdAt": "2026-01-03T05:02:35.018Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 0
+    },
+    {
+      "_id": "6958a369af7ccbdff5c18eb7",
+      "name": "Joy packers",
+      "email": "joypackers60@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocI-vc01Z9fqog_T5tsgm5sCSFl_PWBVpQa4b_uHxQHia1yglA=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocI-vc01Z9fqog_T5tsgm5sCSFl_PWBVpQa4b_uHxQHia1yglA=s96-c",
+      "googleId": "107312190134813949880",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "lastLogin": "2026-01-03T05:04:54.835Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-03T05:04:41.914Z",
+      "createdAt": "2026-01-03T05:04:41.916Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 0
+    },
+    {
+      "_id": "695918dfde4adea927390285",
+      "name": "ARUNPRASATH",
+      "email": "arunprasath31@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKRycl9y7dOgHhkx90UwrS6erw6BazZpf67dQQrWxdG-IXYsA=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocKRycl9y7dOgHhkx90UwrS6erw6BazZpf67dQQrWxdG-IXYsA=s96-c",
+      "googleId": "115465526847158564882",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "lastLogin": "2026-01-21T03:49:03.874Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "B4, Berrybunch apartment,\n13, Balaji nagar 1st Street extn,\nIyyapanthangal",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "zip": "600077",
+          "isDefault": true,
+          "_id": "6964e9bf0c8783ad6f68a8fd"
+        },
+        {
+          "type": "Home",
+          "street": "16, Govt hospital opposite street,\nTimiri road, Kalavai.",
+          "city": "Ranipet",
+          "state": "Tamil Nadu",
+          "zip": "632506",
+          "isDefault": false,
+          "_id": "6964e9ff0c8783ad6f68a909"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-03T13:25:51.033Z",
+      "createdAt": "2026-01-03T13:25:51.035Z",
+      "updatedAt": "2026-01-28T04:53:27.049Z",
+      "__v": 0,
+      "phone": "9047685888",
+      "whatsapp": "9047685888",
+      "resetPasswordExpire": "2026-01-14T19:09:52.205Z",
+      "resetPasswordToken": "369be1f8f3d728cba5ca145d07a5b38465bdfd73756fcab61baba226e0d98bf2"
+    },
+    {
+      "_id": "69591acdde4adea927390634",
+      "name": "Deepika Arunprasath",
+      "email": "deepika.hari03@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocL5s6KxpzXfoE6UQUbdA9BprlkY6SVBJq0AVvVxNGpdmOadwA=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocL5s6KxpzXfoE6UQUbdA9BprlkY6SVBJq0AVvVxNGpdmOadwA=s96-c",
+      "googleId": "107506310290999585507",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "lastLogin": "2026-01-12T14:31:18.300Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "no 13 berrybunch balaji nagar iyyapanthagal",
+          "city": "chennai",
+          "state": "Tamil Nadu",
+          "zip": "600077",
+          "isDefault": true,
+          "_id": "696505f4de722e6d91948a23"
+        }
+      ],
+      "cart": [
+        {
+          "id": "69620f7f7f9c4b0e78ddbc52",
+          "type": "product",
+          "quantity": 1,
+          "price": 75,
+          "name": "Millet Fusion Idly Podi",
+          "image": "/products/millet-idly-podi-front.jpg"
+        }
+      ],
+      "joinDate": "2026-01-03T13:34:05.683Z",
+      "createdAt": "2026-01-03T13:34:05.685Z",
+      "updatedAt": "2026-01-12T14:32:41.027Z",
+      "__v": 0,
+      "phone": "9677463695",
+      "whatsapp": "9677463695"
+    },
+    {
+      "_id": "695bea89f0255beeed36656f",
+      "name": "Dhivagar G",
+      "email": "dhiva0212@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocK_8UildUjcyyxA963GMcyan1msxprlKIxZI67ibfxRfeU1be09=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocK_8UildUjcyyxA963GMcyan1msxprlKIxZI67ibfxRfeU1be09=s96-c",
+      "googleId": "113671171989123526243",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "lastLogin": "2026-01-05T17:23:16.055Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "No.16 government hospital opposite street timiri road kalavai",
+          "city": "Ranipet",
+          "state": "Tamil Nadu",
+          "zip": "632506",
+          "isDefault": true,
+          "_id": "695bf3aef0255beeed367293"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-05T16:44:57.796Z",
+      "createdAt": "2026-01-05T16:44:57.799Z",
+      "updatedAt": "2026-01-09T16:25:22.160Z",
+      "__v": 1,
+      "phone": "9751371545",
+      "whatsapp": "9751371545"
+    },
+    {
+      "_id": "695e9717f8e1ed930d2642e5",
+      "name": "Nanda Kumar",
+      "email": "nan.virgo@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJ6SzZkmOuiQkaVjrwveZqt_FlqcJ7boCHqq4_kEoSXcIpVs6Vy=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocJ6SzZkmOuiQkaVjrwveZqt_FlqcJ7boCHqq4_kEoSXcIpVs6Vy=s96-c",
+      "googleId": "103546246798792998810",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "lastLogin": "2026-02-04T07:49:54.638Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "street": "Chennai",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "zip": "600092",
+          "isDefault": true,
+          "_id": "695e975ef8e1ed930d2642f3"
+        },
+        {
+          "type": "Home",
+          "line1": "1/265",
+          "line2": "Mainroad, valajanagaram",
+          "landmark": "Beside nalanda primary school",
+          "street": "1/265",
+          "city": "Ariyalur",
+          "state": "Tamil Nadu",
+          "zip": "621704",
+          "isDefault": false,
+          "_id": "6982fa845ad8ab3bab6f426d"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-07T17:25:43.820Z",
+      "createdAt": "2026-01-07T17:25:43.823Z",
+      "updatedAt": "2026-02-04T07:52:47.739Z",
+      "__v": 1,
+      "phone": "9176269108",
+      "whatsapp": "9176269108"
+    },
+    {
+      "_id": "696607848e57aee82f9aabcc",
+      "name": "Test User Direct",
+      "email": "test_user_direct_1768294276319@example.com",
+      "password": "$2b$10$LVBbyLXZfXkHPvaroV1WSOYswNNJlVUgbHq/Mx1gSHpL5q2GqKakm",
+      "phone": "9876543210",
+      "whatsapp": "9876543210",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:51:16.459Z",
+      "createdAt": "2026-01-13T08:51:16.325Z",
+      "updatedAt": "2026-01-13T08:51:16.325Z",
+      "__v": 0
+    },
+    {
+      "_id": "696607868e57aee82f9aabd5",
+      "name": "Test Admin Direct",
+      "email": "test_admin_direct_1768294278104@example.com",
+      "password": "$2b$10$EnBMd/ApXxp0cghiJAuoeO0QzHDF68f.K1SZzMoqY66lK7pSK6L0e",
+      "phone": "9876543211",
+      "whatsapp": "9876543211",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:51:18.165Z",
+      "createdAt": "2026-01-13T08:51:18.105Z",
+      "updatedAt": "2026-01-13T08:51:18.105Z",
+      "__v": 0
+    },
+    {
+      "_id": "69660804fc541f53a9294382",
+      "name": "Test User Direct",
+      "email": "test_user_direct_1768294404715@example.com",
+      "password": "$2b$10$g23xQaXM/2ZgxJ6QOuzCNeA1qGSBm7O/dS8WNBNVSmWvyU2vKd.2O",
+      "phone": "9432861842",
+      "whatsapp": "9432861842",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:53:24.821Z",
+      "createdAt": "2026-01-13T08:53:24.721Z",
+      "updatedAt": "2026-01-13T08:53:24.721Z",
+      "__v": 0
+    },
+    {
+      "_id": "69660806fc541f53a9294386",
+      "name": "Test Admin Direct",
+      "email": "test_admin_direct_1768294406028@example.com",
+      "password": "$2b$10$vq0SZmlRCNLBdp/y.eB8e.mDu7zupJXgpaX9Mdw.Hvjy/N74UrSFi",
+      "phone": "9157291557",
+      "whatsapp": "9157291557",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:53:26.090Z",
+      "createdAt": "2026-01-13T08:53:26.028Z",
+      "updatedAt": "2026-01-13T08:53:26.028Z",
+      "__v": 0
+    },
+    {
+      "_id": "69660831f75c551f34d5d15b",
+      "name": "Test User Direct",
+      "email": "test_user_direct_1768294449832@example.com",
+      "password": "$2b$10$Tdwf3UzvQdN2x9hFXU7yPu.mbbMu9oNKJVwWIrbY3G/2CXs7hc7kq",
+      "phone": "9592335070",
+      "whatsapp": "9592335070",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:54:09.961Z",
+      "createdAt": "2026-01-13T08:54:09.840Z",
+      "updatedAt": "2026-01-13T08:54:09.840Z",
+      "__v": 0
+    },
+    {
+      "_id": "69660833f75c551f34d5d15f",
+      "name": "Test Admin Direct",
+      "email": "test_admin_direct_1768294451279@example.com",
+      "password": "$2b$10$bg549VLnMb0IQKD13Lz8teCq7i8pwNwNDG7cT82ZhgKjkGlXQkQ3m",
+      "phone": "9133746337",
+      "whatsapp": "9133746337",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:54:11.341Z",
+      "createdAt": "2026-01-13T08:54:11.280Z",
+      "updatedAt": "2026-01-13T08:54:11.280Z",
+      "__v": 0
+    },
+    {
+      "_id": "69660864c639237cdb63c343",
+      "name": "Test User Direct",
+      "email": "test_user_direct_1768294500177@example.com",
+      "password": "$2b$10$R8tWKvwyZ08goQekUTSZJOY3yri7hOhL831QzBZgJQdmvj0BHtQXe",
+      "phone": "9600414100",
+      "whatsapp": "9600414100",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:55:00.288Z",
+      "createdAt": "2026-01-13T08:55:00.183Z",
+      "updatedAt": "2026-01-13T08:55:00.183Z",
+      "__v": 0
+    },
+    {
+      "_id": "69660866c639237cdb63c347",
+      "name": "Test Admin Direct",
+      "email": "test_admin_direct_1768294502482@example.com",
+      "password": "$2b$10$o6GnUVYV2Cko0GdqaY./FeKgfWnZ7seE.Wzs74UtIS2OtJgcEN9CS",
+      "phone": "9438499442",
+      "whatsapp": "9438499442",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:55:02.543Z",
+      "createdAt": "2026-01-13T08:55:02.483Z",
+      "updatedAt": "2026-01-13T08:55:02.483Z",
+      "__v": 0
+    },
+    {
+      "_id": "696608b9b00dc474992ee972",
+      "name": "Test User Direct",
+      "email": "test_user_direct_1768294585281@example.com",
+      "password": "$2b$10$tM0j/yZZxePS/XjWSV1fheiMX8EbSglk2ekahKYHu4zPTl6muBsga",
+      "phone": "9114379981",
+      "whatsapp": "9114379981",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:56:25.407Z",
+      "createdAt": "2026-01-13T08:56:25.288Z",
+      "updatedAt": "2026-01-13T08:56:25.288Z",
+      "__v": 0
+    },
+    {
+      "_id": "696608bab00dc474992ee976",
+      "name": "Test Admin Direct",
+      "email": "test_admin_direct_1768294586713@example.com",
+      "password": "$2b$10$U1/fBU1Ut2qEAqHyeuA5M.S4ACXfXA/zdxc3KvF3XRvGgaUfEP7qC",
+      "phone": "9624267212",
+      "whatsapp": "9624267212",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T08:56:26.774Z",
+      "createdAt": "2026-01-13T08:56:26.714Z",
+      "updatedAt": "2026-01-13T08:56:26.714Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664bdf35c8fd567d91a1bb",
+      "name": "CEO",
+      "email": "ceo@mansarafoods.com",
+      "password": "$2b$10$3rkZ.aMzYgtv.PstjETtV..wcbXq5W1p1hNhueF47nRqvZQlSfaT6",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "view",
+        "stocks": "view",
+        "categories": "view",
+        "offers": "limited",
+        "combos": "limited",
+        "orders": "view",
+        "customers": "view",
+        "content": "limited",
+        "blog": "limited",
+        "press": "limited",
+        "careers": "limited",
+        "banners": "limited",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:55.836Z",
+      "createdAt": "2026-01-13T13:42:55.740Z",
+      "updatedAt": "2026-03-08T07:12:58.675Z",
+      "__v": 0,
+      "lastLogin": "2026-03-08T07:12:58.674Z"
+    },
+    {
+      "_id": "69664be035c8fd567d91a1c0",
+      "name": "Director",
+      "email": "director@mansarafoods.com",
+      "password": "$2b$10$IJoNmCQsI8piY3oxGXei..F6RBJNZlRQQztCJvlNffBAUk5ZIXZAC",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:56.135Z",
+      "createdAt": "2026-01-13T13:42:56.028Z",
+      "updatedAt": "2026-01-14T03:13:54.538Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be035c8fd567d91a1c5",
+      "name": "Accounts",
+      "email": "accounts@mansarafoods.com",
+      "password": "$2b$10$B1RYxE3QZwFt1hc77Qzfw.HX9RNGtI/hZbtjAfGqb6astIeW3yB5S",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "view",
+        "combos": "none",
+        "orders": "view",
+        "customers": "view",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:56.429Z",
+      "createdAt": "2026-01-13T13:42:56.328Z",
+      "updatedAt": "2026-01-14T03:13:54.795Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be035c8fd567d91a1ca",
+      "name": "Compliance",
+      "email": "compliance@mansarafoods.com",
+      "password": "$2b$10$mMlTE2BU5L25GWqkglaI7.1pUI7z84bTr9QieUm.10bhBAtA4n5bu",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "view",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:56.713Z",
+      "createdAt": "2026-01-13T13:42:56.619Z",
+      "updatedAt": "2026-01-14T03:13:55.012Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be035c8fd567d91a1cf",
+      "name": "Sales",
+      "email": "sales@mansarafoods.com",
+      "password": "$2b$10$FkfGIGG/vEmzjPr0ZoWIvunFgDt8onoD.v/uDyDrt7ff8.w51U21y",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "view",
+        "categories": "none",
+        "offers": "limited",
+        "combos": "limited",
+        "orders": "limited",
+        "customers": "view",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:56.944Z",
+      "createdAt": "2026-01-13T13:42:56.874Z",
+      "updatedAt": "2026-01-14T03:13:55.390Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be135c8fd567d91a1d4",
+      "name": "Order Updates",
+      "email": "order-updates@mansarafoods.com",
+      "password": "$2b$10$76dBH8Mm6CAOjvTva9podO0Rf5flZArnh2pMM7y9Y1wku.hRLhhoa",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "view",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:57.390Z",
+      "createdAt": "2026-01-13T13:42:57.318Z",
+      "updatedAt": "2026-01-14T20:03:30.234Z",
+      "__v": 0,
+      "lastLogin": "2026-01-14T20:03:30.234Z"
+    },
+    {
+      "_id": "69664be135c8fd567d91a1d9",
+      "name": "Support",
+      "email": "support@mansarafoods.com",
+      "password": "$2b$10$lfwmZZOU4gb/qQbwn8K1He4sbjq.LrWjghTtFTurq4Jsu9HfG6WNO",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "limited",
+        "customers": "limited",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:57.641Z",
+      "createdAt": "2026-01-13T13:42:57.567Z",
+      "updatedAt": "2026-01-14T03:13:55.990Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be135c8fd567d91a1de",
+      "name": "Feedback",
+      "email": "feedback@mansarafoods.com",
+      "password": "$2b$10$gp51rI.vgIcFfMWVoTPXZ.Hr2MrrQ0o5UPzqZyj1EDboru8hHn57O",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "view",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:57.925Z",
+      "createdAt": "2026-01-13T13:42:57.839Z",
+      "updatedAt": "2026-01-14T03:13:57.206Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be235c8fd567d91a1e1",
+      "name": "Contact",
+      "email": "contact@mansarafoods.com",
+      "password": "$2b$10$2kzQzgKPD3HJ8Pep4qt9deRFI0iQTP9lD9jFuCavzLMg0A5xCq5cu",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "limited",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:58.180Z",
+      "createdAt": "2026-01-13T13:42:58.082Z",
+      "updatedAt": "2026-01-14T03:13:57.615Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be235c8fd567d91a1e4",
+      "name": "Careers",
+      "email": "careers@mansarafoods.com",
+      "password": "$2b$10$WMe.WveHY5BUWg0CHeVFdOaLorTxtP8aW7Dsua/xJnEDSukph8gYq",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "limited",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [],
+      "joinDate": "2026-01-13T13:42:58.431Z",
+      "createdAt": "2026-01-13T13:42:58.344Z",
+      "updatedAt": "2026-01-14T03:13:58.012Z",
+      "__v": 0
+    },
+    {
+      "_id": "69664be235c8fd567d91a1e7",
+      "name": "Super Admin",
+      "email": "backend-admin@mansarafoods.internal",
+      "password": "$2b$10$Mnz/oIEqIwx17TMymhUdHOvz.bsjqD9S1.lslggxzUDcp9Cidxar6",
+      "authProvider": "local",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "admin",
+      "permissions": {
+        "products": "full",
+        "stocks": "full",
+        "categories": "full",
+        "offers": "full",
+        "combos": "full",
+        "orders": "full",
+        "customers": "full",
+        "content": "full",
+        "blog": "full",
+        "press": "full",
+        "careers": "full",
+        "banners": "full",
+        "settings": "full"
+      },
+      "status": "Active",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [],
+      "cart": [
+        {
+          "id": "69a9b4091c2c00db0a9bf83e",
+          "type": "product",
+          "quantity": 1,
+          "price": 160,
+          "name": "Nutriminix – Multi Grain Health Mix",
+          "image": "/products/NutriMix.PNG"
+        }
+      ],
+      "joinDate": "2026-01-13T13:42:58.732Z",
+      "createdAt": "2026-01-13T13:42:58.643Z",
+      "updatedAt": "2026-03-12T09:48:41.561Z",
+      "__v": 0,
+      "lastLogin": "2026-03-12T09:48:41.561Z"
+    },
+    {
+      "_id": "69672cf6bb580f72cb336459",
+      "name": "Ayyappan",
+      "email": "ayyappanselvam91@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocLL9iWFQ7_VGWFXiZSrlk-ULLHH5E0R-QxvO4HgRO6CsYG6LSVS=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocLL9iWFQ7_VGWFXiZSrlk-ULLHH5E0R-QxvO4HgRO6CsYG6LSVS=s96-c",
+      "googleId": "110105336695709473337",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-01-15T00:28:55.813Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "f2 subashree st",
+          "line2": "mugalivakam",
+          "landmark": "",
+          "street": "f2 subashree st",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "zip": "625020",
+          "isDefault": true,
+          "_id": "69672d3bbb580f72cb336467"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-14T05:43:18.373Z",
+      "createdAt": "2026-01-14T05:43:18.372Z",
+      "updatedAt": "2026-01-15T00:31:57.255Z",
+      "__v": 0,
+      "phone": "8667460785",
+      "whatsapp": "8667460785"
+    },
+    {
+      "_id": "6968e42a6f103166dcb9109a",
+      "name": "Kalaivani Nandakumar",
+      "email": "kalairavi.ravi1@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocIkm0QvAtjwCA_UWtuPcR0Ot6FwppAKBJid2ufB_6yf0emY1uw-=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocIkm0QvAtjwCA_UWtuPcR0Ot6FwppAKBJid2ufB_6yf0emY1uw-=s96-c",
+      "googleId": "114490597955239312634",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-01-15T12:57:14.528Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "1/265,mainroad",
+          "line2": "Valajanagaram",
+          "landmark": "Behind nalanda primary school",
+          "street": "1/265,mainroad",
+          "city": "Ariyalur",
+          "state": "Tamil Nadu",
+          "zip": "621704",
+          "isDefault": false,
+          "_id": "697891801653463b4dd2f542"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-15T12:57:14.537Z",
+      "createdAt": "2026-01-15T12:57:14.536Z",
+      "updatedAt": "2026-01-27T10:23:14.827Z",
+      "__v": 0,
+      "phone": "7845856597",
+      "whatsapp": "7845856597"
+    },
+    {
+      "_id": "69691c446cf6e30e18eb6d40",
+      "name": "Karthicksaran",
+      "email": "sarankarthicks@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKb97VyaMoA71No2dblre344Apzn-uesN5r5tgfL6O8zAawU2xH=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocKb97VyaMoA71No2dblre344Apzn-uesN5r5tgfL6O8zAawU2xH=s96-c",
+      "googleId": "101719922085642661164",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-01-17T05:26:24.558Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "19A, 5th Cross Street,",
+          "line2": "Krishna Nagar, Noombal",
+          "landmark": "",
+          "city": "Iyyappanthangal",
+          "state": "Tamilnadu",
+          "zip": "600077",
+          "isDefault": true,
+          "_id": "69691cd86cf6e30e18eb6d49",
+          "street": "19A, 5th Cross Street,"
+        },
+        {
+          "type": "Home",
+          "line1": "15, Govt Hospital opposite street",
+          "line2": "Kalavai",
+          "landmark": "",
+          "street": "15, Govt Hospital opposite street",
+          "city": "Ranipet",
+          "state": "Tamil Nadu",
+          "zip": "632506",
+          "isDefault": false,
+          "_id": "69691ef96cf6e30e18eb6d64"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-15T16:56:36.170Z",
+      "createdAt": "2026-01-15T16:56:36.170Z",
+      "updatedAt": "2026-01-17T05:28:38.005Z",
+      "__v": 0,
+      "phone": "7601942443",
+      "whatsapp": "7601942443"
+    },
+    {
+      "_id": "696bcc818fe505a43dc1eddd",
+      "name": "Lokesh Anandan",
+      "email": "lokeshbt10f@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJBN-2poSDOj8odMqw4QDh1EgJJmxC9wQmu1YsqrsBvWI7R7g=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocJBN-2poSDOj8odMqw4QDh1EgJJmxC9wQmu1YsqrsBvWI7R7g=s96-c",
+      "googleId": "116105504809528500165",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-01-24T11:56:17.443Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "171",
+          "line2": "",
+          "landmark": "",
+          "street": "171",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "zip": "600110",
+          "isDefault": true,
+          "_id": "696bccdd8fe505a43dc1edea"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-01-17T17:53:05.137Z",
+      "createdAt": "2026-01-17T17:53:05.136Z",
+      "updatedAt": "2026-01-24T11:56:17.443Z",
+      "__v": 0,
+      "phone": "8248528055",
+      "whatsapp": "8248528055"
+    },
+    {
+      "_id": "6970bb42887a0f08da1cfb43",
+      "name": "N R Veveghaa",
+      "email": "nrveve3009@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocJUR5v-D24D3bpSZO0SGsVOPg78sxMIoBm08f7XDFlCn4SuhXSN=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocJUR5v-D24D3bpSZO0SGsVOPg78sxMIoBm08f7XDFlCn4SuhXSN=s96-c",
+      "googleId": "114916747468528833375",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-01-21T11:40:50.365Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "Thozhi working women’s hostel",
+          "line2": "Tambaram sanatorium",
+          "landmark": "Judge colony 4th street",
+          "street": "Thozhi working women’s hostel",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "zip": "600047",
+          "isDefault": true,
+          "_id": "6970bb9d887a0f08da1cfb51"
+        }
+      ],
+      "cart": [
+        {
+          "id": "6967d5e7c88a08abbf51f0ac",
+          "type": "product",
+          "quantity": 1,
+          "price": 260,
+          "name": "Ultimate Wellness Combo (5 Mixes)",
+          "image": "/product-combo-5mixes.jpg"
+        }
+      ],
+      "joinDate": "2026-01-21T11:40:50.376Z",
+      "createdAt": "2026-01-21T11:40:50.375Z",
+      "updatedAt": "2026-01-21T11:43:01.063Z",
+      "__v": 0
+    },
+    {
+      "_id": "69a9227b38323f585733dfed",
+      "name": "Prasanthi Muthukumar",
+      "email": "prasanthimuthukumar@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKBDI3on1ECHkns4MdzWlX10pOyggJt_grkNzRQzKAMcpTdug=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocKBDI3on1ECHkns4MdzWlX10pOyggJt_grkNzRQzKAMcpTdug=s96-c",
+      "googleId": "102232732241781248950",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-03-05T06:28:11.102Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "NO 45, BLOCK 1, GANESH APARTMENT G6 thOMAS STREET",
+          "line2": "Thomas street, tambaram sanatorium",
+          "landmark": "",
+          "street": "NO 45, BLOCK 1, GANESH APARTMENT G6 thOMAS STREET",
+          "city": "CHENNAI",
+          "state": "Tamil Nadu",
+          "zip": "600045",
+          "isDefault": true,
+          "_id": "69a922a138323f585733dffb"
+        }
+      ],
+      "cart": [
+        {
+          "id": "69a91a0c4ee07f2c99a1aea1",
+          "type": "product",
+          "quantity": 1,
+          "price": 70,
+          "name": "Ragi Choco Malt",
+          "image": "/products/ragi-choco-malt-label.png"
+        }
+      ],
+      "joinDate": "2026-03-05T06:28:11.105Z",
+      "createdAt": "2026-03-05T06:28:11.105Z",
+      "updatedAt": "2026-03-05T06:28:49.374Z",
+      "__v": 0
+    },
+    {
+      "_id": "69a97b17076e09070f2cdc28",
+      "name": "Priya",
+      "email": "priyaboopalan@gmail.com",
+      "avatar": "https://lh3.googleusercontent.com/a/ACg8ocLIL_XDqIe4K34bdV6YEDdrT9uKmKIhLkRVkODOBcQFUeeyuN_5AQ=s96-c",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocLIL_XDqIe4K34bdV6YEDdrT9uKmKIhLkRVkODOBcQFUeeyuN_5AQ=s96-c",
+      "googleId": "107664284388944272194",
+      "authProvider": "google",
+      "isVerified": true,
+      "isAdmin": false,
+      "role": "user",
+      "permissions": {
+        "products": "none",
+        "stocks": "none",
+        "categories": "none",
+        "offers": "none",
+        "combos": "none",
+        "orders": "none",
+        "customers": "none",
+        "content": "none",
+        "blog": "none",
+        "press": "none",
+        "careers": "none",
+        "banners": "none",
+        "settings": "none"
+      },
+      "status": "Active",
+      "lastLogin": "2026-03-05T12:46:15.848Z",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "addresses": [
+        {
+          "type": "Home",
+          "line1": "Opp to dwaraka apartment",
+          "line2": "No 31 Shree Ganesha Nagar mannivakkam",
+          "landmark": "Chennai",
+          "street": "Opp to dwaraka apartment",
+          "city": "Chennai",
+          "state": "Tamil Nadu",
+          "zip": "600048",
+          "isDefault": true,
+          "_id": "69a97b99076e09070f2cdc49"
+        }
+      ],
+      "cart": [],
+      "joinDate": "2026-03-05T12:46:15.858Z",
+      "createdAt": "2026-03-05T12:46:15.857Z",
+      "updatedAt": "2026-03-05T12:49:47.676Z",
+      "__v": 0,
+      "phone": "+919962145456",
+      "whatsapp": "+919962145456"
+    }
+  ],
+  "banners": [],
+  "settings": [],
+  "orders": [
+    {
+      "_id": "6951ebd38730fe2b40c27f23",
+      "total": 1077,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde48",
+          "name": "Porridge Mix – Black Rice Delight",
+          "quantity": 2,
+          "price": 399,
+          "_id": "6951ebd38730fe2b40c27f24"
+        },
+        {
+          "product": "695183032cba3bf2596dde49",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 1,
+          "price": 279,
+          "_id": "6951ebd38730fe2b40c27f25"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "ernfoer",
+        "city": "iuhi",
+        "state": "",
+        "zip": "hi"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-29T02:47:47.820Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-29T02:47:47.827Z",
+      "updatedAt": "2025-12-29T02:47:47.827Z",
+      "__v": 0
+    },
+    {
+      "_id": "6951ed3030cc3d0cf2eee8e0",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1766976816899-310",
+      "total": 558,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde49",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 2,
+          "price": 279,
+          "_id": "6951ed3030cc3d0cf2eee8e1"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-29T02:53:36.916Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-29T02:53:36.932Z",
+      "updatedAt": "2025-12-29T02:53:36.932Z",
+      "__v": 0
+    },
+    {
+      "_id": "6951efbb30cc3d0cf2eee8fc",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1766977467609-849",
+      "total": 299,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde44",
+          "name": "Classic Urad Porridge Mix",
+          "quantity": 1,
+          "price": 299,
+          "_id": "6951efbb30cc3d0cf2eee8fd"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "pghp",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-29T03:04:27.615Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-29T03:04:27.619Z",
+      "updatedAt": "2025-12-29T03:04:27.619Z",
+      "__v": 0
+    },
+    {
+      "_id": "695219837cfb4f46e871db12",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1766988163520-573",
+      "total": 279,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde45",
+          "name": "URAD Porridge Mix – Salt & Pepper",
+          "quantity": 1,
+          "price": 279,
+          "_id": "695219837cfb4f46e871db13"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-29T06:02:43.526Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-29T06:02:43.530Z",
+      "updatedAt": "2025-12-29T06:02:43.530Z",
+      "__v": 0
+    },
+    {
+      "_id": "69536eccd305e9b1e6f508f6",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1767075532709-707",
+      "total": 349,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde46",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "69536eccd305e9b1e6f508f7"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T06:18:52.715Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T06:18:52.720Z",
+      "updatedAt": "2025-12-30T06:18:52.720Z",
+      "__v": 0
+    },
+    {
+      "_id": "69537e89ed43f23f93a301e2",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1767079561348-332",
+      "total": 499,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde4a",
+          "name": "Groundnut Oil – Classic",
+          "quantity": 1,
+          "price": 499,
+          "_id": "69537e89ed43f23f93a301e3"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T07:26:01.350Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T07:26:01.351Z",
+      "updatedAt": "2025-12-30T07:26:01.351Z",
+      "__v": 0
+    },
+    {
+      "_id": "695383a6ed43f23f93a3027d",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1767080870333-921",
+      "total": 399,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde48",
+          "name": "Porridge Mix – Black Rice Delight",
+          "quantity": 1,
+          "price": 399,
+          "_id": "695383a6ed43f23f93a3027e"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T07:47:50.334Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T07:47:50.334Z",
+      "updatedAt": "2025-12-30T07:47:50.334Z",
+      "__v": 0
+    },
+    {
+      "_id": "695386f1ed43f23f93a30407",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1767081713090-631",
+      "total": 998,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde4a",
+          "name": "Groundnut Oil – Classic",
+          "quantity": 2,
+          "price": 499,
+          "_id": "695386f1ed43f23f93a30408"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T08:01:53.090Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T08:01:53.091Z",
+      "updatedAt": "2025-12-30T08:01:53.091Z",
+      "__v": 0
+    },
+    {
+      "_id": "6953892aed43f23f93a304b1",
+      "user": "6951ea408730fe2b40c27f07",
+      "orderId": "#ORD-1767082282932-316",
+      "total": 499,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde4a",
+          "name": "Groundnut Oil – Classic",
+          "quantity": 1,
+          "price": 499,
+          "_id": "6953892aed43f23f93a304b2"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "villu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T08:11:22.933Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T08:11:22.934Z",
+      "updatedAt": "2025-12-30T08:11:22.934Z",
+      "__v": 0
+    },
+    {
+      "_id": "69538aa3ed43f23f93a305af",
+      "user": "695183042cba3bf2596dde59",
+      "orderId": "#ORD-1767082659604-806",
+      "total": 948,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde46",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "69538aa3ed43f23f93a305b0"
+        },
+        {
+          "product": "695183032cba3bf2596dde4b",
+          "name": "Sesame Oil – Classic",
+          "quantity": 1,
+          "price": 599,
+          "_id": "69538aa3ed43f23f93a305b1"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "hohoi\nhoih",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T08:17:39.605Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T08:17:39.605Z",
+      "updatedAt": "2025-12-30T08:17:39.605Z",
+      "__v": 0
+    },
+    {
+      "_id": "69538c1eed43f23f93a30693",
+      "user": "695183042cba3bf2596dde59",
+      "orderId": "#ORD-1767083038282-275",
+      "total": 998,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde4a",
+          "name": "Groundnut Oil – Classic",
+          "quantity": 2,
+          "price": 499,
+          "_id": "69538c1eed43f23f93a30694"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "hohoi\nhoih",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T08:23:58.282Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T08:23:58.283Z",
+      "updatedAt": "2025-12-30T08:23:58.283Z",
+      "__v": 0
+    },
+    {
+      "_id": "69538e3bed43f23f93a307a5",
+      "user": "695183042cba3bf2596dde59",
+      "orderId": "#ORD-1767083579484-69",
+      "total": 349,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde46",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "69538e3bed43f23f93a307a6"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "hohoi\nhoih",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T08:32:59.484Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T08:32:59.485Z",
+      "updatedAt": "2025-12-30T08:32:59.485Z",
+      "__v": 0
+    },
+    {
+      "_id": "69538f84ed43f23f93a3083e",
+      "user": "695183042cba3bf2596dde59",
+      "orderId": "#ORD-1767083908799-501",
+      "total": 399,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde48",
+          "name": "Porridge Mix – Black Rice Delight",
+          "quantity": 1,
+          "price": 399,
+          "_id": "69538f84ed43f23f93a3083f"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "hohoi\nhoih",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T08:38:28.800Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T08:38:28.800Z",
+      "updatedAt": "2025-12-30T08:38:28.800Z",
+      "__v": 0
+    },
+    {
+      "_id": "6953d67401de22a3e77de36d",
+      "user": "6953d36501de22a3e77de337",
+      "orderId": "#ORD-1767102068834-250",
+      "total": 499,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde4a",
+          "name": "Groundnut Oil – Classic",
+          "quantity": 1,
+          "price": 499,
+          "_id": "6953d67401de22a3e77de36e"
+        }
+      ],
+      "deliveryAddress": {
+        "street": "No 269 Sri Ram Nagar ",
+        "city": "Thiruvallur ",
+        "state": "",
+        "zip": "602024"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T13:41:08.836Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T13:41:08.837Z",
+      "updatedAt": "2025-12-30T13:41:08.837Z",
+      "__v": 0
+    },
+    {
+      "_id": "69540db934bdb5b14a070db4",
+      "user": "69540d13e6b2021d8237a328",
+      "orderId": "#ORD-1767116217979-392",
+      "total": 349,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d6",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "69540db934bdb5b14a070db5"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "hdiu",
+        "lastName": "mugil m",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T17:36:57.987Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T17:36:57.993Z",
+      "updatedAt": "2025-12-30T17:36:57.993Z",
+      "__v": 0
+    },
+    {
+      "_id": "695414af81370bb545c4dfa4",
+      "user": "6953f6c0e6641d54824612e7",
+      "orderId": "#ORD-1767117999407-900",
+      "total": 399,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d8",
+          "name": "Porridge Mix – Black Rice Delight",
+          "quantity": 1,
+          "price": 399,
+          "_id": "695414af81370bb545c4dfa5"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Deepika Harikrishnan",
+        "lastName": "",
+        "street": "PANIMALAR ENGINEERING COLLEGE",
+        "city": "CHENNAI",
+        "state": "",
+        "zip": "600056",
+        "phone": "+91 98765 43211",
+        "whatsapp": "+91 98765 43211"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T18:06:39.409Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T18:06:39.410Z",
+      "updatedAt": "2025-12-30T18:06:39.410Z",
+      "__v": 0
+    },
+    {
+      "_id": "695414ed81370bb545c4dfd7",
+      "user": "69540d13e6b2021d8237a328",
+      "orderId": "#ORD-1767118061145-919",
+      "total": 399,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d8",
+          "name": "Porridge Mix – Black Rice Delight",
+          "quantity": 1,
+          "price": 399,
+          "_id": "695414ed81370bb545c4dfd8"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "hdiu",
+        "lastName": "",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T18:07:41.146Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T18:07:41.146Z",
+      "updatedAt": "2025-12-30T18:07:41.146Z",
+      "__v": 0
+    },
+    {
+      "_id": "6954172209774d79552d9015",
+      "user": "69540d13e6b2021d8237a328",
+      "orderId": "#ORD-1767118626724-455",
+      "total": 349,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "695183032cba3bf2596dde46",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "6954172209774d79552d9016"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "hdiu",
+        "lastName": "",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-30T18:17:06.726Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-30T18:17:06.727Z",
+      "updatedAt": "2025-12-30T18:17:06.727Z",
+      "__v": 0
+    },
+    {
+      "_id": "6954c01e70f88e212114e59a",
+      "user": "69540d13e6b2021d8237a328",
+      "orderId": "#ORD-1767161886202-834",
+      "total": 279,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d9",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 1,
+          "price": 279,
+          "_id": "6954c01e70f88e212114e59b"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "hdiu",
+        "lastName": "",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-31T06:18:06.206Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-31T06:18:06.211Z",
+      "updatedAt": "2025-12-31T06:18:06.211Z",
+      "__v": 0
+    },
+    {
+      "_id": "6954c182711e6622a12f5e5d",
+      "user": "69540d13e6b2021d8237a328",
+      "orderId": "#ORD-1767162242496-635",
+      "total": 279,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d9",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 1,
+          "price": 279,
+          "_id": "6954c182711e6622a12f5e5e"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "hdiu",
+        "lastName": "",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "date": "2025-12-31T06:24:02.501Z",
+      "trackingSteps": [],
+      "createdAt": "2025-12-31T06:24:02.504Z",
+      "updatedAt": "2025-12-31T06:24:02.504Z",
+      "__v": 0
+    },
+    {
+      "_id": "69564156dbf574c185b21872",
+      "user": "69563f5c4c477506494d009a",
+      "orderId": "ORD1767260502730974",
+      "total": 349,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d6",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "69564156dbf574c185b21873"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil m",
+        "lastName": "m",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "",
+        "zip": "605652",
+        "phone": "+919976719422",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-01T09:41:42.730Z",
+          "completed": true,
+          "_id": "69564156dbf574c185b21874"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "69564156dbf574c185b21875"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "69564156dbf574c185b21876"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69564156dbf574c185b21877"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69564156dbf574c185b21878"
+        }
+      ],
+      "date": "2026-01-01T09:41:42.742Z",
+      "createdAt": "2026-01-01T09:41:42.747Z",
+      "updatedAt": "2026-01-01T09:41:42.747Z",
+      "__v": 0
+    },
+    {
+      "_id": "69574539b562a5e1b75c1fa9",
+      "user": "69563f5c4c477506494d009a",
+      "orderId": "ORD1767327033365911",
+      "total": 2792,
+      "paymentStatus": "Pending",
+      "orderStatus": "Shipped",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d6",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 8,
+          "price": 349,
+          "_id": "69574539b562a5e1b75c1faa"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil m",
+        "lastName": "",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "+919976719422",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-02T04:10:33.365Z",
+          "completed": true,
+          "_id": "69574539b562a5e1b75c1fab"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "69574539b562a5e1b75c1fac",
+          "date": "2026-01-02T04:19:42.481Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "69574539b562a5e1b75c1fad",
+          "date": "2026-01-06T10:12:28.067Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69574539b562a5e1b75c1fae",
+          "date": "2026-01-02T04:10:33.382Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69574539b562a5e1b75c1faf",
+          "date": "2026-01-02T04:10:33.383Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-02T04:10:33.385Z",
+      "createdAt": "2026-01-02T04:10:33.404Z",
+      "updatedAt": "2026-01-06T10:12:28.082Z",
+      "estimatedDeliveryDate": "2026-01-06T04:19:42.157Z",
+      "__v": 0
+    },
+    {
+      "_id": "6958a131a27b18c298f740d1",
+      "user": "69540d13e6b2021d8237a328",
+      "orderId": "ORD1767416112999668",
+      "total": 558,
+      "paymentStatus": "Pending",
+      "orderStatus": "Processing",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d9",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 2,
+          "price": 279,
+          "_id": "6958a131a27b18c298f740d2"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "hdiu",
+        "lastName": "",
+        "street": "villupuram , tamil nadu",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-03T04:55:13.001Z",
+          "completed": true,
+          "_id": "6958a131a27b18c298f740d3"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "6958a131a27b18c298f740d4",
+          "date": "2026-01-06T10:57:14.556Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "6958a131a27b18c298f740d5",
+          "date": "2026-01-03T04:55:13.008Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "6958a131a27b18c298f740d6",
+          "date": "2026-01-03T04:55:13.008Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "6958a131a27b18c298f740d7",
+          "date": "2026-01-03T04:55:13.009Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-03T04:55:13.009Z",
+      "createdAt": "2026-01-03T04:55:13.011Z",
+      "updatedAt": "2026-01-06T10:57:14.567Z",
+      "estimatedDeliveryDate": "2026-01-08T04:55:13.011Z",
+      "__v": 0
+    },
+    {
+      "_id": "695bf070f0255beeed367071",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1767633008593662",
+      "total": 558,
+      "paymentStatus": "Pending",
+      "orderStatus": "Shipped",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d9",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 2,
+          "price": 279,
+          "_id": "695bf070f0255beeed367072"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "mugil m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-05T17:10:08.593Z",
+          "completed": true,
+          "_id": "695bf070f0255beeed367073"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "695bf070f0255beeed367074",
+          "date": "2026-01-06T10:18:41.259Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "695bf070f0255beeed367075",
+          "date": "2026-01-06T10:22:54.865Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "695bf070f0255beeed367076",
+          "date": "2026-01-05T17:10:08.597Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "695bf070f0255beeed367077",
+          "date": "2026-01-05T17:10:08.597Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-05T17:10:08.597Z",
+      "createdAt": "2026-01-05T17:10:08.599Z",
+      "updatedAt": "2026-01-06T10:22:54.875Z",
+      "estimatedDeliveryDate": "2026-01-10T17:10:08.599Z",
+      "__v": 0
+    },
+    {
+      "_id": "695bf3d9f0255beeed36730d",
+      "user": "695bea89f0255beeed36656f",
+      "orderId": "ORD1767633881654140",
+      "total": 1116,
+      "paymentStatus": "Pending",
+      "orderStatus": "Shipped",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d9",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 4,
+          "price": 279,
+          "_id": "695bf3d9f0255beeed36730e"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Dhivagar G",
+        "lastName": "",
+        "street": "No.16 government hospital opposite street timiri road kalavai ",
+        "city": "Ranipet ",
+        "state": "Tamil Nadu",
+        "zip": "632506",
+        "phone": "9751371545",
+        "whatsapp": "9751371545"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-05T17:24:41.654Z",
+          "completed": true,
+          "_id": "695bf3d9f0255beeed36730f"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "695bf3d9f0255beeed367310",
+          "date": "2026-01-05T17:27:52.729Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "695bf3d9f0255beeed367311",
+          "date": "2026-01-06T09:52:04.991Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "695bf3d9f0255beeed367312",
+          "date": "2026-01-05T17:24:41.657Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "695bf3d9f0255beeed367313",
+          "date": "2026-01-05T17:26:01.663Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-05T17:24:41.657Z",
+      "createdAt": "2026-01-05T17:24:41.659Z",
+      "updatedAt": "2026-01-06T09:52:04.999Z",
+      "estimatedDeliveryDate": "2026-01-10T17:24:41.659Z",
+      "__v": 0
+    },
+    {
+      "_id": "695bf5c1f0255beeed3674fe",
+      "user": "695bea89f0255beeed36656f",
+      "orderId": "ORD176763436954158",
+      "total": 50,
+      "paymentStatus": "Pending",
+      "orderStatus": "Shipped",
+      "items": [
+        {
+          "product": "695becc9f0255beeed3668ed",
+          "name": "UradPorridgeMix - Classic",
+          "quantity": 1,
+          "price": 50,
+          "_id": "695bf5c1f0255beeed3674ff"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Dhivagar G",
+        "lastName": "",
+        "street": "No.16 government hospital opposite street timiri road kalavai",
+        "city": "Ranipet",
+        "state": "Tamil Nadu",
+        "zip": "632506",
+        "phone": "9751371545",
+        "whatsapp": "9751371545"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-06T11:24:00.782Z",
+          "completed": true,
+          "_id": "695bf5c1f0255beeed367500"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "695bf5c1f0255beeed367501",
+          "date": "2026-01-06T11:25:31.398Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "695bf5c1f0255beeed367502",
+          "date": "2026-01-06T12:53:18.593Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "695bf5c1f0255beeed367503",
+          "date": null
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "695bf5c1f0255beeed367504",
+          "date": null
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-05T17:32:49.544Z",
+      "createdAt": "2026-01-05T17:32:49.546Z",
+      "updatedAt": "2026-01-06T12:53:18.598Z",
+      "estimatedDeliveryDate": "2026-01-10T17:32:49.546Z",
+      "__v": 0
+    },
+    {
+      "_id": "695cf60419b293fecec73c87",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1767699972277821",
+      "total": 558,
+      "paymentStatus": "Pending",
+      "orderStatus": "Out for Delivery",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d9",
+          "name": "Idly Powder Mix – Millet Fusion",
+          "quantity": 2,
+          "price": 279,
+          "_id": "695cf60419b293fecec73c88"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-06T11:46:12.277Z",
+          "completed": true,
+          "_id": "695cf60419b293fecec73c89"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "695cf60419b293fecec73c8a",
+          "date": "2026-01-06T11:47:34.194Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "695cf60419b293fecec73c8b",
+          "date": "2026-01-06T12:45:22.517Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "695cf60419b293fecec73c8c",
+          "date": "2026-01-06T12:47:34.217Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "695cf60419b293fecec73c8d",
+          "date": "2026-01-06T11:46:12.289Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-06T11:46:12.290Z",
+      "createdAt": "2026-01-06T11:46:12.296Z",
+      "updatedAt": "2026-01-06T12:47:34.231Z",
+      "estimatedDeliveryDate": "2026-01-10T11:47:33.877Z",
+      "__v": 0
+    },
+    {
+      "_id": "695d4a67665ba403571afc96",
+      "user": "6953f6c0e6641d54824612e7",
+      "orderId": "ORD1767721575253416",
+      "total": 1593,
+      "paymentStatus": "Pending",
+      "orderStatus": "Processing",
+      "items": [
+        {
+          "product": "6953f6c0e6641d54824612d6",
+          "name": "URAD Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 349,
+          "_id": "695d4a67665ba403571afc97"
+        },
+        {
+          "product": "6953f6c0e6641d54824612d8",
+          "name": "Porridge Mix – Black Rice Delight",
+          "quantity": 3,
+          "price": 399,
+          "_id": "695d4a67665ba403571afc98"
+        },
+        {
+          "product": "695becc9f0255beeed3668ed",
+          "name": "UradPorridgeMix - Classic",
+          "quantity": 1,
+          "price": 47,
+          "_id": "695d4a67665ba403571afc99"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Deepika Harikrishnan",
+        "lastName": "",
+        "street": "PANIMALAR ENGINEERING COLLEGE, Chennai",
+        "city": "CHENNAI",
+        "state": "Tamil Nadu",
+        "zip": "600056",
+        "phone": "+91 98765 43211",
+        "whatsapp": "+91 98765 43211"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-06T17:46:15.253Z",
+          "completed": true,
+          "_id": "695d4a67665ba403571afc9a"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "695d4a67665ba403571afc9b",
+          "date": "2026-01-06T17:55:41.533Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "695d4a67665ba403571afc9c",
+          "date": "2026-01-06T17:46:15.259Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "695d4a67665ba403571afc9d",
+          "date": "2026-01-06T17:46:15.259Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "695d4a67665ba403571afc9e",
+          "date": "2026-01-06T17:46:15.259Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-06T17:46:15.259Z",
+      "createdAt": "2026-01-06T17:46:15.297Z",
+      "updatedAt": "2026-01-06T17:55:41.536Z",
+      "estimatedDeliveryDate": "2026-01-11T17:46:15.298Z",
+      "__v": 0
+    },
+    {
+      "_id": "695e9784f8e1ed930d2642f9",
+      "user": "695e9717f8e1ed930d2642e5",
+      "orderId": "ORD1767806852353152",
+      "total": 50,
+      "paymentStatus": "Pending",
+      "orderStatus": "Shipped",
+      "items": [
+        {
+          "product": "695becc9f0255beeed3668ed",
+          "name": "UradPorridgeMix - Classic",
+          "quantity": 1,
+          "price": 50,
+          "_id": "695e9784f8e1ed930d2642fa"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Nanda Kumar",
+        "lastName": "",
+        "street": "Chennai",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "zip": "600092",
+        "phone": "9176269108",
+        "whatsapp": "9176269108"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-07T17:27:32.353Z",
+          "completed": true,
+          "_id": "695e9784f8e1ed930d2642fb"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "695e9784f8e1ed930d2642fc",
+          "date": "2026-01-07T17:28:31.529Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "695e9784f8e1ed930d2642fd",
+          "date": "2026-01-07T17:29:00.584Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "695e9784f8e1ed930d2642fe",
+          "date": "2026-01-07T17:27:32.355Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "695e9784f8e1ed930d2642ff",
+          "date": "2026-01-07T17:27:32.355Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-07T17:27:32.356Z",
+      "createdAt": "2026-01-07T17:27:32.357Z",
+      "updatedAt": "2026-01-07T17:29:00.587Z",
+      "estimatedDeliveryDate": "2026-01-12T17:27:32.357Z",
+      "__v": 0
+    },
+    {
+      "_id": "696248899a6f53ea5cf8ae83",
+      "user": "6953f6c0e6641d54824612e7",
+      "orderId": "ORD1768048777285775",
+      "total": 280,
+      "paymentStatus": "Pending",
+      "orderStatus": "Processing",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 2,
+          "price": 140,
+          "_id": "696248899a6f53ea5cf8ae84"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Deepika Harikrishnan",
+        "lastName": "",
+        "street": "PANIMALAR ENGINEERING COLLEGE, Chennai",
+        "city": "CHENNAI",
+        "state": "Tamil Nadu",
+        "zip": "600056",
+        "phone": "+91 98765 43211",
+        "whatsapp": "+91 98765 43211"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-10T12:39:37.285Z",
+          "completed": true,
+          "_id": "696248899a6f53ea5cf8ae85"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "696248899a6f53ea5cf8ae86",
+          "date": "2026-01-10T12:40:27.390Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "696248899a6f53ea5cf8ae87",
+          "date": "2026-01-10T12:39:37.290Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "696248899a6f53ea5cf8ae88",
+          "date": "2026-01-10T12:39:37.290Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "696248899a6f53ea5cf8ae89",
+          "date": "2026-01-10T12:39:37.290Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-10T12:39:37.290Z",
+      "createdAt": "2026-01-10T12:39:37.294Z",
+      "updatedAt": "2026-01-10T12:40:27.392Z",
+      "estimatedDeliveryDate": "2026-01-15T12:39:37.294Z",
+      "__v": 0
+    },
+    {
+      "_id": "69648de7318de86b716f07c1",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768197607831481",
+      "total": 140,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 140,
+          "_id": "69648de7318de86b716f07c2"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "mugil m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T06:00:07.831Z",
+          "completed": true,
+          "_id": "69648de7318de86b716f07c3"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "69648de7318de86b716f07c4",
+          "date": "2026-01-12T06:00:07.834Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "69648de7318de86b716f07c5",
+          "date": "2026-01-12T06:00:07.834Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69648de7318de86b716f07c6",
+          "date": "2026-01-12T06:00:07.834Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69648de7318de86b716f07c7",
+          "date": "2026-01-12T06:00:07.834Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T06:00:07.834Z",
+      "createdAt": "2026-01-12T06:00:07.836Z",
+      "updatedAt": "2026-01-12T06:00:07.836Z",
+      "estimatedDeliveryDate": "2026-01-17T06:00:07.837Z",
+      "__v": 0
+    },
+    {
+      "_id": "69648e48cf11f51b4daf9665",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768197704923220",
+      "total": 280,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 2,
+          "price": 140,
+          "_id": "69648e48cf11f51b4daf9666"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "+919976719422",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T06:01:44.923Z",
+          "completed": true,
+          "_id": "69648e48cf11f51b4daf9667"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "69648e48cf11f51b4daf9668",
+          "date": "2026-01-12T06:01:44.936Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "69648e48cf11f51b4daf9669",
+          "date": "2026-01-12T06:01:44.937Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69648e48cf11f51b4daf966a",
+          "date": "2026-01-12T06:01:44.938Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69648e48cf11f51b4daf966b",
+          "date": "2026-01-12T06:01:44.938Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T06:01:44.938Z",
+      "createdAt": "2026-01-12T06:01:44.946Z",
+      "updatedAt": "2026-01-12T06:01:44.946Z",
+      "estimatedDeliveryDate": "2026-01-17T06:01:44.946Z",
+      "__v": 0
+    },
+    {
+      "_id": "69648ea66f63b163fa9d99ed",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768197798458110",
+      "total": 280,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 2,
+          "price": 140,
+          "_id": "69648ea66f63b163fa9d99ee"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "+919976719422",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T06:03:18.458Z",
+          "completed": true,
+          "_id": "69648ea66f63b163fa9d99ef"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "69648ea66f63b163fa9d99f0",
+          "date": "2026-01-12T06:03:18.478Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "69648ea66f63b163fa9d99f1",
+          "date": "2026-01-12T06:03:18.479Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69648ea66f63b163fa9d99f2",
+          "date": "2026-01-12T06:03:18.480Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69648ea66f63b163fa9d99f3",
+          "date": "2026-01-12T06:03:18.480Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T06:03:18.481Z",
+      "createdAt": "2026-01-12T06:03:18.503Z",
+      "updatedAt": "2026-01-12T06:03:18.503Z",
+      "estimatedDeliveryDate": "2026-01-17T06:03:18.504Z",
+      "__v": 0
+    },
+    {
+      "_id": "69648f046f63b163fa9d9a07",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768197892834672",
+      "total": 75,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 75,
+          "_id": "69648f046f63b163fa9d9a08"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "mugil m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T06:04:52.834Z",
+          "completed": true,
+          "_id": "69648f046f63b163fa9d9a09"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "69648f046f63b163fa9d9a0a",
+          "date": "2026-01-12T06:04:52.842Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "69648f046f63b163fa9d9a0b",
+          "date": "2026-01-12T06:04:52.842Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69648f046f63b163fa9d9a0c",
+          "date": "2026-01-12T06:04:52.843Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69648f046f63b163fa9d9a0d",
+          "date": "2026-01-12T06:04:52.843Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T06:04:52.843Z",
+      "createdAt": "2026-01-12T06:04:52.855Z",
+      "updatedAt": "2026-01-12T06:04:52.855Z",
+      "estimatedDeliveryDate": "2026-01-17T06:04:52.855Z",
+      "__v": 0
+    },
+    {
+      "_id": "696493da98b98bb7870db090",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768199130413877",
+      "total": 75,
+      "paymentStatus": "Pending",
+      "orderStatus": "Ordered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 75,
+          "_id": "696493da98b98bb7870db091"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "mugil m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T06:25:30.413Z",
+          "completed": true,
+          "_id": "696493da98b98bb7870db092"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "696493da98b98bb7870db093",
+          "date": "2026-01-12T06:25:30.417Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "696493da98b98bb7870db094",
+          "date": "2026-01-12T06:25:30.417Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "696493da98b98bb7870db095",
+          "date": "2026-01-12T06:25:30.417Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "696493da98b98bb7870db096",
+          "date": "2026-01-12T06:25:30.418Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T06:25:30.418Z",
+      "createdAt": "2026-01-12T06:25:30.421Z",
+      "updatedAt": "2026-01-12T06:25:30.421Z",
+      "estimatedDeliveryDate": "2026-01-17T06:25:30.421Z",
+      "__v": 0
+    },
+    {
+      "_id": "69649c07ede4039401a46783",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768201223497365",
+      "total": 75,
+      "paymentStatus": "Pending",
+      "orderStatus": "Delivered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 75,
+          "_id": "69649c07ede4039401a46784"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "mugil m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T07:00:23.497Z",
+          "completed": true,
+          "_id": "69649c07ede4039401a46785"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "69649c07ede4039401a46786",
+          "date": "2026-01-19T12:23:14.595Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "69649c07ede4039401a46787",
+          "date": "2026-01-19T12:23:14.596Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "69649c07ede4039401a46788",
+          "date": "2026-01-19T12:23:14.596Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "69649c07ede4039401a46789",
+          "date": "2026-01-19T12:23:14.596Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T07:00:23.501Z",
+      "createdAt": "2026-01-12T07:00:23.504Z",
+      "updatedAt": "2026-01-19T12:23:14.602Z",
+      "estimatedDeliveryDate": "2026-01-17T07:00:23.504Z",
+      "__v": 0,
+      "actualDeliveryDate": "2026-01-19T12:23:14.597Z",
+      "feedbackStatus": "Pending"
+    },
+    {
+      "_id": "6964a67c136e2c6e5de9320d",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768203900245662",
+      "total": 215,
+      "paymentStatus": "Pending",
+      "orderStatus": "Delivered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 75,
+          "_id": "6964a67c136e2c6e5de9320e"
+        },
+        {
+          "product": "69620f7f7f9c4b0e78ddbc51",
+          "name": "Black Rice Delight Porridge Mix",
+          "quantity": 2,
+          "price": 70,
+          "_id": "6964a67c136e2c6e5de9320f"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "mugil m",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "9342400879",
+        "whatsapp": "+919976719422"
+      },
+      "paymentMethod": "Cash on Delivery",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-12T07:45:00.245Z",
+          "completed": true,
+          "_id": "6964a67c136e2c6e5de93210"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "6964a67c136e2c6e5de93211",
+          "date": "2026-01-12T07:54:42.924Z",
+          "updatedBy": "6953f6c0e6641d54824612e7"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "6964a67c136e2c6e5de93212",
+          "date": "2026-01-22T11:27:52.671Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "6964a67c136e2c6e5de93213",
+          "date": "2026-01-22T11:27:52.672Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "6964a67c136e2c6e5de93214",
+          "date": "2026-01-22T11:27:52.672Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-12T07:45:00.248Z",
+      "createdAt": "2026-01-12T07:45:00.251Z",
+      "updatedAt": "2026-01-22T11:27:52.678Z",
+      "estimatedDeliveryDate": "2026-01-17T07:45:00.251Z",
+      "__v": 0,
+      "actualDeliveryDate": "2026-01-22T11:27:52.672Z",
+      "feedbackStatus": "Pending"
+    },
+    {
+      "_id": "69671b9b455f78fbd78ca358",
+      "user": "69540a4be08308eb4902835f",
+      "orderId": "ORD1768364955355546",
+      "total": 1,
+      "paymentStatus": "Paid",
+      "orderStatus": "Closed",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc51",
+          "name": "Black Rice Delight Porridge Mix",
+          "quantity": 1,
+          "price": 1,
+          "_id": "69671b9b455f78fbd78ca359"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "mugil",
+        "lastName": "",
+        "street": "oh\njp",
+        "city": "villupuram",
+        "state": "Tamil Nadu",
+        "zip": "605652",
+        "phone": "09342400879",
+        "whatsapp": "9342400879"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-14T04:29:15.355Z",
+          "completed": true,
+          "_id": "69671b9b455f78fbd78ca35a"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "69671b9b455f78fbd78ca35b",
+          "date": "2026-01-19T11:36:24.025Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "69671b9b455f78fbd78ca35c",
+          "date": "2026-01-19T11:36:24.025Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "69671b9b455f78fbd78ca35d",
+          "date": "2026-01-19T11:36:24.025Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "69671b9b455f78fbd78ca35e",
+          "date": "2026-01-19T11:36:24.025Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-14T04:29:15.818Z",
+      "createdAt": "2026-01-14T04:29:15.820Z",
+      "updatedAt": "2026-01-19T11:46:01.714Z",
+      "estimatedDeliveryDate": "2026-01-19T04:29:15.820Z",
+      "__v": 0,
+      "actualDeliveryDate": "2026-01-19T11:36:24.026Z",
+      "feedbackStatus": "Received",
+      "feedbackDate": "2026-01-19T11:46:01.713Z"
+    },
+    {
+      "_id": "69671c64455f78fbd78ca3b5",
+      "user": "695918dfde4adea927390285",
+      "orderId": "ORD1768365156318810",
+      "total": 1,
+      "paymentStatus": "Paid",
+      "orderStatus": "Delivered",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc51",
+          "name": "Black Rice Delight Porridge Mix",
+          "quantity": 1,
+          "price": 1,
+          "_id": "69671c64455f78fbd78ca3b6"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "ARUNPRASATH",
+        "lastName": "",
+        "street": "B4, Berrybunch apartment,\n13, Balaji nagar 1st Street extn,\nIyyapanthangal",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "zip": "600077",
+        "phone": "9047685888",
+        "whatsapp": "9047685888"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-14T04:32:36.319Z",
+          "completed": true,
+          "_id": "69671c64455f78fbd78ca3b7"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "69671c64455f78fbd78ca3b8",
+          "date": "2026-01-24T11:57:32.608Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "69671c64455f78fbd78ca3b9",
+          "date": "2026-01-24T11:57:32.608Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "69671c64455f78fbd78ca3ba",
+          "date": "2026-01-24T11:57:32.608Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "69671c64455f78fbd78ca3bb",
+          "date": "2026-01-24T11:57:32.608Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-14T04:32:36.773Z",
+      "createdAt": "2026-01-14T04:32:36.774Z",
+      "updatedAt": "2026-01-24T11:57:32.622Z",
+      "estimatedDeliveryDate": "2026-01-19T04:32:36.774Z",
+      "__v": 0,
+      "actualDeliveryDate": "2026-01-24T11:57:32.609Z",
+      "feedbackStatus": "Pending"
+    },
+    {
+      "_id": "6968357a2848e85e9f98202b",
+      "user": "69672cf6bb580f72cb336459",
+      "orderId": "ORD1768437113800979",
+      "total": 117,
+      "paymentStatus": "Paid",
+      "orderStatus": "Processing",
+      "feedbackStatus": "Pending",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 67,
+          "_id": "6968357a2848e85e9f98202c"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Ayyappan",
+        "lastName": "",
+        "street": "f2 subashree st, mugalivakam",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "zip": "625020",
+        "phone": "8667460785",
+        "whatsapp": "8667460785"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-15T00:31:53.800Z",
+          "completed": true,
+          "_id": "6968357a2848e85e9f98202d"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "6968357a2848e85e9f98202e",
+          "date": "2026-01-15T03:12:47.677Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "6968357a2848e85e9f98202f",
+          "date": "2026-01-15T00:31:54.252Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "6968357a2848e85e9f982030",
+          "date": "2026-01-15T00:31:54.252Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "6968357a2848e85e9f982031",
+          "date": "2026-01-15T00:31:54.252Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-15T00:31:54.253Z",
+      "createdAt": "2026-01-15T00:31:54.254Z",
+      "updatedAt": "2026-01-15T03:12:47.682Z",
+      "estimatedDeliveryDate": "2026-01-19T03:12:46.721Z",
+      "__v": 0
+    },
+    {
+      "_id": "696b1e033e97e38d3dde32e5",
+      "user": "69691c446cf6e30e18eb6d40",
+      "orderId": "ORD1768627714836114",
+      "total": 108,
+      "paymentStatus": "Paid",
+      "orderStatus": "Closed",
+      "feedbackStatus": "Received",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc50",
+          "name": "Urad Porridge Mix – Premium",
+          "quantity": 1,
+          "price": 58,
+          "_id": "696b1e033e97e38d3dde32e6"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Karthicksaran",
+        "lastName": "",
+        "street": "19A, 5th Cross Street,, Krishna Nagar, Noombal",
+        "city": "Iyyappanthangal",
+        "state": "Tamilnadu",
+        "zip": "600077",
+        "phone": "7601942443",
+        "whatsapp": "7601942443"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-17T05:28:34.836Z",
+          "completed": true,
+          "_id": "696b1e033e97e38d3dde32e7"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "696b1e033e97e38d3dde32e8",
+          "date": "2026-01-17T05:32:49.640Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "696b1e033e97e38d3dde32e9",
+          "date": "2026-01-17T05:33:03.820Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "696b1e033e97e38d3dde32ea",
+          "date": "2026-01-17T05:33:17.479Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "696b1e033e97e38d3dde32eb",
+          "date": "2026-01-17T05:33:30.899Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-17T05:28:35.303Z",
+      "createdAt": "2026-01-17T05:28:35.304Z",
+      "updatedAt": "2026-01-17T05:36:18.727Z",
+      "estimatedDeliveryDate": "2026-01-22T05:28:35.304Z",
+      "__v": 0,
+      "actualDeliveryDate": "2026-01-17T05:33:30.899Z",
+      "feedbackDate": "2026-01-17T05:36:18.726Z"
+    },
+    {
+      "_id": "696bcdb98fe505a43dc1edf8",
+      "user": "696bcc818fe505a43dc1eddd",
+      "orderId": "ORD17686726972611",
+      "total": 117,
+      "paymentStatus": "Paid",
+      "orderStatus": "Delivered",
+      "feedbackStatus": "Pending",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 67,
+          "_id": "696bcdb98fe505a43dc1edf9"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Lokesh Anandan",
+        "lastName": "",
+        "street": "171",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "zip": "600110",
+        "phone": "8248528055",
+        "whatsapp": "8248528055"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-17T17:58:17.261Z",
+          "completed": true,
+          "_id": "696bcdb98fe505a43dc1edfa"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "696bcdb98fe505a43dc1edfb",
+          "date": "2026-01-20T16:56:36.843Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": true,
+          "_id": "696bcdb98fe505a43dc1edfc",
+          "date": "2026-01-20T16:56:36.843Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": true,
+          "_id": "696bcdb98fe505a43dc1edfd",
+          "date": "2026-01-20T16:56:36.843Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": true,
+          "_id": "696bcdb98fe505a43dc1edfe",
+          "date": "2026-01-20T16:56:36.843Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-17T17:58:17.713Z",
+      "createdAt": "2026-01-17T17:58:17.714Z",
+      "updatedAt": "2026-01-20T16:56:36.849Z",
+      "estimatedDeliveryDate": "2026-01-22T17:58:17.714Z",
+      "__v": 0,
+      "actualDeliveryDate": "2026-01-20T16:56:36.844Z"
+    },
+    {
+      "_id": "697892101653463b4dd2f56a",
+      "user": "6968e42a6f103166dcb9109a",
+      "orderId": "ORD1769509389295876",
+      "total": 390,
+      "paymentStatus": "Paid",
+      "orderStatus": "Ordered",
+      "feedbackStatus": "Pending",
+      "items": [
+        {
+          "product": "69620f7e7f9c4b0e78ddbc4d",
+          "name": "Urad Porridge Mix – Classic",
+          "quantity": 1,
+          "price": 49,
+          "_id": "697892101653463b4dd2f56b"
+        },
+        {
+          "product": "69620f7e7f9c4b0e78ddbc4e",
+          "name": "Urad Porridge Mix – Salt & Pepper",
+          "quantity": 1,
+          "price": 49,
+          "_id": "697892101653463b4dd2f56c"
+        },
+        {
+          "product": "69620f7f7f9c4b0e78ddbc4f",
+          "name": "Urad Porridge Mix – Millet Magic",
+          "quantity": 1,
+          "price": 54,
+          "_id": "697892101653463b4dd2f56d"
+        },
+        {
+          "product": "69620f7f7f9c4b0e78ddbc50",
+          "name": "Urad Porridge Mix – Premium",
+          "quantity": 1,
+          "price": 58,
+          "_id": "697892101653463b4dd2f56e"
+        },
+        {
+          "product": "69620f7f7f9c4b0e78ddbc51",
+          "name": "Black Rice Delight Porridge Mix",
+          "quantity": 1,
+          "price": 63,
+          "_id": "697892101653463b4dd2f56f"
+        },
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 67,
+          "_id": "697892101653463b4dd2f570"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Kalaivani Nandakumar",
+        "lastName": "",
+        "street": "1/265,mainroad, Valajanagaram",
+        "city": "Ariyalur",
+        "state": "Tamil Nadu",
+        "zip": "621704",
+        "phone": "7845856597",
+        "whatsapp": "7845856597"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-01-27T10:23:09.295Z",
+          "completed": true,
+          "_id": "697892101653463b4dd2f571"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "697892101653463b4dd2f572",
+          "date": "2026-01-27T10:23:12.013Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "697892101653463b4dd2f573",
+          "date": "2026-01-27T10:23:12.013Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "697892101653463b4dd2f574",
+          "date": "2026-01-27T10:23:12.013Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "697892101653463b4dd2f575",
+          "date": "2026-01-27T10:23:12.013Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-01-27T10:23:12.014Z",
+      "createdAt": "2026-01-27T10:23:12.017Z",
+      "updatedAt": "2026-01-27T10:23:12.017Z",
+      "estimatedDeliveryDate": "2026-02-01T10:23:12.017Z",
+      "__v": 0
+    },
+    {
+      "_id": "6982facc5ad8ab3bab6f427c",
+      "user": "695e9717f8e1ed930d2642e5",
+      "orderId": "ORD1770191564305308",
+      "total": 117,
+      "paymentStatus": "Paid",
+      "orderStatus": "Ordered",
+      "feedbackStatus": "Pending",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 67,
+          "_id": "6982facc5ad8ab3bab6f427d"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Nanda Kumar",
+        "lastName": "",
+        "street": "1/265, Mainroad, valajanagaram ",
+        "city": "Ariyalur",
+        "state": "Tamil Nadu",
+        "zip": "621704",
+        "phone": "9176269108",
+        "whatsapp": "9176269108"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-02-04T07:52:44.305Z",
+          "completed": true,
+          "_id": "6982facc5ad8ab3bab6f427e"
+        },
+        {
+          "status": "Processing",
+          "completed": false,
+          "_id": "6982facc5ad8ab3bab6f427f",
+          "date": "2026-02-04T07:52:44.759Z"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "6982facc5ad8ab3bab6f4280",
+          "date": "2026-02-04T07:52:44.760Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "6982facc5ad8ab3bab6f4281",
+          "date": "2026-02-04T07:52:44.760Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "6982facc5ad8ab3bab6f4282",
+          "date": "2026-02-04T07:52:44.760Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-02-04T07:52:44.760Z",
+      "createdAt": "2026-02-04T07:52:44.763Z",
+      "updatedAt": "2026-02-04T07:52:44.763Z",
+      "estimatedDeliveryDate": "2026-02-09T07:52:44.763Z",
+      "__v": 0
+    },
+    {
+      "_id": "69a97be8076e09070f2cdc5f",
+      "user": "69a97b17076e09070f2cdc28",
+      "orderId": "ORD1772714983573759",
+      "total": 300,
+      "paymentStatus": "Paid",
+      "orderStatus": "Processing",
+      "feedbackStatus": "Pending",
+      "items": [
+        {
+          "product": "69620f7f7f9c4b0e78ddbc52",
+          "name": "Millet Fusion Idly Podi",
+          "quantity": 1,
+          "price": 70,
+          "_id": "69a97be8076e09070f2cdc60"
+        },
+        {
+          "product": "69a91a0c4ee07f2c99a1aea1",
+          "name": "Ragi Choco Malt",
+          "quantity": 1,
+          "price": 180,
+          "_id": "69a97be8076e09070f2cdc61"
+        }
+      ],
+      "deliveryAddress": {
+        "firstName": "Priya",
+        "lastName": "Boopalan",
+        "street": "Opp to dwaraka apartment, No 31 Shree Ganesha Nagar mannivakkam",
+        "city": "Chennai",
+        "state": "Tamil Nadu",
+        "zip": "600048",
+        "phone": "+919962145456",
+        "whatsapp": "+919962145456"
+      },
+      "paymentMethod": "Online",
+      "trackingSteps": [
+        {
+          "status": "Ordered",
+          "date": "2026-03-05T12:49:43.573Z",
+          "completed": true,
+          "_id": "69a97be8076e09070f2cdc62"
+        },
+        {
+          "status": "Processing",
+          "completed": true,
+          "_id": "69a97be8076e09070f2cdc63",
+          "date": "2026-03-09T08:35:23.212Z",
+          "updatedBy": "69664be235c8fd567d91a1e7"
+        },
+        {
+          "status": "Shipped",
+          "completed": false,
+          "_id": "69a97be8076e09070f2cdc64",
+          "date": "2026-03-05T12:49:44.504Z"
+        },
+        {
+          "status": "Out for Delivery",
+          "completed": false,
+          "_id": "69a97be8076e09070f2cdc65",
+          "date": "2026-03-05T12:49:44.505Z"
+        },
+        {
+          "status": "Delivered",
+          "completed": false,
+          "_id": "69a97be8076e09070f2cdc66",
+          "date": "2026-03-05T12:49:44.505Z"
+        }
+      ],
+      "notificationsSent": {
+        "orderConfirmed": false,
+        "shipped": false,
+        "delivered": false
+      },
+      "invoiceGenerated": false,
+      "date": "2026-03-05T12:49:44.505Z",
+      "createdAt": "2026-03-05T12:49:44.507Z",
+      "updatedAt": "2026-03-09T08:35:23.217Z",
+      "estimatedDeliveryDate": "2026-03-10T12:49:44.507Z",
+      "__v": 0
+    }
+  ],
+  "contacts": [],
+  "reviews": [
+    {
+      "_id": "696e191eb72ecaee5a304710",
+      "user": "69540a4be08308eb4902835f",
+      "product": "69620f7f7f9c4b0e78ddbc51",
+      "order": "69671b9b455f78fbd78ca358",
+      "rating": 5,
+      "comment": "it is really good",
+      "images": [],
+      "video": "",
+      "isVerifiedPurchase": true,
+      "isApproved": false,
+      "helpful": 0,
+      "reported": false,
+      "createdAt": "2026-01-19T11:44:30.772Z",
+      "updatedAt": "2026-01-19T11:44:30.772Z",
+      "__v": 0
+    },
+    {
+      "_id": "696e22cf6ed16de1dc78d9dc",
+      "user": "69540a4be08308eb4902835f",
+      "product": "69620f7f7f9c4b0e78ddbc52",
+      "order": "69649c07ede4039401a46783",
+      "rating": 5,
+      "comment": "it realy good",
+      "images": [],
+      "video": "",
+      "isVerifiedPurchase": true,
+      "isApproved": true,
+      "helpful": 0,
+      "reported": false,
+      "createdAt": "2026-01-19T12:25:51.995Z",
+      "updatedAt": "2026-01-19T12:25:51.995Z",
+      "__v": 0
+    },
+    {
+      "_id": "6974b41e585bac86bc6da785",
+      "user": "696bcc818fe505a43dc1eddd",
+      "product": "69620f7f7f9c4b0e78ddbc52",
+      "order": "696bcdb98fe505a43dc1edf8",
+      "rating": 5,
+      "comment": "Very tasty and delicious thank you for sharing this recipe with us ",
+      "images": [],
+      "video": "",
+      "isVerifiedPurchase": true,
+      "isApproved": true,
+      "helpful": 0,
+      "reported": false,
+      "createdAt": "2026-01-24T11:59:26.514Z",
+      "updatedAt": "2026-01-24T11:59:26.514Z",
+      "__v": 0
+    }
+  ],
+  "categories": [
+    {
+      "_id": "69620cf57f9c4b0e78ddb918",
+      "name": "Urad Porridge Mix",
+      "__v": 0,
+      "createdAt": "2026-01-10T08:25:25.855Z",
+      "description": "Nutritious Urad Dal based porridge mixes",
+      "isActive": true,
+      "order": 1,
+      "productCount": 0,
+      "slug": "urad-porridge-mix",
+      "updatedAt": "2026-01-10T08:25:25.855Z"
+    },
+    {
+      "_id": "69620cf57f9c4b0e78ddb919",
+      "name": "Black Rice mix",
+      "__v": 0,
+      "createdAt": "2026-01-10T08:25:25.960Z",
+      "description": "Premium Black Rice based health mixes",
+      "isActive": true,
+      "order": 2,
+      "productCount": 0,
+      "slug": "black-rice-mix",
+      "updatedAt": "2026-01-10T08:25:25.960Z"
+    },
+    {
+      "_id": "69620cf57f9c4b0e78ddb91a",
+      "name": "Millet fusion mix",
+      "__v": 0,
+      "createdAt": "2026-01-10T08:25:26.062Z",
+      "description": "Wholesome Millet fusion blends",
+      "isActive": true,
+      "order": 3,
+      "productCount": 0,
+      "slug": "millet-fusion-mix",
+      "updatedAt": "2026-01-10T08:25:26.062Z"
+    },
+    {
+      "_id": "6967d5e7c88a08abbf51f09a",
+      "name": "Combos",
+      "slug": "combos",
+      "description": "Value packs and combos",
+      "isActive": true,
+      "productCount": 0,
+      "order": 0,
+      "createdAt": "2026-01-14T17:44:07.463Z",
+      "updatedAt": "2026-01-14T17:44:07.463Z",
+      "__v": 0
+    },
+    {
+      "_id": "69a83fe41c2c00db0a9ba528",
+      "description": "Traditional and Millet enriched idly podis",
+      "isActive": true,
+      "name": "Idly Podi",
+      "slug": "idly-podi"
+    },
+    {
+      "_id": "69a83fe41c2c00db0a9ba529",
+      "description": "Authentic and nutritious rice mixes",
+      "isActive": true,
+      "name": "Rice Mixes",
+      "slug": "rice-mixes"
+    }
+  ],
+  "pressreleases": [],
+  "combos": [
+    {
+      "_id": "6953f6c0e6641d54824612df",
+      "slug": "morning-wellness-combo",
+      "name": "Morning Wellness Combo`",
+      "products": [
+        "6953f6c0e6641d54824612d4",
+        "6953f6c0e6641d54824612da"
+      ],
+      "originalPrice": 848,
+      "comboPrice": 749,
+      "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      "description": "Start your day right with our URAD Porridge Mix Classic and pure Groundnut Oil. A perfect combination for a wholesome breakfast.",
+      "__v": 0,
+      "createdAt": "2025-12-30T15:58:56.584Z",
+      "updatedAt": "2026-01-04T04:37:47.314Z",
+      "isActive": true
+    },
+    {
+      "_id": "6953f6c0e6641d54824612e0",
+      "slug": "complete-kitchen-essentials",
+      "name": "Complete Kitchen Essentials",
+      "products": [
+        "6953f6c0e6641d54824612da",
+        "6953f6c0e6641d54824612db",
+        "6953f6c0e6641d54824612dd"
+      ],
+      "originalPrice": 1847,
+      "comboPrice": 1599,
+      "image": "https://images.unsplash.com/photo-1516668705353-c9183cc66148?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      "description": "All your cooking essentials in one combo - Groundnut Oil, Sesame Oil, and Premium Ghee for the perfect MANSARA kitchen.",
+      "__v": 0,
+      "createdAt": "2025-12-30T15:58:56.584Z",
+      "updatedAt": "2025-12-30T15:58:56.584Z"
+    },
+    {
+      "_id": "6953f6c0e6641d54824612e1",
+      "slug": "porridge-lovers-pack",
+      "name": "Porridge Lovers Pack",
+      "products": [
+        "6953f6c0e6641d54824612d4",
+        "6953f6c0e6641d54824612d5",
+        "6953f6c0e6641d54824612d6"
+      ],
+      "originalPrice": 977,
+      "comboPrice": 849,
+      "image": "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      "description": "Try all three variants of our signature URAD Porridge Mix - Classic, Salt & Pepper, and Millet Magic.",
+      "__v": 0,
+      "createdAt": "2025-12-30T15:58:56.584Z",
+      "updatedAt": "2025-12-30T15:58:56.584Z"
+    },
+    {
+      "_id": "6953f6c0e6641d54824612e2",
+      "slug": "family-nutrition-bundle",
+      "name": "Family Nutrition Bundle",
+      "products": [
+        "6953f6c0e6641d54824612d6",
+        "6953f6c0e6641d54824612d8",
+        "6953f6c0e6641d54824612dd"
+      ],
+      "originalPrice": 1447,
+      "comboPrice": 1249,
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      "description": "Nourish your entire family with Millet Magic Porridge, Black Rice Delight, and Pure Ghee - complete nutrition in one bundle.",
+      "__v": 0,
+      "createdAt": "2025-12-30T15:58:56.584Z",
+      "updatedAt": "2025-12-30T15:58:56.584Z"
+    }
+  ],
+  "contents": [],
+  "heros": [
+    {
+      "_id": "695201d5c9778fb96f174111",
+      "key": "home",
+      "__v": 0,
+      "createdAt": "2025-12-29T04:21:40.978Z",
+      "data": [
+        {
+          "id": "1",
+          "image": "/hero-home-combo-final.jpg",
+          "title": "",
+          "subtitle": "",
+          "ctaText": "",
+          "ctaLink": "/combos",
+          "alignment": "center"
+        },
+        {
+          "id": "2",
+          "image": "/hero-launch-offer.png",
+          "title": "",
+          "subtitle": "",
+          "ctaText": "",
+          "ctaLink": "/offers",
+          "alignment": "center"
+        }
+      ],
+      "updatedAt": "2026-01-14T18:11:32.577Z",
+      "isActive": true
+    },
+    {
+      "_id": "6967cac6edf967afd8885623",
+      "key": "combos",
+      "data": {
+        "image": "/hero-combos-final.png",
+        "title": "",
+        "subtitle": ""
+      },
+      "isActive": true,
+      "createdAt": "2026-01-14T16:56:38.710Z",
+      "updatedAt": "2026-01-14T18:11:32.734Z",
+      "__v": 0
+    },
+    {
+      "_id": "6967d6a8653d269e77bda486",
+      "key": "products",
+      "data": {
+        "image": "/hero-products.png",
+        "title": "Our Clean Range",
+        "subtitle": "Pure, wholesome, and made for your well-being."
+      },
+      "isActive": true,
+      "createdAt": "2026-01-14T17:47:20.334Z",
+      "updatedAt": "2026-01-14T18:11:32.884Z",
+      "__v": 0
+    },
+    {
+      "_id": "6967d98a2a7ddf92098a7808",
+      "key": "newArrivals",
+      "data": {
+        "image": "/hero-new-arrivals.png",
+        "title": "Fresh Additions",
+        "subtitle": "Discover the latest from the Mansara kitchen."
+      },
+      "isActive": true,
+      "createdAt": "2026-01-14T17:59:38.704Z",
+      "updatedAt": "2026-01-14T18:11:33.034Z",
+      "__v": 0
+    },
+    {
+      "_id": "6967da071c0ad9cc377dd3ac",
+      "key": "cart",
+      "data": {
+        "image": "/hero-cart.jpg",
+        "title": "",
+        "subtitle": ""
+      },
+      "isActive": true,
+      "createdAt": "2026-01-14T18:01:43.592Z",
+      "updatedAt": "2026-01-14T18:11:33.195Z",
+      "__v": 0
+    },
+    {
+      "_id": "6967db1e52d93539f1cd572f",
+      "key": "about",
+      "data": {
+        "image": "/hero-about.png",
+        "title": "Our Tradition of Wellness",
+        "subtitle": "Handcrafted with care, rooted in heritage."
+      },
+      "isActive": true,
+      "createdAt": "2026-01-14T18:06:22.233Z",
+      "updatedAt": "2026-01-14T18:11:33.349Z",
+      "__v": 0
+    }
+  ],
+  "careers": [],
+  "products": [
+    {
+      "_id": "69620f7e7f9c4b0e78ddbc4d",
+      "name": "Urad Health Mix – Classic",
+      "__v": 5,
+      "category": "69620cf57f9c4b0e78ddb918",
+      "createdAt": "2026-01-10T08:36:15.118Z",
+      "description": "Mansara Classic Urad Health Mix is a time-tested nourishing blend made primarily from premium black gram (Urad Dal).",
+      "image": "/products/urad-classic-front.jpg",
+      "images": [
+        "/products/urad-classic-front.jpg",
+        "/products/urad-classic-back.jpg",
+        "/products/urad-classic-side.jpg"
+      ],
+      "ingredients": "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
+      "isActive": true,
+      "isFeatured": false,
+      "isOffer": true,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "price": 44,
+      "rating": 0,
+      "salesCount": 0,
+      "slug": "urad-porridge-mix-classic",
+      "stock": 49,
+      "tags": [],
+      "updatedAt": "2026-03-09T06:12:40.297Z",
+      "viewCount": 0,
+      "weight": "100g",
+      "highlights": [
+        "High Protein",
+        "Easy Digestion",
+        "No Preservatives",
+        "Traditional Recipe"
+      ],
+      "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+      "storage": "Store in a cool, dry place.",
+      "short_description": "A traditional, wholesome porridge made with simple, time-tested ingredients for daily nourishment and easy digestion.",
+      "offerPrice": 44,
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 44,
+          "offerPrice": 44,
+          "originalPrice": 55,
+          "stock": 50,
+          "_id": "69ad21de39eb394593c6d7d3"
+        },
+        {
+          "weight": "250g",
+          "price": 112,
+          "offerPrice": 112,
+          "originalPrice": 140,
+          "stock": 50,
+          "_id": "69ad21de39eb394593c6d7d4"
+        }
+      ],
+      "offerText": "10% OFF",
+      "isNewArrival": false,
+      "originalPrice": 55,
+      "certifications": []
+    },
+    {
+      "_id": "69620f7e7f9c4b0e78ddbc4e",
+      "name": "Urad Health Mix – Salt n Pepper",
+      "__v": 4,
+      "category": "69620cf57f9c4b0e78ddb918",
+      "createdAt": "2026-01-10T08:36:15.525Z",
+      "description": "Mansara Urad Health Mix – Salt n Pepper is a savoury twist on the traditional ulunthankanji.",
+      "image": "/products/urad-salt-pepper-front.jpg",
+      "images": [
+        "/products/urad-salt-pepper-front.jpg",
+        "/products/urad-salt-pepper-back.jpg",
+        "/products/urad-salt-pepper-side.jpg"
+      ],
+      "ingredients": "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
+      "isActive": true,
+      "isFeatured": false,
+      "isOffer": true,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "price": 44,
+      "rating": 0,
+      "salesCount": 0,
+      "slug": "urad-porridge-mix-salt-pepper",
+      "stock": 50,
+      "tags": [],
+      "updatedAt": "2026-03-09T06:03:20.117Z",
+      "viewCount": 0,
+      "weight": "100g",
+      "highlights": [
+        "No artificial flavours",
+        "Digestive spices",
+        "Savoury taste",
+        "Good for gut health"
+      ],
+      "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously to avoid lumps, and serve warm.",
+      "storage": "Store in a cool, dry place.",
+      "short_description": "A savoury porridge variant infused with pepper and cumin, ideal for light meals and comfort food needs.",
+      "offerPrice": 44,
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 53,
+          "offerPrice": 44,
+          "originalPrice": 55,
+          "stock": 50,
+          "_id": "69ad21fc39eb394593c6d7e7"
+        },
+        {
+          "weight": "250g",
+          "price": 140,
+          "offerPrice": 112,
+          "originalPrice": 140,
+          "stock": 50,
+          "_id": "69ad21fc39eb394593c6d7e8"
+        }
+      ],
+      "offerText": "10% OFF",
+      "isNewArrival": false,
+      "originalPrice": 55
+    },
+    {
+      "_id": "69620f7f7f9c4b0e78ddbc4f",
+      "name": "Urad Health Mix – Millet Magic",
+      "__v": 4,
+      "category": "69620cf57f9c4b0e78ddb918",
+      "createdAt": "2026-01-10T08:36:15.735Z",
+      "description": "Mansara Millet Magic Urad Health Mix brings together the muscle-strengthening benefits of black gram with the mineral-rich goodness of diverse millets.",
+      "image": "/products/urad-millet-magic-back.jpg",
+      "images": [
+        "/products/urad-millet-magic-front.jpg",
+        "/products/urad-millet-magic-back.jpg",
+        "/products/urad-millet-magic-side.jpg"
+      ],
+      "ingredients": "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
+      "isActive": true,
+      "isFeatured": false,
+      "isOffer": true,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "price": 47,
+      "rating": 0,
+      "salesCount": 0,
+      "slug": "urad-porridge-mix-millet-magic",
+      "stock": 50,
+      "tags": [],
+      "updatedAt": "2026-03-09T06:07:07.386Z",
+      "viewCount": 0,
+      "weight": "100g",
+      "highlights": [
+        "Fiber Rich",
+        "Mineral Rich",
+        "Low GI",
+        "Muscle Support"
+      ],
+      "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+      "storage": "Store in a cool, dry place.",
+      "short_description": "A nutritious porridge mix crafted with premium black gram and a carefully balanced selection of traditional millets.",
+      "offerPrice": 47,
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 48,
+          "offerPrice": 48,
+          "originalPrice": 60,
+          "stock": 50,
+          "_id": "69ad25403af218e7c4afc088"
+        },
+        {
+          "weight": "250g",
+          "price": 120,
+          "offerPrice": 120,
+          "originalPrice": 150,
+          "stock": 50,
+          "_id": "69ad25403af218e7c4afc089"
+        }
+      ],
+      "offerText": "10% OFF",
+      "isNewArrival": false,
+      "originalPrice": 60
+    },
+    {
+      "_id": "69620f7f7f9c4b0e78ddbc50",
+      "name": "Urad Health Mix – Premium",
+      "__v": 5,
+      "category": "69620cf57f9c4b0e78ddb918",
+      "createdAt": "2026-01-10T08:36:15.933Z",
+      "description": "Mansara Premium Urad Porridge Mix is a carefully crafted blend designed for those who want maximum nutrition in every serving. It includes enhanced proportions of protein-rich pulses and traditional ingredients to support strength, stamina, and immunity. This variant is ideal during recovery phases, high physical activity, or nutritional gaps.",
+      "image": "/products/urad-premium-front.jpg",
+      "images": [
+        "/products/urad-premium-front.jpg",
+        "/products/urad-premium-back.jpg",
+        "/products/urad-premium-side.jpg"
+      ],
+      "ingredients": "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
+      "isActive": true,
+      "isFeatured": false,
+      "isOffer": true,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "price": 65,
+      "rating": 0,
+      "salesCount": 0,
+      "slug": "urad-porridge-mix-premium",
+      "stock": 50,
+      "tags": [],
+      "updatedAt": "2026-03-09T05:57:35.122Z",
+      "viewCount": 0,
+      "weight": "100g",
+      "highlights": [
+        "Finer grind",
+        "Premium processing",
+        "Multi-Grain",
+        "High Nutrition",
+        "Immunity Support"
+      ],
+      "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+      "storage": "Store in a cool, dry place.",
+      "short_description": "A premium porridge blend formulated with black gram, ragi, and a diverse selection of traditional Indian rice varieties.",
+      "offerPrice": 51,
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 65,
+          "offerPrice": 52,
+          "originalPrice": 65,
+          "stock": 49,
+          "_id": "69ae614fcd47ce7284aedaf3"
+        },
+        {
+          "weight": "250g",
+          "price": 160,
+          "offerPrice": 128,
+          "originalPrice": 160,
+          "stock": 50,
+          "_id": "69ae614fcd47ce7284aedaf4"
+        }
+      ],
+      "offerText": "10% OFF",
+      "isNewArrival": true,
+      "originalPrice": 65
+    },
+    {
+      "_id": "69620f7f7f9c4b0e78ddbc51",
+      "name": "Health Mix – Black Rice Delight",
+      "__v": 7,
+      "category": "69620cf57f9c4b0e78ddb919",
+      "createdAt": "2026-01-10T08:36:16.127Z",
+      "description": "Mansara Black Rice Delight Porridge Mix is made using traditional black rice (Karuppu Kavuni Arisi), known for its powerful antioxidant properties and mineral richness. Naturally high in iron, fibre, and anthocyanins, this porridge supports heart health, improved digestion, and sustained energy. Its earthy flavour and rich colour make it both nutritious and visually appealing.",
+      "image": "/products/black-rice-delight-front.jpg",
+      "images": [
+        "/products/black-rice-delight-front.jpg",
+        "/products/black-rice-delight-back.jpg",
+        "/products/black-rice-delight-side.jpg"
+      ],
+      "ingredients": "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",
+      "isActive": true,
+      "isFeatured": false,
+      "isOffer": true,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "price": 70,
+      "rating": 0,
+      "salesCount": 0,
+      "slug": "black-rice-delight-porridge-mix",
+      "stock": 50,
+      "tags": [],
+      "updatedAt": "2026-03-09T05:56:45.221Z",
+      "viewCount": 0,
+      "weight": "100g",
+      "highlights": [
+        "No added spices",
+        "Grain-forward",
+        "Antioxidant Rich",
+        "Iron Rich",
+        "Heart Healthy"
+      ],
+      "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+      "storage": "Store in a cool, dry place.",
+      "short_description": "A wholesome porridge blend formulated with traditional black rice (kavuni) and a balanced mix of grains including wheat and barley.",
+      "offerPrice": 56,
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 70,
+          "offerPrice": 57,
+          "originalPrice": 70,
+          "stock": 50,
+          "_id": "69ae611dcd47ce7284aedae6"
+        },
+        {
+          "weight": "250g",
+          "price": 180,
+          "offerPrice": 145,
+          "originalPrice": 180,
+          "stock": 50,
+          "_id": "69ae611dcd47ce7284aedae7"
+        }
+      ],
+      "offerText": "10% OFF",
+      "isNewArrival": true,
+      "originalPrice": 70
+    },
+    {
+      "_id": "69620f7f7f9c4b0e78ddbc52",
+      "name": "Idly Podi – Millet Fusion",
+      "__v": 10,
+      "category": "69a83fe41c2c00db0a9ba528",
+      "createdAt": "2026-01-10T08:36:16.333Z",
+      "description": "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish.",
+      "image": "/products/MilletFusionIdlyPodi.PNG",
+      "images": [
+        "/products/MilletFusionIdlyPodi.PNG",
+        "/products/MilletFusionIdlyPodiLabel.PNG"
+      ],
+      "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Foxtail Millet (தினை), Little Millet (சாமை), Barnyard Millet (குதிரைவாலி), Kodo Millet (வரகு), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
+      "isActive": true,
+      "isFeatured": false,
+      "isOffer": true,
+      "metaKeywords": [],
+      "numReviews": 2,
+      "price": 74,
+      "rating": 5,
+      "salesCount": 0,
+      "slug": "millet-fusion-idly-podi",
+      "stock": 100,
+      "tags": [],
+      "updatedAt": "2026-03-09T06:01:11.414Z",
+      "viewCount": 0,
+      "weight": "100g",
+      "highlights": [
+        "No preservatives",
+        "Millet enriched formula",
+        "Traditional roast & grind",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix with gingelly oil or ghee and serve with idly, dosa, chapati, or poori.",
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "short_description": "A flavourful South Indian-style condiment formulated with a combination of lentils, traditional millets, and natural spices.",
+      "offerPrice": 60,
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 75,
+          "offerPrice": 58,
+          "originalPrice": 75,
+          "stock": 100,
+          "_id": "69ae60c0cd47ce7284aedacc"
+        }
+      ],
+      "offerText": "10% OFF",
+      "isNewArrival": false,
+      "originalPrice": 75,
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, nutty"
+    },
+    {
+      "_id": "6967d5e7c88a08abbf51f0ac",
+      "name": "Ultimate Wellness Combo (5 Mixes)",
+      "slug": "ultimate-wellness-combo-5-mixes",
+      "description": "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.",
+      "price": 260,
+      "originalPrice": 260,
+      "category": "6967d5e7c88a08abbf51f09a",
+      "image": "/product-combo-5mixes.jpg",
+      "images": [],
+      "stock": 50,
+      "nutritionalInfo": {},
+      "highlights": [],
+      "short_description": "All 5 Premium Porridge Mixes (Excludes Idly Podi)",
+      "isActive": true,
+      "isFeatured": true,
+      "isOffer": false,
+      "offerText": "SAVE ₹15",
+      "rating": 0,
+      "numReviews": 0,
+      "tags": [],
+      "metaKeywords": [],
+      "salesCount": 0,
+      "viewCount": 0,
+      "__t": "Combo",
+      "products": [
+        "69620f7e7f9c4b0e78ddbc4d",
+        "69620f7e7f9c4b0e78ddbc4e",
+        "69620f7f7f9c4b0e78ddbc4f",
+        "69620f7f7f9c4b0e78ddbc50",
+        "69620f7f7f9c4b0e78ddbc51"
+      ],
+      "comboPrice": 260,
+      "variants": [],
+      "createdAt": "2026-01-14T17:44:07.982Z",
+      "updatedAt": "2026-01-28T04:53:20.500Z",
+      "sku": "ULT-1768412647982-9832",
+      "__v": 0,
+      "isNewArrival": true,
+      "offerPrice": 260
+    },
+    {
+      "_id": "69a91a0c4ee07f2c99a1aea1",
+      "name": "Ragi Choco Malt",
+      "slug": "ragi-choco-malt",
+      "category": "69a83fe41c2c00db0a9ba526",
+      "price": 250,
+      "offerPrice": 200,
+      "originalPrice": 250,
+      "isOffer": false,
+      "isActive": true,
+      "isNewArrival": true,
+      "isFeatured": true,
+      "stock": 50,
+      "weight": "250g",
+      "description": "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa.",
+      "image": "/products/RagiChocoMalt.PNG",
+      "images": [
+        "/products/RagiChocoMalt.PNG",
+        "/products/RagiChocoMaltLabel.PNG"
+      ],
+      "highlights": [
+        "No preservatives",
+        "Millet-based with natural cocoa",
+        "Rich in calcium",
+        "Enriched with Saffron & Almonds"
+      ],
+      "variants": [
+        {
+          "weight": "250g",
+          "price": 199,
+          "offerPrice": 199,
+          "originalPrice": 250,
+          "stock": 100,
+          "_id": "69ae600ccd47ce7284aeda95"
+        }
+      ],
+      "createdAt": "2026-03-05T05:52:12.033Z",
+      "updatedAt": "2026-03-09T05:52:40.501Z",
+      "__v": 2,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "rating": 0,
+      "salesCount": 0,
+      "tags": [],
+      "viewCount": 0,
+      "howToUse": "Mix 2 tbsp (approx. 25g) with milk or water. Cook on low flame with continuous stirring until smooth.",
+      "ingredients": "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
+      "storage": "Store in a cool, dry place. Keep the container tightly closed."
+    },
+    {
+      "_id": "69a9b4091c2c00db0a9bf83e",
+      "slug": "nutrimix-super-health-mix",
+      "category": "69a83fe41c2c00db0a9ba526",
+      "description": "A traditional 27-ingredient multi-grain health mix designed for complete family nutrition and strength.",
+      "highlights": [
+        "No preservatives",
+        "27 wholesome ingredients",
+        "High protein & high fibre",
+        "Suitable for 8+ months to elderly"
+      ],
+      "howToUse": "Mix 2 tbsp with water, cook on low flame with stirring till thick. Add milk/salt/jaggery as preferred. Serve warm.",
+      "image": "/products/NutriMix.PNG",
+      "images": [
+        "/products/NutriMix.PNG",
+        "/products/NutriMix_Label.PNG"
+      ],
+      "ingredients": "Ragi, Kollu, Green Gram, Badam, Barley, Red Rice, Samba Wheat, Cashew, Kambu, Kaikuthal Rice, Kavuni Rice, Javvarisi, Yellow Cholam, White Cholam, Rajma, Black Gram, Groundnut, Moongil Arisi, Kaatu Yaanai Rice, Mappillai Samba, Fried Gram (Udacha Kadalai), Thinai, Saamai, Guthirai Vaali, Varagu, Dry Ginger, Cardamom",
+      "isActive": true,
+      "isFeatured": true,
+      "isNewArrival": true,
+      "isOffer": true,
+      "name": "Nutriminix – Multi Grain Health Mix",
+      "offerPrice": 0,
+      "originalPrice": 200,
+      "price": 200,
+      "stock": 99,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:14:57.865Z",
+      "variants": [
+        {
+          "weight": "250g",
+          "price": 200,
+          "offerPrice": 160,
+          "originalPrice": 200,
+          "stock": 100,
+          "_id": "69ae650ccd47ce7284aedb81"
+        }
+      ],
+      "weight": "250g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "Kids (8+ months), adults, elderly",
+      "tasteProfile": "Mild, nutty, traditional",
+      "__v": 1,
+      "metaKeywords": [],
+      "numReviews": 0,
+      "rating": 0,
+      "salesCount": 0,
+      "tags": [],
+      "viewCount": 0
+    },
+    {
+      "_id": "69a9b40c1c2c00db0a9bf83f",
+      "slug": "traditional-idly-podi",
+      "category": "69a83fe41c2c00db0a9ba528",
+      "description": "A classic South Indian idly podi made from roasted lentils and spices, crafted to enhance the taste of idly and dosa.",
+      "highlights": [
+        "No preservatives",
+        "Authentic roast & grind",
+        "Homemade taste",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix required quantity with gingelly oil or ghee. Best served with idly, dosa, uthappam, or chapati.",
+      "image": "/products/TraditionalIdlyPodi.PNG",
+      "images": [
+        "/products/TraditionalIdlyPodi.PNG",
+        "/products/TraditionalIdlyPodiLabel.PNG"
+      ],
+      "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
+      "isActive": true,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "isOffer": true,
+      "name": "Idly Podi – Traditional",
+      "offerPrice": 59,
+      "originalPrice": 75,
+      "price": 60,
+      "stock": 100,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:15:51.231Z",
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 60,
+          "offerPrice": 60,
+          "originalPrice": 75,
+          "stock": 100,
+          "_id": "69ae6597cd47ce7284aedbac"
+        }
+      ],
+      "weight": "100g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, traditional"
+    },
+    {
+      "_id": "69a9b40e1c2c00db0a9bf840",
+      "slug": "home-style-paruppu-podi",
+      "category": "69a83fe41c2c00db0a9ba529",
+      "description": "A homestyle protein-rich paruppu podi made from roasted dals and spices, perfect for mixing with hot rice and ghee.",
+      "highlights": [
+        "No preservatives",
+        "Protein rich formula",
+        "Traditional recipe",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix 1–2 tsp with hot rice and ghee or gingelly oil. Also pairs with idly and dosa.",
+      "image": "/products/HomeStyleParuppu.PNG",
+      "images": [
+        "/products/HomeStyleParuppu.PNG",
+        "/products/HomeStyleParuppuLabel.PNG"
+      ],
+      "ingredients": "Toor Daal, Bengal Gram, Green Gram, Fried Gram (Udacha Kadalai), Cumin Seeds, Salt, Pepper, Dry Chilli, Kashmiri Chilli, Asafoetida",
+      "isActive": true,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "isOffer": true,
+      "name": "Rice Podi Mix",
+      "offerPrice": 68,
+      "originalPrice": 85,
+      "price": 68,
+      "stock": 100,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:16:54.584Z",
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 68,
+          "offerPrice": 68,
+          "originalPrice": 85,
+          "stock": 100,
+          "_id": "69ae65d6cd47ce7284aedbb4"
+        }
+      ],
+      "weight": "100g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, dal-forward"
+    },
+    {
+      "_id": "69a9b4111c2c00db0a9bf841",
+      "slug": "karuveppillai-special",
+      "category": "69a83fe41c2c00db0a9ba529",
+      "description": "A flavourful curry leaf rice mix blended with lentils and spices for a fragrant traditional meal.",
+      "highlights": [
+        "No preservatives",
+        "Curry leaf rich blend",
+        "Traditional roast & grind",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+      "image": "/products/KaruveppillaiSpecial.PNG",
+      "images": [
+        "/products/KaruveppillaiSpecial.PNG",
+        "/products/KaruveppillaiSpecialLabel.PNG"
+      ],
+      "ingredients": "Toor Dhal, Urad Dhal, Pepper, Jeera, Salt, Hing, Curry Leaves, Red Chilli, Tamarind",
+      "isActive": true,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "isOffer": true,
+      "name": "Curry Leaves Rice Podi Mix",
+      "offerPrice": 68,
+      "originalPrice": 85,
+      "price": 68,
+      "stock": 100,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:17:40.159Z",
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 68,
+          "offerPrice": 68,
+          "originalPrice": 85,
+          "stock": 100,
+          "_id": "69ae6604cd47ce7284aedbc4"
+        }
+      ],
+      "weight": "100g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, aromatic"
+    },
+    {
+      "_id": "69a9b4131c2c00db0a9bf842",
+      "slug": "kotha-malli-aroma",
+      "category": "69a83fe41c2c00db0a9ba529",
+      "description": "A fragrant coriander-based rice mix with roasted lentils and spices for quick, tasty meals.",
+      "highlights": [
+        "No preservatives",
+        "Rich coriander aroma",
+        "Traditional roast & grind",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+      "image": "/products/KothamalliAroma.PNG",
+      "images": [
+        "/products/KothamalliAroma.PNG",
+        "/products/KothamalliAromaLabel.PNG"
+      ],
+      "ingredients": "Dhaniya (Coriander), Urad Dhal, Jeera, Red Chilli, Salt, Asafoetida",
+      "isActive": true,
+      "isFeatured": false,
+      "isNewArrival": false,
+      "isOffer": true,
+      "name": "Coriander Rice Podi Mix",
+      "offerPrice": 68,
+      "originalPrice": 85,
+      "price": 68,
+      "stock": 100,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:18:02.263Z",
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 68,
+          "offerPrice": 68,
+          "originalPrice": 85,
+          "stock": 100,
+          "_id": "69ae661acd47ce7284aedbcc"
+        }
+      ],
+      "weight": "100g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, coriander-rich"
+    },
+    {
+      "_id": "69a9b4151c2c00db0a9bf843",
+      "slug": "murungai-vital",
+      "category": "69a83fe41c2c00db0a9ba529",
+      "description": "A nutritious moringa leaf rice mix blended with lentils and spices for daily wellness.",
+      "highlights": [
+        "No preservatives",
+        "Moringa (Drumstick leaf) rich",
+        "Traditional roast & grind",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+      "image": "/products/MurungaiVital.PNG",
+      "images": [
+        "/products/MurungaiVital.PNG",
+        "/products/MurungaiVitalLabel.PNG"
+      ],
+      "ingredients": "Murungai Keerai (Moringa Leaves), Gram Dhal, Urad Dhal, Tamarind, Salt, Asafoetida",
+      "isActive": true,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "isOffer": true,
+      "name": "Moringa Rice Podi Mix",
+      "offerPrice": 0,
+      "originalPrice": 68,
+      "price": 68,
+      "stock": 100,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:18:47.717Z",
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 68,
+          "offerPrice": 68,
+          "originalPrice": 85,
+          "stock": 100,
+          "_id": "69ae6637cd47ce7284aedbd4"
+        }
+      ],
+      "weight": "100g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, herbal"
+    },
+    {
+      "_id": "69a9b4251c2c00db0a9bf844",
+      "slug": "pirandai-power",
+      "category": "69a83fe41c2c00db0a9ba529",
+      "description": "A traditional pirandai-based rice mix known for its distinctive taste and digestive benefits.",
+      "highlights": [
+        "No preservatives",
+        "Traditional herbal recipe",
+        "Authentic roast & grind",
+        "Suitable for all age groups"
+      ],
+      "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+      "image": "/products/PirandaiPower.PNG",
+      "images": [
+        "/products/PirandaiPower.PNG",
+        "/products/PirandaiPowerLabel.PNG"
+      ],
+      "ingredients": "Pirandai (Adamant Creeper), Tamarind, Gram Dhal, Urad Dhal, Jeera, Pepper, Salt, Asafoetida",
+      "isActive": true,
+      "isFeatured": false,
+      "isNewArrival": true,
+      "isOffer": true,
+      "name": "Pirandai Rice Podi Mix",
+      "offerPrice": 68,
+      "originalPrice": 85,
+      "price": 68,
+      "stock": 100,
+      "storage": "Store in a cool, dry place. Keep airtight after opening.",
+      "updatedAt": "2026-03-09T06:19:17.249Z",
+      "variants": [
+        {
+          "weight": "100g",
+          "price": 68,
+          "offerPrice": 68,
+          "originalPrice": 85,
+          "stock": 100,
+          "_id": "69ae6665cd47ce7284aedbe4"
+        }
+      ],
+      "weight": "100g",
+      "certifications": [
+        "FSSAI"
+      ],
+      "packagingType": "PET Jar",
+      "shelfLife": "6 months",
+      "suitableFor": "All age groups",
+      "tasteProfile": "Spicy, tangy"
+    }
+  ],
+  "notifications": [
+    {
+      "_id": "69621fc200910beff3ca0864",
+      "product": "69620f7e7f9c4b0e78ddbc4d",
+      "whatsapp": "919876543210",
+      "user": null,
+      "status": "pending",
+      "createdAt": "2026-01-10T09:45:38.044Z",
+      "updatedAt": "2026-01-10T09:45:38.044Z",
+      "__v": 0
+    },
+    {
+      "_id": "696221207e8a7ff667fec999",
+      "product": "69620f7f7f9c4b0e78ddbc51",
+      "whatsapp": "+91 98765 43211",
+      "user": "6953f6c0e6641d54824612e7",
+      "status": "pending",
+      "createdAt": "2026-01-10T09:51:28.745Z",
+      "updatedAt": "2026-01-10T09:51:28.745Z",
+      "__v": 0
+    },
+    {
+      "_id": "696503c1de722e6d9194898b",
+      "product": "69620f7f7f9c4b0e78ddbc52",
+      "whatsapp": "9566094899",
+      "user": null,
+      "status": "sent",
+      "createdAt": "2026-01-12T14:22:57.974Z",
+      "updatedAt": "2026-01-12T14:27:48.436Z",
+      "__v": 0,
+      "sentAt": "2026-01-12T14:27:48.436Z"
+    }
+  ],
+  "tempusers": [],
+  "blogposts": []
+}

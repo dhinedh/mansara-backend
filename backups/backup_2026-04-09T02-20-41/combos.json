@@ -1,0 +1,70 @@
+[
+  {
+    "_id": "6953f6c0e6641d54824612df",
+    "slug": "morning-wellness-combo",
+    "name": "Morning Wellness Combo`",
+    "products": [
+      "6953f6c0e6641d54824612d4",
+      "6953f6c0e6641d54824612da"
+    ],
+    "originalPrice": 848,
+    "comboPrice": 749,
+    "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    "description": "Start your day right with our URAD Porridge Mix Classic and pure Groundnut Oil. A perfect combination for a wholesome breakfast.",
+    "__v": 0,
+    "createdAt": "2025-12-30T15:58:56.584Z",
+    "updatedAt": "2026-01-04T04:37:47.314Z",
+    "isActive": true
+  },
+  {
+    "_id": "6953f6c0e6641d54824612e0",
+    "slug": "complete-kitchen-essentials",
+    "name": "Complete Kitchen Essentials",
+    "products": [
+      "6953f6c0e6641d54824612da",
+      "6953f6c0e6641d54824612db",
+      "6953f6c0e6641d54824612dd"
+    ],
+    "originalPrice": 1847,
+    "comboPrice": 1599,
+    "image": "https://images.unsplash.com/photo-1516668705353-c9183cc66148?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    "description": "All your cooking essentials in one combo - Groundnut Oil, Sesame Oil, and Premium Ghee for the perfect MANSARA kitchen.",
+    "__v": 0,
+    "createdAt": "2025-12-30T15:58:56.584Z",
+    "updatedAt": "2025-12-30T15:58:56.584Z"
+  },
+  {
+    "_id": "6953f6c0e6641d54824612e1",
+    "slug": "porridge-lovers-pack",
+    "name": "Porridge Lovers Pack",
+    "products": [
+      "6953f6c0e6641d54824612d4",
+      "6953f6c0e6641d54824612d5",
+      "6953f6c0e6641d54824612d6"
+    ],
+    "originalPrice": 977,
+    "comboPrice": 849,
+    "image": "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    "description": "Try all three variants of our signature URAD Porridge Mix - Classic, Salt & Pepper, and Millet Magic.",
+    "__v": 0,
+    "createdAt": "2025-12-30T15:58:56.584Z",
+    "updatedAt": "2025-12-30T15:58:56.584Z"
+  },
+  {
+    "_id": "6953f6c0e6641d54824612e2",
+    "slug": "family-nutrition-bundle",
+    "name": "Family Nutrition Bundle",
+    "products": [
+      "6953f6c0e6641d54824612d6",
+      "6953f6c0e6641d54824612d8",
+      "6953f6c0e6641d54824612dd"
+    ],
+    "originalPrice": 1447,
+    "comboPrice": 1249,
+    "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    "description": "Nourish your entire family with Millet Magic Porridge, Black Rice Delight, and Pure Ghee - complete nutrition in one bundle.",
+    "__v": 0,
+    "createdAt": "2025-12-30T15:58:56.584Z",
+    "updatedAt": "2025-12-30T15:58:56.584Z"
+  }
+]

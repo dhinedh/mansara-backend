@@ -1,0 +1,82 @@
+﻿[dotenv@17.2.3] injecting env (23) from .env -- tip: ≡ƒæÑ sync secrets across teammates & machines: https://dotenvx.com/ops
+≡ƒöì Starting MongoDB Data Analysis...
+Γ£à Connected to MongoDB Atlas
+
+--- DATA SUMMARY ---
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé (index) Γöé Collection      Γöé Count Γöé Fields Γöé Nested Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé 0       Γöé 'users'         Γöé 40    Γöé 15     Γöé 'YES'  Γöé
+Γöé 1       Γöé 'banners'       Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 2       Γöé 'settings'      Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 3       Γöé 'orders'        Γöé 45    Γöé 11     Γöé 'YES'  Γöé
+Γöé 4       Γöé 'contacts'      Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 5       Γöé 'reviews'       Γöé 3     Γöé 14     Γöé 'YES'  Γöé
+Γöé 6       Γöé 'categories'    Γöé 6     Γöé 9      Γöé 'NO'   Γöé
+Γöé 7       Γöé 'pressreleases' Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 8       Γöé 'combos'        Γöé 4     Γöé 11     Γöé 'YES'  Γöé
+Γöé 9       Γöé 'contents'      Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 10      Γöé 'heros'         Γöé 6     Γöé 6      Γöé 'YES'  Γöé
+Γöé 11      Γöé 'careers'       Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 12      Γöé 'products'      Γöé 15    Γöé 32     Γöé 'YES'  Γöé
+Γöé 13      Γöé 'notifications' Γöé 3     Γöé 7      Γöé 'NO'   Γöé
+Γöé 14      Γöé 'tempusers'     Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+Γöé 15      Γöé 'blogposts'     Γöé 0     Γöé 0      Γöé 'NO'   Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+
+--- SCHEMA DETAILS ---
+
+[USERS]
+Fields: _id, name, email, password, phone, avatar, addresses, isVerified, isAdmin, role, status, cart, joinDate, createdAt, updatedAt
+ΓÜá∩╕Å  Contains ARRAYS (Requires separate tables or JSONB in Supabase)
+
+[BANNERS]
+Fields: 
+
+[SETTINGS]
+Fields: 
+
+[ORDERS]
+Fields: _id, total, paymentStatus, orderStatus, items, deliveryAddress, paymentMethod, date, trackingSteps, createdAt, updatedAt
+ΓÜá∩╕Å  Contains ARRAYS (Requires separate tables or JSONB in Supabase)
+ΓÜá∩╕Å  Contains NESTED OBJECTS (Requires normalization in Supabase)
+
+[CONTACTS]
+Fields: 
+
+[REVIEWS]
+Fields: _id, user, product, order, rating, comment, images, video, isVerifiedPurchase, isApproved, helpful, reported, createdAt, updatedAt
+ΓÜá∩╕Å  Contains ARRAYS (Requires separate tables or JSONB in Supabase)
+
+[CATEGORIES]
+Fields: _id, name, createdAt, description, isActive, order, productCount, slug, updatedAt
+
+[PRESSRELEASES]
+Fields: 
+
+[COMBOS]
+Fields: _id, slug, name, products, originalPrice, comboPrice, image, description, createdAt, updatedAt, isActive
+ΓÜá∩╕Å  Contains ARRAYS (Requires separate tables or JSONB in Supabase)
+
+[CONTENTS]
+Fields: 
+
+[HEROS]
+Fields: _id, key, createdAt, data, updatedAt, isActive
+ΓÜá∩╕Å  Contains ARRAYS (Requires separate tables or JSONB in Supabase)
+
+[CAREERS]
+Fields: 
+
+[PRODUCTS]
+Fields: _id, name, category, createdAt, description, image, images, ingredients, isActive, isFeatured, isOffer, metaKeywords, numReviews, price, rating, salesCount, slug, stock, tags, updatedAt, viewCount, weight, highlights, howToUse, storage, short_description, offerPrice, variants, offerText, isNewArrival, originalPrice, certifications
+ΓÜá∩╕Å  Contains ARRAYS (Requires separate tables or JSONB in Supabase)
+
+[NOTIFICATIONS]
+Fields: _id, product, whatsapp, user, status, createdAt, updatedAt
+
+[TEMPUSERS]
+Fields: 
+
+[BLOGPOSTS]
+Fields: 

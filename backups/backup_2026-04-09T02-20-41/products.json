@@ -1,0 +1,796 @@
+[
+  {
+    "_id": "69620f7e7f9c4b0e78ddbc4d",
+    "name": "Urad Health Mix – Classic",
+    "__v": 5,
+    "category": "69620cf57f9c4b0e78ddb918",
+    "createdAt": "2026-01-10T08:36:15.118Z",
+    "description": "Mansara Classic Urad Health Mix is a time-tested nourishing blend made primarily from premium black gram (Urad Dal).",
+    "image": "/products/urad-classic-front.jpg",
+    "images": [
+      "/products/urad-classic-front.jpg",
+      "/products/urad-classic-back.jpg",
+      "/products/urad-classic-side.jpg"
+    ],
+    "ingredients": "Black Gram (Urad Dal), Samba Wheat, Fried Gram, Cardamom.",
+    "isActive": true,
+    "isFeatured": false,
+    "isOffer": true,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "price": 44,
+    "rating": 0,
+    "salesCount": 0,
+    "slug": "urad-porridge-mix-classic",
+    "stock": 49,
+    "tags": [],
+    "updatedAt": "2026-03-09T06:12:40.297Z",
+    "viewCount": 0,
+    "weight": "100g",
+    "highlights": [
+      "High Protein",
+      "Easy Digestion",
+      "No Preservatives",
+      "Traditional Recipe"
+    ],
+    "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    "storage": "Store in a cool, dry place.",
+    "short_description": "A traditional, wholesome porridge made with simple, time-tested ingredients for daily nourishment and easy digestion.",
+    "offerPrice": 44,
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 44,
+        "offerPrice": 44,
+        "originalPrice": 55,
+        "stock": 50,
+        "_id": "69ad21de39eb394593c6d7d3"
+      },
+      {
+        "weight": "250g",
+        "price": 112,
+        "offerPrice": 112,
+        "originalPrice": 140,
+        "stock": 50,
+        "_id": "69ad21de39eb394593c6d7d4"
+      }
+    ],
+    "offerText": "10% OFF",
+    "isNewArrival": false,
+    "originalPrice": 55,
+    "certifications": []
+  },
+  {
+    "_id": "69620f7e7f9c4b0e78ddbc4e",
+    "name": "Urad Health Mix – Salt n Pepper",
+    "__v": 4,
+    "category": "69620cf57f9c4b0e78ddb918",
+    "createdAt": "2026-01-10T08:36:15.525Z",
+    "description": "Mansara Urad Health Mix – Salt n Pepper is a savoury twist on the traditional ulunthankanji.",
+    "image": "/products/urad-salt-pepper-front.jpg",
+    "images": [
+      "/products/urad-salt-pepper-front.jpg",
+      "/products/urad-salt-pepper-back.jpg",
+      "/products/urad-salt-pepper-side.jpg"
+    ],
+    "ingredients": "Black Gram (60.9%), Kavuni Rice (30%), Black Pepper (4.55%), Cumin Seeds (2.73%), Salt (1.82%).",
+    "isActive": true,
+    "isFeatured": false,
+    "isOffer": true,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "price": 44,
+    "rating": 0,
+    "salesCount": 0,
+    "slug": "urad-porridge-mix-salt-pepper",
+    "stock": 50,
+    "tags": [],
+    "updatedAt": "2026-03-09T06:03:20.117Z",
+    "viewCount": 0,
+    "weight": "100g",
+    "highlights": [
+      "No artificial flavours",
+      "Digestive spices",
+      "Savoury taste",
+      "Good for gut health"
+    ],
+    "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously to avoid lumps, and serve warm.",
+    "storage": "Store in a cool, dry place.",
+    "short_description": "A savoury porridge variant infused with pepper and cumin, ideal for light meals and comfort food needs.",
+    "offerPrice": 44,
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 53,
+        "offerPrice": 44,
+        "originalPrice": 55,
+        "stock": 50,
+        "_id": "69ad21fc39eb394593c6d7e7"
+      },
+      {
+        "weight": "250g",
+        "price": 140,
+        "offerPrice": 112,
+        "originalPrice": 140,
+        "stock": 50,
+        "_id": "69ad21fc39eb394593c6d7e8"
+      }
+    ],
+    "offerText": "10% OFF",
+    "isNewArrival": false,
+    "originalPrice": 55
+  },
+  {
+    "_id": "69620f7f7f9c4b0e78ddbc4f",
+    "name": "Urad Health Mix – Millet Magic",
+    "__v": 4,
+    "category": "69620cf57f9c4b0e78ddb918",
+    "createdAt": "2026-01-10T08:36:15.735Z",
+    "description": "Mansara Millet Magic Urad Health Mix brings together the muscle-strengthening benefits of black gram with the mineral-rich goodness of diverse millets.",
+    "image": "/products/urad-millet-magic-back.jpg",
+    "images": [
+      "/products/urad-millet-magic-front.jpg",
+      "/products/urad-millet-magic-back.jpg",
+      "/products/urad-millet-magic-side.jpg"
+    ],
+    "ingredients": "Black Gram, Finger Millet, Foxtail Millet, Pearl Millet, Little Millet, Kodo Millet, Barnyard Millet, Jowar, Bajra, Spices.",
+    "isActive": true,
+    "isFeatured": false,
+    "isOffer": true,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "price": 47,
+    "rating": 0,
+    "salesCount": 0,
+    "slug": "urad-porridge-mix-millet-magic",
+    "stock": 50,
+    "tags": [],
+    "updatedAt": "2026-03-09T06:07:07.386Z",
+    "viewCount": 0,
+    "weight": "100g",
+    "highlights": [
+      "Fiber Rich",
+      "Mineral Rich",
+      "Low GI",
+      "Muscle Support"
+    ],
+    "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    "storage": "Store in a cool, dry place.",
+    "short_description": "A nutritious porridge mix crafted with premium black gram and a carefully balanced selection of traditional millets.",
+    "offerPrice": 47,
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 48,
+        "offerPrice": 48,
+        "originalPrice": 60,
+        "stock": 50,
+        "_id": "69ad25403af218e7c4afc088"
+      },
+      {
+        "weight": "250g",
+        "price": 120,
+        "offerPrice": 120,
+        "originalPrice": 150,
+        "stock": 50,
+        "_id": "69ad25403af218e7c4afc089"
+      }
+    ],
+    "offerText": "10% OFF",
+    "isNewArrival": false,
+    "originalPrice": 60
+  },
+  {
+    "_id": "69620f7f7f9c4b0e78ddbc50",
+    "name": "Urad Health Mix – Premium",
+    "__v": 5,
+    "category": "69620cf57f9c4b0e78ddb918",
+    "createdAt": "2026-01-10T08:36:15.933Z",
+    "description": "Mansara Premium Urad Porridge Mix is a carefully crafted blend designed for those who want maximum nutrition in every serving. It includes enhanced proportions of protein-rich pulses and traditional ingredients to support strength, stamina, and immunity. This variant is ideal during recovery phases, high physical activity, or nutritional gaps.",
+    "image": "/products/urad-premium-front.jpg",
+    "images": [
+      "/products/urad-premium-front.jpg",
+      "/products/urad-premium-back.jpg",
+      "/products/urad-premium-side.jpg"
+    ],
+    "ingredients": "Black Gram, Ragi, Kavuni Rice, Mappillai Samba Rice, Bamboo Rice, Red Rice, Hand-Pounded Rice.",
+    "isActive": true,
+    "isFeatured": false,
+    "isOffer": true,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "price": 65,
+    "rating": 0,
+    "salesCount": 0,
+    "slug": "urad-porridge-mix-premium",
+    "stock": 50,
+    "tags": [],
+    "updatedAt": "2026-03-09T05:57:35.122Z",
+    "viewCount": 0,
+    "weight": "100g",
+    "highlights": [
+      "Finer grind",
+      "Premium processing",
+      "Multi-Grain",
+      "High Nutrition",
+      "Immunity Support"
+    ],
+    "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    "storage": "Store in a cool, dry place.",
+    "short_description": "A premium porridge blend formulated with black gram, ragi, and a diverse selection of traditional Indian rice varieties.",
+    "offerPrice": 51,
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 65,
+        "offerPrice": 52,
+        "originalPrice": 65,
+        "stock": 49,
+        "_id": "69ae614fcd47ce7284aedaf3"
+      },
+      {
+        "weight": "250g",
+        "price": 160,
+        "offerPrice": 128,
+        "originalPrice": 160,
+        "stock": 50,
+        "_id": "69ae614fcd47ce7284aedaf4"
+      }
+    ],
+    "offerText": "10% OFF",
+    "isNewArrival": true,
+    "originalPrice": 65
+  },
+  {
+    "_id": "69620f7f7f9c4b0e78ddbc51",
+    "name": "Health Mix – Black Rice Delight",
+    "__v": 7,
+    "category": "69620cf57f9c4b0e78ddb919",
+    "createdAt": "2026-01-10T08:36:16.127Z",
+    "description": "Mansara Black Rice Delight Porridge Mix is made using traditional black rice (Karuppu Kavuni Arisi), known for its powerful antioxidant properties and mineral richness. Naturally high in iron, fibre, and anthocyanins, this porridge supports heart health, improved digestion, and sustained energy. Its earthy flavour and rich colour make it both nutritious and visually appealing.",
+    "image": "/products/black-rice-delight-front.jpg",
+    "images": [
+      "/products/black-rice-delight-front.jpg",
+      "/products/black-rice-delight-back.jpg",
+      "/products/black-rice-delight-side.jpg"
+    ],
+    "ingredients": "Kavuni Rice (49.50%), Samba Wheat (24.75%), Barley (12.87%), Horse Gram (12.87%).",
+    "isActive": true,
+    "isFeatured": false,
+    "isOffer": true,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "price": 70,
+    "rating": 0,
+    "salesCount": 0,
+    "slug": "black-rice-delight-porridge-mix",
+    "stock": 50,
+    "tags": [],
+    "updatedAt": "2026-03-09T05:56:45.221Z",
+    "viewCount": 0,
+    "weight": "100g",
+    "highlights": [
+      "No added spices",
+      "Grain-forward",
+      "Antioxidant Rich",
+      "Iron Rich",
+      "Heart Healthy"
+    ],
+    "howToUse": "Take 2 tablespoons of mix. Add 250 ml of water, cook on medium flame for 10 minutes stirring continuously. Add Salt/Pepper/Jaggery to taste and serve warm.",
+    "storage": "Store in a cool, dry place.",
+    "short_description": "A wholesome porridge blend formulated with traditional black rice (kavuni) and a balanced mix of grains including wheat and barley.",
+    "offerPrice": 56,
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 70,
+        "offerPrice": 57,
+        "originalPrice": 70,
+        "stock": 50,
+        "_id": "69ae611dcd47ce7284aedae6"
+      },
+      {
+        "weight": "250g",
+        "price": 180,
+        "offerPrice": 145,
+        "originalPrice": 180,
+        "stock": 50,
+        "_id": "69ae611dcd47ce7284aedae7"
+      }
+    ],
+    "offerText": "10% OFF",
+    "isNewArrival": true,
+    "originalPrice": 70
+  },
+  {
+    "_id": "69620f7f7f9c4b0e78ddbc52",
+    "name": "Idly Podi – Millet Fusion",
+    "__v": 10,
+    "category": "69a83fe41c2c00db0a9ba528",
+    "createdAt": "2026-01-10T08:36:16.333Z",
+    "description": "A nutritious millet-enriched idly podi combining lentils, millets, and spices for a healthy traditional side dish.",
+    "image": "/products/MilletFusionIdlyPodi.PNG",
+    "images": [
+      "/products/MilletFusionIdlyPodi.PNG",
+      "/products/MilletFusionIdlyPodiLabel.PNG"
+    ],
+    "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Foxtail Millet (தினை), Little Millet (சாமை), Barnyard Millet (குதிரைவாலி), Kodo Millet (வரகு), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
+    "isActive": true,
+    "isFeatured": false,
+    "isOffer": true,
+    "metaKeywords": [],
+    "numReviews": 2,
+    "price": 74,
+    "rating": 5,
+    "salesCount": 0,
+    "slug": "millet-fusion-idly-podi",
+    "stock": 100,
+    "tags": [],
+    "updatedAt": "2026-03-09T06:01:11.414Z",
+    "viewCount": 0,
+    "weight": "100g",
+    "highlights": [
+      "No preservatives",
+      "Millet enriched formula",
+      "Traditional roast & grind",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix with gingelly oil or ghee and serve with idly, dosa, chapati, or poori.",
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "short_description": "A flavourful South Indian-style condiment formulated with a combination of lentils, traditional millets, and natural spices.",
+    "offerPrice": 60,
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 75,
+        "offerPrice": 58,
+        "originalPrice": 75,
+        "stock": 100,
+        "_id": "69ae60c0cd47ce7284aedacc"
+      }
+    ],
+    "offerText": "10% OFF",
+    "isNewArrival": false,
+    "originalPrice": 75,
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, nutty"
+  },
+  {
+    "_id": "6967d5e7c88a08abbf51f0ac",
+    "name": "Ultimate Wellness Combo (5 Mixes)",
+    "slug": "ultimate-wellness-combo-5-mixes",
+    "description": "Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.",
+    "price": 260,
+    "originalPrice": 260,
+    "category": "6967d5e7c88a08abbf51f09a",
+    "image": "/product-combo-5mixes.jpg",
+    "images": [],
+    "stock": 50,
+    "nutritionalInfo": {},
+    "highlights": [],
+    "short_description": "All 5 Premium Porridge Mixes (Excludes Idly Podi)",
+    "isActive": true,
+    "isFeatured": true,
+    "isOffer": false,
+    "offerText": "SAVE ₹15",
+    "rating": 0,
+    "numReviews": 0,
+    "tags": [],
+    "metaKeywords": [],
+    "salesCount": 0,
+    "viewCount": 0,
+    "__t": "Combo",
+    "products": [
+      "69620f7e7f9c4b0e78ddbc4d",
+      "69620f7e7f9c4b0e78ddbc4e",
+      "69620f7f7f9c4b0e78ddbc4f",
+      "69620f7f7f9c4b0e78ddbc50",
+      "69620f7f7f9c4b0e78ddbc51"
+    ],
+    "comboPrice": 260,
+    "variants": [],
+    "createdAt": "2026-01-14T17:44:07.982Z",
+    "updatedAt": "2026-01-28T04:53:20.500Z",
+    "sku": "ULT-1768412647982-9832",
+    "__v": 0,
+    "isNewArrival": true,
+    "offerPrice": 260
+  },
+  {
+    "_id": "69a91a0c4ee07f2c99a1aea1",
+    "name": "Ragi Choco Malt",
+    "slug": "ragi-choco-malt",
+    "category": "69a83fe41c2c00db0a9ba526",
+    "price": 250,
+    "offerPrice": 200,
+    "originalPrice": 250,
+    "isOffer": false,
+    "isActive": true,
+    "isNewArrival": true,
+    "isFeatured": true,
+    "stock": 50,
+    "weight": "250g",
+    "description": "Mansara Ragi Choco Malt is a nutritious health drink mix that combines the powerhouse nutrition of Ragi (Finger Millet) with the irresistible taste of premium cocoa.",
+    "image": "/products/RagiChocoMalt.PNG",
+    "images": [
+      "/products/RagiChocoMalt.PNG",
+      "/products/RagiChocoMaltLabel.PNG"
+    ],
+    "highlights": [
+      "No preservatives",
+      "Millet-based with natural cocoa",
+      "Rich in calcium",
+      "Enriched with Saffron & Almonds"
+    ],
+    "variants": [
+      {
+        "weight": "250g",
+        "price": 199,
+        "offerPrice": 199,
+        "originalPrice": 250,
+        "stock": 100,
+        "_id": "69ae600ccd47ce7284aeda95"
+      }
+    ],
+    "createdAt": "2026-03-05T05:52:12.033Z",
+    "updatedAt": "2026-03-09T05:52:40.501Z",
+    "__v": 2,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "rating": 0,
+    "salesCount": 0,
+    "tags": [],
+    "viewCount": 0,
+    "howToUse": "Mix 2 tbsp (approx. 25g) with milk or water. Cook on low flame with continuous stirring until smooth.",
+    "ingredients": "Ragi (Finger Millet), Brown Sugar, Cocoa Powder, Cashew Nuts, Almonds, Dry Ginger, Cardamom, Saffron.",
+    "storage": "Store in a cool, dry place. Keep the container tightly closed."
+  },
+  {
+    "_id": "69a9b4091c2c00db0a9bf83e",
+    "slug": "nutrimix-super-health-mix",
+    "category": "69a83fe41c2c00db0a9ba526",
+    "description": "A traditional 27-ingredient multi-grain health mix designed for complete family nutrition and strength.",
+    "highlights": [
+      "No preservatives",
+      "27 wholesome ingredients",
+      "High protein & high fibre",
+      "Suitable for 8+ months to elderly"
+    ],
+    "howToUse": "Mix 2 tbsp with water, cook on low flame with stirring till thick. Add milk/salt/jaggery as preferred. Serve warm.",
+    "image": "/products/NutriMix.PNG",
+    "images": [
+      "/products/NutriMix.PNG",
+      "/products/NutriMix_Label.PNG"
+    ],
+    "ingredients": "Ragi, Kollu, Green Gram, Badam, Barley, Red Rice, Samba Wheat, Cashew, Kambu, Kaikuthal Rice, Kavuni Rice, Javvarisi, Yellow Cholam, White Cholam, Rajma, Black Gram, Groundnut, Moongil Arisi, Kaatu Yaanai Rice, Mappillai Samba, Fried Gram (Udacha Kadalai), Thinai, Saamai, Guthirai Vaali, Varagu, Dry Ginger, Cardamom",
+    "isActive": true,
+    "isFeatured": true,
+    "isNewArrival": true,
+    "isOffer": true,
+    "name": "Nutriminix – Multi Grain Health Mix",
+    "offerPrice": 0,
+    "originalPrice": 200,
+    "price": 200,
+    "stock": 99,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:14:57.865Z",
+    "variants": [
+      {
+        "weight": "250g",
+        "price": 200,
+        "offerPrice": 160,
+        "originalPrice": 200,
+        "stock": 100,
+        "_id": "69ae650ccd47ce7284aedb81"
+      }
+    ],
+    "weight": "250g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "Kids (8+ months), adults, elderly",
+    "tasteProfile": "Mild, nutty, traditional",
+    "__v": 1,
+    "metaKeywords": [],
+    "numReviews": 0,
+    "rating": 0,
+    "salesCount": 0,
+    "tags": [],
+    "viewCount": 0
+  },
+  {
+    "_id": "69a9b40c1c2c00db0a9bf83f",
+    "slug": "traditional-idly-podi",
+    "category": "69a83fe41c2c00db0a9ba528",
+    "description": "A classic South Indian idly podi made from roasted lentils and spices, crafted to enhance the taste of idly and dosa.",
+    "highlights": [
+      "No preservatives",
+      "Authentic roast & grind",
+      "Homemade taste",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix required quantity with gingelly oil or ghee. Best served with idly, dosa, uthappam, or chapati.",
+    "image": "/products/TraditionalIdlyPodi.PNG",
+    "images": [
+      "/products/TraditionalIdlyPodi.PNG",
+      "/products/TraditionalIdlyPodiLabel.PNG"
+    ],
+    "ingredients": "Black Gram (கருப்பு உளுந்து), Bengal Gram (கடலைப்பருப்பு), Green Gram (பாசிப்பருப்பு), Fried Gram (வருத்தக்கடலை), Dry Red Chilli (காய்ந்த மிளகாய்), Kashmiri Chilli (காஷ்மீரி மிளகாய்), Toor Dal (துவரம் பருப்பு), Salt (உப்பு), Black Pepper (மிளகு), Asafoetida (பெருங்காயம்)",
+    "isActive": true,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isOffer": true,
+    "name": "Idly Podi – Traditional",
+    "offerPrice": 59,
+    "originalPrice": 75,
+    "price": 60,
+    "stock": 100,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:15:51.231Z",
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 60,
+        "offerPrice": 60,
+        "originalPrice": 75,
+        "stock": 100,
+        "_id": "69ae6597cd47ce7284aedbac"
+      }
+    ],
+    "weight": "100g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, traditional"
+  },
+  {
+    "_id": "69a9b40e1c2c00db0a9bf840",
+    "slug": "home-style-paruppu-podi",
+    "category": "69a83fe41c2c00db0a9ba529",
+    "description": "A homestyle protein-rich paruppu podi made from roasted dals and spices, perfect for mixing with hot rice and ghee.",
+    "highlights": [
+      "No preservatives",
+      "Protein rich formula",
+      "Traditional recipe",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix 1–2 tsp with hot rice and ghee or gingelly oil. Also pairs with idly and dosa.",
+    "image": "/products/HomeStyleParuppu.PNG",
+    "images": [
+      "/products/HomeStyleParuppu.PNG",
+      "/products/HomeStyleParuppuLabel.PNG"
+    ],
+    "ingredients": "Toor Daal, Bengal Gram, Green Gram, Fried Gram (Udacha Kadalai), Cumin Seeds, Salt, Pepper, Dry Chilli, Kashmiri Chilli, Asafoetida",
+    "isActive": true,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isOffer": true,
+    "name": "Rice Podi Mix",
+    "offerPrice": 68,
+    "originalPrice": 85,
+    "price": 68,
+    "stock": 100,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:16:54.584Z",
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 68,
+        "offerPrice": 68,
+        "originalPrice": 85,
+        "stock": 100,
+        "_id": "69ae65d6cd47ce7284aedbb4"
+      }
+    ],
+    "weight": "100g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, dal-forward"
+  },
+  {
+    "_id": "69a9b4111c2c00db0a9bf841",
+    "slug": "karuveppillai-special",
+    "category": "69a83fe41c2c00db0a9ba529",
+    "description": "A flavourful curry leaf rice mix blended with lentils and spices for a fragrant traditional meal.",
+    "highlights": [
+      "No preservatives",
+      "Curry leaf rich blend",
+      "Traditional roast & grind",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+    "image": "/products/KaruveppillaiSpecial.PNG",
+    "images": [
+      "/products/KaruveppillaiSpecial.PNG",
+      "/products/KaruveppillaiSpecialLabel.PNG"
+    ],
+    "ingredients": "Toor Dhal, Urad Dhal, Pepper, Jeera, Salt, Hing, Curry Leaves, Red Chilli, Tamarind",
+    "isActive": true,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isOffer": true,
+    "name": "Curry Leaves Rice Podi Mix",
+    "offerPrice": 68,
+    "originalPrice": 85,
+    "price": 68,
+    "stock": 100,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:17:40.159Z",
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 68,
+        "offerPrice": 68,
+        "originalPrice": 85,
+        "stock": 100,
+        "_id": "69ae6604cd47ce7284aedbc4"
+      }
+    ],
+    "weight": "100g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, aromatic"
+  },
+  {
+    "_id": "69a9b4131c2c00db0a9bf842",
+    "slug": "kotha-malli-aroma",
+    "category": "69a83fe41c2c00db0a9ba529",
+    "description": "A fragrant coriander-based rice mix with roasted lentils and spices for quick, tasty meals.",
+    "highlights": [
+      "No preservatives",
+      "Rich coriander aroma",
+      "Traditional roast & grind",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+    "image": "/products/KothamalliAroma.PNG",
+    "images": [
+      "/products/KothamalliAroma.PNG",
+      "/products/KothamalliAromaLabel.PNG"
+    ],
+    "ingredients": "Dhaniya (Coriander), Urad Dhal, Jeera, Red Chilli, Salt, Asafoetida",
+    "isActive": true,
+    "isFeatured": false,
+    "isNewArrival": false,
+    "isOffer": true,
+    "name": "Coriander Rice Podi Mix",
+    "offerPrice": 68,
+    "originalPrice": 85,
+    "price": 68,
+    "stock": 100,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:18:02.263Z",
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 68,
+        "offerPrice": 68,
+        "originalPrice": 85,
+        "stock": 100,
+        "_id": "69ae661acd47ce7284aedbcc"
+      }
+    ],
+    "weight": "100g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, coriander-rich"
+  },
+  {
+    "_id": "69a9b4151c2c00db0a9bf843",
+    "slug": "murungai-vital",
+    "category": "69a83fe41c2c00db0a9ba529",
+    "description": "A nutritious moringa leaf rice mix blended with lentils and spices for daily wellness.",
+    "highlights": [
+      "No preservatives",
+      "Moringa (Drumstick leaf) rich",
+      "Traditional roast & grind",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+    "image": "/products/MurungaiVital.PNG",
+    "images": [
+      "/products/MurungaiVital.PNG",
+      "/products/MurungaiVitalLabel.PNG"
+    ],
+    "ingredients": "Murungai Keerai (Moringa Leaves), Gram Dhal, Urad Dhal, Tamarind, Salt, Asafoetida",
+    "isActive": true,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isOffer": true,
+    "name": "Moringa Rice Podi Mix",
+    "offerPrice": 0,
+    "originalPrice": 68,
+    "price": 68,
+    "stock": 100,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:18:47.717Z",
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 68,
+        "offerPrice": 68,
+        "originalPrice": 85,
+        "stock": 100,
+        "_id": "69ae6637cd47ce7284aedbd4"
+      }
+    ],
+    "weight": "100g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, herbal"
+  },
+  {
+    "_id": "69a9b4251c2c00db0a9bf844",
+    "slug": "pirandai-power",
+    "category": "69a83fe41c2c00db0a9ba529",
+    "description": "A traditional pirandai-based rice mix known for its distinctive taste and digestive benefits.",
+    "highlights": [
+      "No preservatives",
+      "Traditional herbal recipe",
+      "Authentic roast & grind",
+      "Suitable for all age groups"
+    ],
+    "howToUse": "Mix with hot rice and ghee or gingelly oil. Serve warm.",
+    "image": "/products/PirandaiPower.PNG",
+    "images": [
+      "/products/PirandaiPower.PNG",
+      "/products/PirandaiPowerLabel.PNG"
+    ],
+    "ingredients": "Pirandai (Adamant Creeper), Tamarind, Gram Dhal, Urad Dhal, Jeera, Pepper, Salt, Asafoetida",
+    "isActive": true,
+    "isFeatured": false,
+    "isNewArrival": true,
+    "isOffer": true,
+    "name": "Pirandai Rice Podi Mix",
+    "offerPrice": 68,
+    "originalPrice": 85,
+    "price": 68,
+    "stock": 100,
+    "storage": "Store in a cool, dry place. Keep airtight after opening.",
+    "updatedAt": "2026-03-09T06:19:17.249Z",
+    "variants": [
+      {
+        "weight": "100g",
+        "price": 68,
+        "offerPrice": 68,
+        "originalPrice": 85,
+        "stock": 100,
+        "_id": "69ae6665cd47ce7284aedbe4"
+      }
+    ],
+    "weight": "100g",
+    "certifications": [
+      "FSSAI"
+    ],
+    "packagingType": "PET Jar",
+    "shelfLife": "6 months",
+    "suitableFor": "All age groups",
+    "tasteProfile": "Spicy, tangy"
+  }
+]

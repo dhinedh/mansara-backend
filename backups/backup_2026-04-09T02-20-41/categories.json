@@ -1,0 +1,64 @@
+[
+  {
+    "_id": "69620cf57f9c4b0e78ddb918",
+    "name": "Urad Porridge Mix",
+    "__v": 0,
+    "createdAt": "2026-01-10T08:25:25.855Z",
+    "description": "Nutritious Urad Dal based porridge mixes",
+    "isActive": true,
+    "order": 1,
+    "productCount": 0,
+    "slug": "urad-porridge-mix",
+    "updatedAt": "2026-01-10T08:25:25.855Z"
+  },
+  {
+    "_id": "69620cf57f9c4b0e78ddb919",
+    "name": "Black Rice mix",
+    "__v": 0,
+    "createdAt": "2026-01-10T08:25:25.960Z",
+    "description": "Premium Black Rice based health mixes",
+    "isActive": true,
+    "order": 2,
+    "productCount": 0,
+    "slug": "black-rice-mix",
+    "updatedAt": "2026-01-10T08:25:25.960Z"
+  },
+  {
+    "_id": "69620cf57f9c4b0e78ddb91a",
+    "name": "Millet fusion mix",
+    "__v": 0,
+    "createdAt": "2026-01-10T08:25:26.062Z",
+    "description": "Wholesome Millet fusion blends",
+    "isActive": true,
+    "order": 3,
+    "productCount": 0,
+    "slug": "millet-fusion-mix",
+    "updatedAt": "2026-01-10T08:25:26.062Z"
+  },
+  {
+    "_id": "6967d5e7c88a08abbf51f09a",
+    "name": "Combos",
+    "slug": "combos",
+    "description": "Value packs and combos",
+    "isActive": true,
+    "productCount": 0,
+    "order": 0,
+    "createdAt": "2026-01-14T17:44:07.463Z",
+    "updatedAt": "2026-01-14T17:44:07.463Z",
+    "__v": 0
+  },
+  {
+    "_id": "69a83fe41c2c00db0a9ba528",
+    "description": "Traditional and Millet enriched idly podis",
+    "isActive": true,
+    "name": "Idly Podi",
+    "slug": "idly-podi"
+  },
+  {
+    "_id": "69a83fe41c2c00db0a9ba529",
+    "description": "Authentic and nutritious rice mixes",
+    "isActive": true,
+    "name": "Rice Mixes",
+    "slug": "rice-mixes"
+  }
+]

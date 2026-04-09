@@ -1,0 +1,95 @@
+[
+  {
+    "_id": "695201d5c9778fb96f174111",
+    "key": "home",
+    "__v": 0,
+    "createdAt": "2025-12-29T04:21:40.978Z",
+    "data": [
+      {
+        "id": "1",
+        "image": "/hero-home-combo-final.jpg",
+        "title": "",
+        "subtitle": "",
+        "ctaText": "",
+        "ctaLink": "/combos",
+        "alignment": "center"
+      },
+      {
+        "id": "2",
+        "image": "/hero-launch-offer.png",
+        "title": "",
+        "subtitle": "",
+        "ctaText": "",
+        "ctaLink": "/offers",
+        "alignment": "center"
+      }
+    ],
+    "updatedAt": "2026-01-14T18:11:32.577Z",
+    "isActive": true
+  },
+  {
+    "_id": "6967cac6edf967afd8885623",
+    "key": "combos",
+    "data": {
+      "image": "/hero-combos-final.png",
+      "title": "",
+      "subtitle": ""
+    },
+    "isActive": true,
+    "createdAt": "2026-01-14T16:56:38.710Z",
+    "updatedAt": "2026-01-14T18:11:32.734Z",
+    "__v": 0
+  },
+  {
+    "_id": "6967d6a8653d269e77bda486",
+    "key": "products",
+    "data": {
+      "image": "/hero-products.png",
+      "title": "Our Clean Range",
+      "subtitle": "Pure, wholesome, and made for your well-being."
+    },
+    "isActive": true,
+    "createdAt": "2026-01-14T17:47:20.334Z",
+    "updatedAt": "2026-01-14T18:11:32.884Z",
+    "__v": 0
+  },
+  {
+    "_id": "6967d98a2a7ddf92098a7808",
+    "key": "newArrivals",
+    "data": {
+      "image": "/hero-new-arrivals.png",
+      "title": "Fresh Additions",
+      "subtitle": "Discover the latest from the Mansara kitchen."
+    },
+    "isActive": true,
+    "createdAt": "2026-01-14T17:59:38.704Z",
+    "updatedAt": "2026-01-14T18:11:33.034Z",
+    "__v": 0
+  },
+  {
+    "_id": "6967da071c0ad9cc377dd3ac",
+    "key": "cart",
+    "data": {
+      "image": "/hero-cart.jpg",
+      "title": "",
+      "subtitle": ""
+    },
+    "isActive": true,
+    "createdAt": "2026-01-14T18:01:43.592Z",
+    "updatedAt": "2026-01-14T18:11:33.195Z",
+    "__v": 0
+  },
+  {
+    "_id": "6967db1e52d93539f1cd572f",
+    "key": "about",
+    "data": {
+      "image": "/hero-about.png",
+      "title": "Our Tradition of Wellness",
+      "subtitle": "Handcrafted with care, rooted in heritage."
+    },
+    "isActive": true,
+    "createdAt": "2026-01-14T18:06:22.233Z",
+    "updatedAt": "2026-01-14T18:11:33.349Z",
+    "__v": 0
+  }
+]
