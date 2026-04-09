@@ -125,9 +125,17 @@ const iCarryService = {
             });
 
             console.log('[iCarry] Response Status:', response.status);
-            console.log('[iCarry] Response Body:', JSON.stringify(response.data));
+            console.log('[iCarry] Response Body:', typeof response.data === 'object' ? JSON.stringify(response.data) : response.data);
 
-            if (response.data && (response.data.success || response.data.status === 'success' || response.data.shipment_id)) {
+            const isSuccess = response.data && (
+                response.data.success === 1 || 
+                response.data.success === true || 
+                response.data.status === 'success' || 
+                !!response.data.shipment_id || 
+                !!response.data.awb_number
+            );
+
+            if (isSuccess) {
                 return {
                     success: true,
                     trackingNumber: response.data.awb_number || response.data.shipment_id || response.data.tracking_id,
@@ -135,11 +143,19 @@ const iCarryService = {
                     data: response.data
                 };
             } else {
-                const errorMsg = response.data?.error || response.data?.message || 'Failed to create shipment';
-                console.error(`[iCarry] API returned error: ${errorMsg}`);
+                // Better error extraction
+                let errorMsg = 'Failed to create shipment';
+                if (typeof response.data === 'string') {
+                    errorMsg = response.data;
+                } else if (response.data && typeof response.data === 'object') {
+                    errorMsg = response.data.error || response.data.message || response.data.msg || JSON.stringify(response.data);
+                }
+                
+                console.error(`[iCarry] API returned failure: ${errorMsg}`);
                 return {
                     success: false,
-                    error: errorMsg
+                    error: errorMsg,
+                    raw: response.data
                 };
             }
 
