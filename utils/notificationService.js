@@ -66,7 +66,7 @@ const notificationService = {
             
             // 4. Set Headers (Title, Priority, Tags, Click)
             const headers = {
-                'Title': 'Mansara Foods - New Order! 🎉',
+                'Title': 'Mansara Foods - New Order!',
                 'Priority': 'high',
                 'Tags': 'shopping_bags,moneybag',
                 'Click': dashboardUrl
@@ -76,7 +76,7 @@ const notificationService = {
             if (phone) {
                 const cleanPhone = phone.replace(/\D/g, '');
                 const finalPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-                headers['Actions'] = `view, Chat on WhatsApp, https://wa.me/${finalPhone}`;
+                headers['Action'] = `view, Chat on WhatsApp, https://wa.me/${finalPhone}`;
             }
             
             await axios.post(url, message, { headers });
