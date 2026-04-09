@@ -46,21 +46,40 @@ const notificationService = {
         }).format(amount);
     },
 
-    // New Helper for Admin Notifications (ntfy)
     _sendNtfyAlert: async (order, user) => {
         try {
             const topic = process.env.NTFY_TOPIC || 'mansara_orders_admin';
             const url = `https://ntfy.sh/${topic}`;
+            const frontendUrl = process.env.FRONTEND_URL || 'https://mansarafoods.com';
+            const dashboardUrl = `${frontendUrl}/admin/orders`;
+            const phone = notificationService._getWhatsAppNumber(order, user);
             
-            const message = `🛍️ New Order: ${order.orderId}\n👤 Customer: ${user.name}\n💰 Total: ₹${order.total}\n📍 City: ${order.deliveryAddress?.city}`;
+            // 1. Generate Items Summary
+            const itemsSummary = order.items.map(item => `${item.quantity}x ${item.name}`).join(', ');
             
-            await axios.post(url, message, {
-                headers: {
-                    'Title': 'Mansara Foods - New Order!',
-                    'Priority': 'high',
-                    'Tags': 'shopping_bags,moneybag'
-                }
-            });
+            // 2. Format Full Address
+            const addr = order.deliveryAddress;
+            const fullAddress = addr ? `${addr.firstName} ${addr.lastName || ''}, ${addr.street}, ${addr.city}, ${addr.state} - ${addr.zip}` : 'N/A';
+            
+            // 3. Construct Message
+            const message = `🛍️ Order: #${order.orderId}\n👤 Customer: ${user.name}\n💰 Total: ₹${order.total}\n📦 Items: ${itemsSummary}\n📍 Address: ${fullAddress}\n📞 Phone: ${phone || 'N/A'}`;
+            
+            // 4. Set Headers (Title, Priority, Tags, Click)
+            const headers = {
+                'Title': 'Mansara Foods - New Order! 🎉',
+                'Priority': 'high',
+                'Tags': 'shopping_bags,moneybag',
+                'Click': dashboardUrl
+            };
+
+            // 5. Add "Chat on WhatsApp" Action
+            if (phone) {
+                const cleanPhone = phone.replace(/\D/g, '');
+                const finalPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+                headers['Actions'] = `view, Chat on WhatsApp, https://wa.me/${finalPhone}`;
+            }
+            
+            await axios.post(url, message, { headers });
             console.log(`[✓] ntfy admin alert sent to topic: ${topic}`);
         } catch (err) {
             console.error('[✗] ntfy failed:', err.message);
