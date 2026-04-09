@@ -1,5 +1,6 @@
 const sendEmail = require('./sendEmail');
 const whatsappService = require('./WhatsAppService');
+const axios = require('axios');
 
 // ========================================
 // OPTIMIZED NOTIFICATION SERVICE WITH BOTBIZ
@@ -43,6 +44,27 @@ const notificationService = {
             currency: 'INR',
             minimumFractionDigits: 0
         }).format(amount);
+    },
+
+    // New Helper for Admin Notifications (ntfy)
+    _sendNtfyAlert: async (order, user) => {
+        try {
+            const topic = process.env.NTFY_TOPIC || 'mansara_orders_admin';
+            const url = `https://ntfy.sh/${topic}`;
+            
+            const message = `🛍️ New Order: ${order.orderId}\n👤 Customer: ${user.name}\n💰 Total: ₹${order.total}\n📍 City: ${order.deliveryAddress?.city}`;
+            
+            await axios.post(url, message, {
+                headers: {
+                    'Title': 'Mansara Foods - New Order!',
+                    'Priority': 'high',
+                    'Tags': 'shopping_bags,moneybag'
+                }
+            });
+            console.log(`[✓] ntfy admin alert sent to topic: ${topic}`);
+        } catch (err) {
+            console.error('[✗] ntfy failed:', err.message);
+        }
     },
 
     // 1. Order Placed - Waiting for Confirmation
@@ -205,8 +227,10 @@ Thank you for choosing Mansara Foods! 🙏`;
                 }
             })();
 
-            // Wait for both to complete (but don't block the response)
-            await Promise.allSettled([emailPromise, whatsappPromise]);
+            const ntfyPromise = notificationService._sendNtfyAlert(order, user);
+
+            // Wait for all to complete (but don't block the response)
+            await Promise.allSettled([emailPromise, whatsappPromise, ntfyPromise]);
 
         } catch (error) {
             console.error('[ERROR] sendOrderPlaced:', error.message);

@@ -34,6 +34,9 @@ const cacheMiddleware = (duration = 600000) => { // 10 minutes default
             console.log(`[CACHE BYPASS] ${key}`);
         } else if (cached && Date.now() - cached.timestamp < duration) {
             console.log(`[CACHE HIT] ${key}`);
+            
+            // Add Cache-Control header for Edge Caching (Vercel)
+            res.setHeader('Cache-Control', `public, max-age=${Math.floor(duration / 1000)}`);
             return res.json(cached.data);
         }
 
@@ -47,6 +50,8 @@ const cacheMiddleware = (duration = 600000) => { // 10 minutes default
                 cache.delete(firstKey);
             }
 
+            // Set Browser Cache
+            res.setHeader('Cache-Control', `public, max-age=${Math.floor(duration / 1000)}`);
             return originalJson(data);
         };
         next();

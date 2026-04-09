@@ -6,16 +6,22 @@ class WhatsAppService {
         this.baseUrl = process.env.BOTBIZ_BASE_URL || 'https://dash.botbiz.io/api/v1';
         this.phoneId = process.env.BOTBIZ_PHONE_ID;
 
+        // BOTBIZ KEY FORMAT HANDLING: user_id|api_token
+        this.userId = null;
+        this.tokenPart = this.apiKey;
+        if (this.apiKey && this.apiKey.includes('|')) {
+            const parts = this.apiKey.split('|');
+            this.userId = parts[0];
+            this.tokenPart = parts[1];
+        }
+
         console.log(`!!! [WHATSAPP SERVICE] Initializing...`);
-        console.log(`!!! [WHATSAPP SERVICE] Environment: ${process.env.NODE_ENV || 'not set'}`);
-        console.log(`!!! [WHATSAPP SERVICE] API Key: ${this.apiKey ? '✓ Loaded' : '✗ MISSING'}`);
+        console.log(`!!! [WHATSAPP SERVICE] User ID: ${this.userId || 'none'}`);
         console.log(`!!! [WHATSAPP SERVICE] Phone ID: ${this.phoneId || '✗ MISSING'}`);
-        console.log(`!!! [WHATSAPP SERVICE] Base URL: ${this.baseUrl}`);
 
         this.client = axios.create({
             baseURL: this.baseUrl,
             headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
@@ -26,10 +32,13 @@ class WhatsAppService {
      * Helper to normalize phone number (adds 91 for Indian numbers if missing)
      */
     _normalizePhone(phone) {
-        let clean = phone.replace(/\D/g, '');
+        if (!phone) return null;
+        // Strip everything but digits
+        let clean = phone.toString().replace(/\D/g, '');
         if (clean.length === 10) {
             clean = '91' + clean;
         }
+        // Ensure no '+' prefix which BotBiz sometimes rejects
         return clean;
     }
 
@@ -39,11 +48,16 @@ class WhatsAppService {
     async createSubscriber(phone, name, details = {}) {
         try {
             const normalizedPhone = this._normalizePhone(phone);
-            const response = await this.client.post('/whatsapp/subscriber/create', {
+            const payload = {
+                apiToken: this.tokenPart,
+                phoneNumberID: this.phoneId,
                 phone: normalizedPhone,
                 name: name,
                 ...details
-            });
+            };
+            if (this.userId) payload.user_id = this.userId;
+
+            const response = await this.client.post('/whatsapp/subscriber/create', payload);
             console.log(`[WHATSAPP] Subscriber created: ${normalizedPhone}`);
             return response.data;
         } catch (error) {
@@ -58,21 +72,40 @@ class WhatsAppService {
     async sendMessage(phone, message) {
         try {
             const normalizedPhone = this._normalizePhone(phone);
-            console.log(`!!! [WHATSAPP SERVICE] Sending POST to ${this.baseUrl}/whatsapp/send`);
-            console.log(`!!! [WHATSAPP SERVICE] Data:`, JSON.stringify({
-                phone: normalizedPhone,
-                phone_id: this.phoneId
-            }));
+            
+            // Botbiz often requires the FULL KEY (user_id|token) in the payload or query
+            const payload = {
+                apiToken: this.apiKey,      // Try full key first
+                api_token: this.apiKey,     // Try snake case
+                phoneNumberID: this.phoneId,
+                phone_number: normalizedPhone,
+                message: message
+            };
 
-            const response = await this.client.post('/whatsapp/send', {
-                phone: normalizedPhone,
-                message: message,
-                phone_id: this.phoneId
-            });
+            if (this.userId) payload.user_id = this.userId;
+
+            console.log(`!!! [WHATSAPP SERVICE] Sending to ${normalizedPhone}`);
+
+            // Try sending with full key in body
+            let response = await this.client.post('/whatsapp/send', payload);
+            
+            // IF result contains "Access denied" or similar, try alternative format
+            if (response.data?.status === 'error' || response.data?.e === 'Access denied.') {
+                console.log(`!!! [WHATSAPP SERVICE] Retry with query-string token...`);
+                // Test 4 format: apiToken in Query
+                response = await this.client.post(`/whatsapp/send?apiToken=${this.apiKey}`, {
+                    phoneNumberID: this.phoneId,
+                    phone_number: normalizedPhone,
+                    message: message,
+                    user_id: this.userId
+                });
+            }
+
             console.log(`!!! [WHATSAPP] ✓ API Response:`, JSON.stringify(response.data));
             return response.data;
         } catch (error) {
-            console.error('!!! [WHATSAPP SERVICE] ✗ API Error:', error.response?.status, JSON.stringify(error.response?.data || error.message));
+            const errorDetails = error.response?.data || error.message;
+            console.error('!!! [WHATSAPP SERVICE] ✗ API Error:', error.response?.status, JSON.stringify(errorDetails));
             throw error;
         }
     }

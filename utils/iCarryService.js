@@ -151,7 +151,8 @@ const iCarryService = {
 
             return {
                 success: false,
-                error: errorDetail
+                error: errorDetail,
+                raw: error.response?.data
             };
         }
     },
