@@ -12,6 +12,15 @@ const USERNAME = process.env.ICARRY_USERNAME;
 const iCarryService = {
 
     /**
+     * Sanitizes phone number to 10 digits
+     */
+    _sanitizePhone: (phone) => {
+        if (!phone) return "";
+        const cleaned = phone.toString().replace(/\D/g, "");
+        return cleaned.length > 10 ? cleaned.slice(-10) : cleaned;
+    },
+
+    /**
      * Obtains a session api_token from iCarry login endpoint.
      */
     getSessionToken: async () => {
@@ -100,7 +109,7 @@ const iCarryService = {
                 consignee_state: order.deliveryAddress.state,
                 consignee_country: 'India',
                 consignee_pincode: order.deliveryAddress.zip,
-                consignee_mobile: order.deliveryAddress.phone,
+                consignee_mobile: iCarryService._sanitizePhone(order.deliveryAddress.phone),
                 consignee_email: order.user?.email || '',
                 parcel_type: order.paymentMethod === 'Cash on Delivery' ? 'C' : 'P', // C=COD, P=Prepaid
                 parcel_value: order.total,
@@ -149,6 +158,11 @@ const iCarryService = {
                     errorMsg = response.data;
                 } else if (response.data && typeof response.data === 'object') {
                     errorMsg = response.data.error || response.data.message || response.data.msg || JSON.stringify(response.data);
+                }
+
+                // Map cryptic codes to user-friendly messages
+                if (errorMsg.toString().toLowerCase() === 'ae') {
+                    errorMsg = 'Address Error: Please verify the pincode and mobile number are correct.';
                 }
                 
                 console.error(`[iCarry] API returned failure: ${errorMsg}`);
