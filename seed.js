@@ -15,20 +15,20 @@ const categories = [
 ];
 
 const products = [
-    { name: "Urad Health Mix – Classic", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-classic-front.jpg", stock: 50, isActive: true, isFeatured: true, variants: [{ weight: "100g", price: 55 }, { weight: "250g", price: 140 }] },
-    { name: "Urad Health Mix – Salt n Pepper", category: "Urad Porridge Mix", price: 55, weight: "100g", image: "/products/urad-salt-pepper-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 55 }, { weight: "250g", price: 140 }] },
-    { name: "Urad Health Mix – Millet Magic", category: "Urad Porridge Mix", price: 60, weight: "100g", image: "/products/urad-millet-magic-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 60 }, { weight: "250g", price: 150 }] },
-    { name: "Urad Health Mix – Premium", category: "Urad Porridge Mix", price: 65, weight: "100g", image: "/products/urad-premium-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 65 }, { weight: "250g", price: 160 }] },
-    { name: "Health Mix – Black Rice Delight", category: "Black Rice mix", price: 70, weight: "100g", image: "/products/black-rice-delight-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 70 }, { weight: "250g", price: 180 }] },
+    { name: "Urad Health Mix – Classic", category: "Urad Porridge Mix", price: 75, weight: "100g", image: "/products/urad-classic-front.jpg", stock: 50, isActive: true, isFeatured: true, variants: [{ weight: "100g", price: 75 }, { weight: "250g", price: 165 }] },
+    { name: "Urad Health Mix – Salt n Pepper", category: "Urad Porridge Mix", price: 75, weight: "100g", image: "/products/urad-salt-pepper-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 75 }, { weight: "250g", price: 165 }] },
+    { name: "Urad Health Mix – Millet Magic", category: "Urad Porridge Mix", price: 75, weight: "100g", image: "/products/urad-millet-magic-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 75 }, { weight: "250g", price: 165 }] },
+    { name: "Urad Health Mix – Premium", category: "Urad Porridge Mix", price: 75, weight: "100g", image: "/products/urad-premium-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 75 }, { weight: "250g", price: 165 }] },
+    { name: "Health Mix – Black Rice Delight", category: "Black Rice mix", price: 75, weight: "100g", image: "/products/black-rice-delight-front.jpg", stock: 50, isActive: true, variants: [{ weight: "100g", price: 75 }, { weight: "250g", price: 165 }] },
     { name: "Ragi Choco Malt", category: "Health drink mix", price: 250, weight: "250g", image: "/products/RagiChocoMalt.PNG", stock: 100, isActive: true, isNewArrival: true, isFeatured: true, variants: [{ weight: "250g", price: 250 }] },
     { name: "Nutriminix – Multi Grain Health Mix", category: "Health drink mix", price: 200, weight: "250g", image: "/products/NutriMix.PNG", stock: 100, isActive: true, isFeatured: true },
     { name: "Idly Podi – Traditional", category: "Idly Podi", price: 75, weight: "100g", image: "/products/TraditionalIdlyPodi.PNG", stock: 100, isActive: true },
     { name: "Idly Podi – Millet Fusion", category: "Idly Podi", price: 75, weight: "100g", image: "/products/MilletFusionIdlyPodi.PNG", stock: 100, isActive: true },
-    { name: "Rice Podi Mix", category: "Rice Mixes", price: 85, weight: "100g", image: "/products/HomeStyleParuppu.PNG", stock: 100, isActive: true },
-    { name: "Curry Leaves Rice Podi Mix", category: "Rice Mixes", price: 85, weight: "100g", image: "/products/KaruveppillaiSpecial.PNG", stock: 100, isActive: true },
-    { name: "Coriander Rice Podi Mix", category: "Rice Mixes", price: 85, weight: "100g", image: "/products/KothamalliAroma.PNG", stock: 100, isActive: true },
-    { name: "Moringa Rice Podi Mix", category: "Rice Mixes", price: 85, weight: "100g", image: "/products/MurungaiVital.PNG", stock: 100, isActive: true },
-    { name: "Pirandai Rice Podi Mix", category: "Rice Mixes", price: 85, weight: "100g", image: "/products/PirandaiPower.PNG", stock: 100, isActive: true }
+    { name: "Rice Podi Mix", category: "Rice Mixes", price: 75, weight: "100g", image: "/products/HomeStyleParuppu.PNG", stock: 100, isActive: true },
+    { name: "Curry Leaves Rice Podi Mix", category: "Rice Mixes", price: 75, weight: "100g", image: "/products/KaruveppillaiSpecial.PNG", stock: 100, isActive: true },
+    { name: "Coriander Rice Podi Mix", category: "Rice Mixes", price: 75, weight: "100g", image: "/products/KothamalliAroma.PNG", stock: 100, isActive: true },
+    { name: "Moringa Rice Podi Mix", category: "Rice Mixes", price: 75, weight: "100g", image: "/products/MurungaiVital.PNG", stock: 100, isActive: true },
+    { name: "Pirandai Rice Podi Mix", category: "Rice Mixes", price: 75, weight: "100g", image: "/products/PirandaiPower.PNG", stock: 100, isActive: true }
 ];
 
 async function seed() {
