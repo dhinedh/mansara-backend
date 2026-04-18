@@ -111,7 +111,7 @@ router.post('/', protect, async (req, res) => {
         // 4. SHIPPING CALCULATION (Server Side)
         // ========================================
         // SHIPPING REMOVED AS PER REQUIREMENT
-        const SHIPPING_THRESHOLD = 1000;
+        const SHIPPING_THRESHOLD = 750;
         const SHIPPING_CHARGE = 50;
         let shippingCharge = 0;
 
