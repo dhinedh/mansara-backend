@@ -60,6 +60,7 @@ const createCombo = async () => {
             isActive: true,
             isFeatured: true,
             isOffer: true,
+            offerPrice: 330,
             offerText: 'SAVE ₹20',
             attributes: [],
             specifications: []
