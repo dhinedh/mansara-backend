@@ -50,17 +50,17 @@ const createCombo = async () => {
             slug: 'ultimate-wellness-combo-5-mixes',
             description: 'Experience the complete range of Mansara Foods premium porridge mixes. This pack contains all 5 of our signature blends- Urad Porridge Mix (Classic, Premium, Salt & Pepper, Millet Magic) and Black Rice Delight.',
             short_description: 'All 5 Premium Porridge Mixes (Excludes Idly Podi)',
-            price: 260, // Special Price
-            originalPrice: 275, // Original Price
+            price: 330, // Special Price
+            originalPrice: 350, // Original Price
             image: '/product-combo-5mixes.jpg', // Ensure this matches moved file
             category: comboCategory._id,
             products: inputs.map(p => p._id),
-            comboPrice: 260,
+            comboPrice: 330,
             stock: 50, // Initial stock
             isActive: true,
             isFeatured: true,
             isOffer: true,
-            offerText: 'SAVE ₹15',
+            offerText: 'SAVE ₹20',
             attributes: [],
             specifications: []
         };
