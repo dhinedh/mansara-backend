@@ -178,9 +178,6 @@ const orderSchema = new mongoose.Schema({
     minimize: false
 });
 
-// Index for Shiprocket Webhooks
-orderSchema.index({ 'shipping.awb': 1 });
-
 // Validator for items array
 function arrayMinLength(val) {
     return val && val.length > 0;
