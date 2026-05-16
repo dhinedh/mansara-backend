@@ -170,7 +170,7 @@ router.post('/ndr-updates', async (req, res) => {
 router.post('/logistics-update', async (req, res) => {
     console.log('[DEBUG] Logistics Webhook Triggered');
     console.log('[DEBUG] Headers:', JSON.stringify(req.headers));
-    
+
     // Security Check
     const apiKey = req.headers['x-api-key'];
     if (apiKey !== 'MansaraLogistics2026') {
@@ -189,10 +189,10 @@ router.post('/logistics-update', async (req, res) => {
 
         // Find order by AWB
         const order = await Order.findOne({ 'shipping.awb': awb }).populate('user');
-        
+
         if (!order) {
-            console.error(`[SHIPROCKET WEBHOOK] Order not found for AWB: ${awb}`);
-            return res.status(404).json({ message: 'Order not found' });
+            console.warn(`[SHIPROCKET WEBHOOK] Order not found for AWB: ${awb} (This is normal during testing)`);
+            return res.status(200).json({ success: true, message: 'Order not found, but webhook received' });
         }
 
         // Map Shiprocket statuses to internal statuses

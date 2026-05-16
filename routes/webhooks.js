@@ -27,8 +27,8 @@ router.post('/logistics-update', async (req, res) => {
         const order = await Order.findOne({ 'shipping.awb': awb }).populate('user');
         
         if (!order) {
-            console.error(`[SHIPROCKET WEBHOOK] Order not found for AWB: ${awb}`);
-            return res.status(404).json({ message: 'Order not found' });
+            console.warn(`[SHIPROCKET WEBHOOK] Order not found for AWB: ${awb} (Test AWB)`);
+            return res.status(200).json({ success: true, message: 'Webhook received' });
         }
 
         // Map Shiprocket statuses to internal statuses
