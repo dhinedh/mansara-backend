@@ -164,10 +164,17 @@ router.post('/ndr-updates', async (req, res) => {
 });
 
 // ========================================
-// 3. SHIPROCKET WEBHOOK
-// Endpoint: POST /api/webhooks/shiprocket
+// 3. LOGISTICS WEBHOOK (Shiprocket)
+// Endpoint: POST /api/webhooks/logistics-update
 // ========================================
-router.post('/shiprocket', async (req, res) => {
+router.post('/logistics-update', async (req, res) => {
+    // Security Check
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey !== 'MansaraLogistics2026') {
+        console.warn(`[WEBHOOK] Unauthorized access attempt with key: ${apiKey}`);
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     try {
         const { awb, current_status } = req.body;
 

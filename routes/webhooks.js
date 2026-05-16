@@ -4,10 +4,16 @@ const Order = require('../models/Order');
 const notificationService = require('../utils/notificationService');
 
 /**
- * POST /api/webhooks/shiprocket
- * Handle Shiprocket push updates
+ * POST /api/webhooks/logistics-update
+ * Handle logistics updates (Shiprocket)
  */
-router.post('/shiprocket', async (req, res) => {
+router.post('/logistics-update', async (req, res) => {
+    // Security Check
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey !== 'MansaraLogistics2026') {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
     try {
         const { awb, current_status, shipment_id, order_id } = req.body;
 
