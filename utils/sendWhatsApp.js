@@ -1,15 +1,12 @@
 const whatsappService = require('./WhatsAppService');
-
 /**
  * PROXIED TO BOTBIZ WHATSAPP SERVICE
  * This file is kept for backward compatibility during migration.
  */
-
 const formatPhoneNumber = (phone) => {
     if (!phone) return '';
     return String(phone).replace(/\D/g, '');
 };
-
 const sendWhatsApp = async (destination, message) => {
     try {
         return await whatsappService.sendMessage(destination, message);

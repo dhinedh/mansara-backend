@@ -8,6 +8,7 @@ const whatsappService = require('../utils/WhatsAppService');
 const { protect, admin, checkPermission } = require('../middleware/authMiddleware');
 const notificationService = require('../utils/notificationService');
 const crypto = require('crypto'); // REQUIRED FOR SIGNATURE VERIFICATION
+const shiprocketService = require('../services/shiprocket');
 
 // ========================================
 // PERFORMANCE OPTIMIZATIONS ADDED:
@@ -207,6 +208,15 @@ router.post('/', protect, async (req, res) => {
         // Return response IMMEDIATELY without waiting for notification
         res.status(201).json(createdOrder);
 
+        // Shiprocket Automation (Steps 2-4)
+        process.nextTick(async () => {
+            try {
+                await shiprocketService.automateShipping(createdOrder._id);
+            } catch (srErr) {
+                console.error('[SHIPROCKET] Automation background error:', srErr);
+            }
+        });
+
     } catch (error) {
         console.error('[ERROR] Order Creation:', error);
         res.status(400).json({ message: error.message });
@@ -337,6 +347,24 @@ router.get('/:id', protect, async (req, res) => {
         res.json(order);
     } catch (error) {
         console.error('[ERROR] Get single order:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// ========================================
+// TRACK ORDER (SHIPROCKET)
+// ========================================
+router.get('/:id/track', protect, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).select('shipping orderStatus');
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.json({
+            status: order.orderStatus,
+            shipping: order.shipping
+        });
+    } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });

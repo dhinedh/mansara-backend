@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const { Product } = require('./models/Product');
 require('dotenv').config();
-
 const checkNewArrivals = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/mansara');

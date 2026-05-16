@@ -138,6 +138,23 @@ const orderSchema = new mongoose.Schema({
     trackingNumber: String,
     courier: String,
 
+    // Shiprocket Integration
+    shipping: {
+        srOrderId: String,
+        shipmentId: String,
+        awb: { type: String, index: true },
+        courierId: String,
+        courierName: String,
+        labelUrl: String,
+        status: {
+            type: String,
+            enum: ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'rto_initiated', 'returned'],
+            default: 'pending'
+        },
+        lastUpdate: Date,
+        trackingUrl: String
+    },
+
     // Additional tracking fields
     cancellationReason: String,
     cancelledBy: {
@@ -160,6 +177,9 @@ const orderSchema = new mongoose.Schema({
     timestamps: true,
     minimize: false
 });
+
+// Index for Shiprocket Webhooks
+orderSchema.index({ 'shipping.awb': 1 });
 
 // Validator for items array
 function arrayMinLength(val) {
