@@ -168,6 +168,9 @@ router.post('/ndr-updates', async (req, res) => {
 // Endpoint: POST /api/webhooks/logistics-update
 // ========================================
 router.post('/logistics-update', async (req, res) => {
+    console.log('[DEBUG] Logistics Webhook Triggered');
+    console.log('[DEBUG] Headers:', JSON.stringify(req.headers));
+    
     // Security Check
     const apiKey = req.headers['x-api-key'];
     if (apiKey !== 'MansaraLogistics2026') {
