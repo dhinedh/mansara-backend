@@ -478,7 +478,30 @@ orderSchema.statics.getStats = async function () {
  */
 orderSchema.pre('save', async function () {
     if (!this.orderId) {
-        this.orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
+        const date = new Date();
+        const year = date.getFullYear().toString().slice(-2);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const datePrefix = `ORD${year}${month}${day}`;
+
+        // Find the most recent order for today to determine the next number
+        const latestOrder = await this.constructor.findOne({
+            orderId: new RegExp(`^${datePrefix}`)
+        }).sort({ createdAt: -1 });
+
+        let sequence = 1;
+        if (latestOrder && latestOrder.orderId) {
+            const parts = latestOrder.orderId.split('-');
+            if (parts.length > 1) {
+                const lastNum = parseInt(parts[1], 10);
+                if (!isNaN(lastNum)) {
+                    sequence = lastNum + 1;
+                }
+            }
+        }
+
+        // Format as ORD240521-001
+        this.orderId = `${datePrefix}-${String(sequence).padStart(3, '0')}`;
     }
 });
 
