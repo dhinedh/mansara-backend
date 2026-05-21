@@ -181,6 +181,18 @@ const automateShipping = async (orderId) => {
             shipment_id: [order.shipping.shipmentId]
         });
 
+        // 6. Generate Invoice
+        try {
+            const invoiceData = await srRequest('POST', '/orders/print/invoice', {
+                ids: [srOrder.order_id]
+            });
+            if (invoiceData && invoiceData.is_invoice_created && invoiceData.invoice_url) {
+                order.shipping.invoiceUrl = invoiceData.invoice_url;
+            }
+        } catch (invoiceErr) {
+            console.error('[SHIPROCKET] Failed to generate invoice:', invoiceErr.message);
+        }
+
         order.shipping.status = 'picked_up'; // Initial status after pickup schedule
         order.orderStatus = 'Shipped';
         await order.save();

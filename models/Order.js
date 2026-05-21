@@ -146,6 +146,7 @@ const orderSchema = new mongoose.Schema({
         courierId: String,
         courierName: String,
         labelUrl: String,
+        invoiceUrl: String,
         status: {
             type: String,
             enum: ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'rto_initiated', 'returned'],
