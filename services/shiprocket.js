@@ -148,9 +148,19 @@ const automateShipping = async (orderId) => {
             courier_id: cheapestCourier.courier_company_id
         });
 
-        const awbCode = awbAssignment.response?.data?.awb_code;
+        let awbCode = awbAssignment.response?.data?.awb_code;
         if (!awbCode) {
-            throw new Error('Failed to assign AWB: ' + JSON.stringify(awbAssignment));
+            const errorMsg = awbAssignment.response?.data?.awb_assign_error;
+            if (errorMsg && errorMsg.includes('already assigned')) {
+                const match = errorMsg.match(/awb - ([a-zA-Z0-9]+)/i);
+                if (match && match[1]) {
+                    awbCode = match[1];
+                } else {
+                    throw new Error('AWB already assigned but could not extract AWB code: ' + errorMsg);
+                }
+            } else {
+                throw new Error('Failed to assign AWB: ' + JSON.stringify(awbAssignment));
+            }
         }
 
         order.shipping.awb = awbCode;
