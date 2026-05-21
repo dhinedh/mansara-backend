@@ -113,6 +113,11 @@ const automateShipping = async (orderId) => {
 
         const srOrder = await srRequest('POST', '/orders/create/adhoc', srOrderPayload);
         
+        if (!srOrder || !srOrder.order_id) {
+            console.error('[SHIPROCKET ERROR] Create Order Failed:', JSON.stringify(srOrder));
+            throw new Error(srOrder?.message || 'Failed to create order in Shiprocket');
+        }
+
         order.shipping.srOrderId = srOrder.order_id;
         order.shipping.shipmentId = srOrder.shipment_id;
         await order.save();
@@ -122,6 +127,11 @@ const automateShipping = async (orderId) => {
         // 2. Select Cheapest Courier
         const serviceability = await srRequest('GET', `/courier/serviceability?pickup_pincode=${process.env.SR_PICKUP_PINCODE}&delivery_pincode=${order.deliveryAddress.zip}&weight=0.5&cod=${order.paymentMethod === 'Cash on Delivery' ? 1 : 0}`);
         
+        if (!serviceability || !serviceability.data || !serviceability.data.available_courier_companies) {
+            console.error('[SHIPROCKET ERROR] Serviceability Failed:', JSON.stringify(serviceability));
+            throw new Error(serviceability?.message || 'No couriers available or serviceability check failed');
+        }
+
         const availableCouriers = serviceability.data.available_courier_companies;
         if (!availableCouriers || availableCouriers.length === 0) {
             throw new Error('No couriers available for this location');
