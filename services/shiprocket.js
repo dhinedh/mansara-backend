@@ -148,11 +148,12 @@ const automateShipping = async (orderId) => {
             courier_id: cheapestCourier.courier_company_id
         });
 
-        if (!awbAssignment.payload.awb_code) {
-            throw new Error('Failed to assign AWB');
+        const awbCode = awbAssignment.response?.data?.awb_code;
+        if (!awbCode) {
+            throw new Error('Failed to assign AWB: ' + JSON.stringify(awbAssignment));
         }
 
-        order.shipping.awb = awbAssignment.payload.awb_code;
+        order.shipping.awb = awbCode;
         order.shipping.courierId = cheapestCourier.courier_company_id;
         order.shipping.courierName = cheapestCourier.courier_name;
         await order.save();
