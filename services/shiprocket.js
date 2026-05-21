@@ -125,7 +125,7 @@ const automateShipping = async (orderId) => {
         console.log(`[SHIPROCKET] Order Created: SR_ID ${srOrder.order_id}`);
 
         // 2. Select Cheapest Courier
-        const serviceability = await srRequest('GET', `/courier/serviceability?pickup_pincode=${process.env.SR_PICKUP_PINCODE}&delivery_pincode=${order.deliveryAddress.zip}&weight=0.5&cod=${order.paymentMethod === 'Cash on Delivery' ? 1 : 0}`);
+        const serviceability = await srRequest('GET', `/courier/serviceability?pickup_postcode=${process.env.SR_PICKUP_PINCODE}&delivery_postcode=${order.deliveryAddress.zip}&weight=0.5&cod=${order.paymentMethod === 'Cash on Delivery' ? 1 : 0}`);
         
         if (!serviceability || !serviceability.data || !serviceability.data.available_courier_companies) {
             console.error('[SHIPROCKET ERROR] Serviceability Failed:', JSON.stringify(serviceability));
