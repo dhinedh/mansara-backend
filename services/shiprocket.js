@@ -106,7 +106,7 @@ const automateShipping = async (orderId) => {
             payment_method: order.paymentMethod === 'Cash on Delivery' ? 'COD' : 'Prepaid',
             sub_total: order.total,
             length: 10, // Default dimensions
-            width: 10,
+            breadth: 10,
             height: 10,
             weight: 0.5 // Default weight in KG
         };
