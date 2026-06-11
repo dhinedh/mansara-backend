@@ -22,6 +22,46 @@ const shiprocketService = require('../services/shiprocket');
 // ========================================
 
 // ========================================
+// SHIPROCKET BULK SHIPPING
+// ========================================
+router.post('/shiprocket', protect, checkPermission('orders', 'edit'), async (req, res) => {
+    try {
+        const { orderIds } = req.body;
+
+        if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+            return res.status(400).json({ message: 'No orders provided for shipping' });
+        }
+
+        const ordersToShip = await Order.find({ _id: { $in: orderIds } });
+        const results = [];
+
+        for (const order of ordersToShip) {
+            if (['Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'].includes(order.orderStatus)) {
+                results.push({ orderId: order._id, success: false, error: `Order is already ${order.orderStatus}` });
+                continue;
+            }
+
+            try {
+                const result = await shiprocketService.automateShipping(order._id);
+                if (result.success) {
+                    results.push({ orderId: order._id, success: true, awb: result.awb });
+                } else {
+                    results.push({ orderId: order._id, success: false, error: result.error });
+                }
+            } catch (err) {
+                 results.push({ orderId: order._id, success: false, error: err.message });
+            }
+        }
+
+        res.json({ message: 'Bulk shipping process completed', results });
+
+    } catch (error) {
+        console.error('Shiprocket Bulk Integration Error:', error);
+        res.status(500).json({ message: error.message || 'Internal Server Error' });
+    }
+});
+
+// ========================================
 // CREATE NEW ORDER (SECURE & OPTIMIZED)
 // ========================================
 router.post('/', protect, async (req, res) => {
