@@ -219,10 +219,14 @@ router.post('/', protect, async (req, res) => {
         // ========================================
         // CRITICAL STOCK MANAGEMENT
         // ========================================
-        // Clear user's cart in DB immediately.
+        // Clear user's cart in DB immediately and update lifetime statistics.
         // This prevents 'restore stock' logic from triggering when frontend calls clearCart().
         // OPTIMIZATION: Use findByIdAndUpdate because req.user is lean() (no save() method)
-        await User.findByIdAndUpdate(req.user._id, { $set: { cart: [] } });
+        await User.findByIdAndUpdate(req.user._id, { 
+            $set: { cart: [] },
+            $inc: { totalOrders: 1, totalSpent: finalTotal },
+            $set: { lastOrderDate: new Date() }
+        });
 
         // ========================================
         // OPTIMIZATION: TRULY NON-BLOCKING NOTIFICATION
