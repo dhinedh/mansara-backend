@@ -1,6 +1,7 @@
 const sendEmail = require('./sendEmail');
 const whatsappService = require('./WhatsAppService');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 // ========================================
 // OPTIMIZED NOTIFICATION SERVICE WITH BOTBIZ
@@ -89,6 +90,29 @@ const notificationService = {
     // 1. Order Placed - Waiting for Confirmation
     sendOrderPlaced: async (order, user) => {
         try {
+            // Create system notification in B2B CRM database for Admins
+            try {
+                const db = mongoose.connection.db;
+                if (db) {
+                    const UserModel = mongoose.model('User');
+                    const admins = await UserModel.find({ role: 'ADMIN' });
+                    for (const admin of admins) {
+                        await db.collection('notifications').insertOne({
+                            userId: admin._id,
+                            type: 'SYSTEM',
+                            title: 'New Website Order Placed 🛍️',
+                            message: `Order #${order.orderId} for ₹${order.total} has been placed by ${user.name}.`,
+                            isRead: false,
+                            metadata: { orderId: order._id, websiteOrder: true },
+                            createdAt: new Date()
+                        });
+                    }
+                    console.log(`[✓] Seeded ${admins.length} B2B CRM notifications for website order`);
+                }
+            } catch (notifErr) {
+                console.error('[ERROR] Failed to save CRM notification:', notifErr.message);
+            }
+
             const trackingLink = notificationService._getTrackingLink(order.orderId);
             const mapLink = notificationService._getGoogleMapsLink(order.deliveryAddress);
 
