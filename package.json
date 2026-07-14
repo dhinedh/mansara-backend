@@ -2,6 +2,9 @@
   "name": "backend-optimized",
   "version": "2.0.0",
   "description": "Optimized backend for Mansara Foods",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
