@@ -35,8 +35,14 @@ const protect = async (req, res, next) => {
         }
 
         try {
-            // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // Verify token (fallback to CRM secret if needed)
+            let decoded;
+            try {
+                decoded = jwt.verify(token, process.env.JWT_SECRET);
+            } catch (err) {
+                const crmSecret = process.env.CRM_JWT_SECRET || 'mansara_crm_super_secret_jwt_key_2024';
+                decoded = jwt.verify(token, crmSecret);
+            }
 
             // OPTIMIZATION: Support both 'id' and 'userId' in token payload
             // This supports both traditional login and Google OAuth
@@ -112,7 +118,7 @@ const admin = (req, res, next) => {
         });
     }
 
-    if (req.user.role === 'admin' || req.user.isAdmin === true) {
+    if (req.user.role === 'admin' || req.user.role === 'ADMIN' || req.user.isAdmin === true) {
         next();
     } else {
         return res.status(403).json({
@@ -410,8 +416,8 @@ const checkPermission = (module, requiredLevel) => {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
-        // Super Admin Bypass (optional, but good safety)
-        if (req.user.role === 'admin' && req.user.email.includes('backend-admin')) {
+        // Super Admin Bypass
+        if (req.user.role === 'admin' || req.user.role === 'ADMIN' || req.user.isAdmin === true) {
             return next();
         }
 
