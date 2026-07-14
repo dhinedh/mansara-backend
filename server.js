@@ -45,6 +45,7 @@ const allowedOrigins = [
     'http://localhost:8080',
     'https://mansarafoods.com',
     'https://www.mansarafoods.com',
+    'https://mansarafoodscrm.vercel.app',
 ];
 
 app.use(cors({
