@@ -72,11 +72,41 @@ class WhatsAppService {
     async sendMessage(phone, message) {
         try {
             const normalizedPhone = this._normalizePhone(phone);
-            
-            // Botbiz often requires the FULL KEY (user_id|token) in the payload or query
+            console.log(`!!! [WHATSAPP SERVICE] Sending WhatsApp message to ${normalizedPhone}...`);
+
+            // Priority 1: Direct Meta WhatsApp Cloud API
+            const metaToken = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
+            const metaPhoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID;
+
+            if (metaToken && metaPhoneId) {
+                try {
+                    const metaRes = await axios.post(
+                        `https://graph.facebook.com/v20.0/${metaPhoneId}/messages`,
+                        {
+                            messaging_product: 'whatsapp',
+                            recipient_type: 'individual',
+                            to: normalizedPhone,
+                            type: 'text',
+                            text: { preview_url: false, body: message }
+                        },
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${metaToken}`,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+                    console.log(`!!! [WHATSAPP SERVICE] ✓ Meta Cloud API Success:`, JSON.stringify(metaRes.data));
+                    return { success: true, data: metaRes.data };
+                } catch (metaErr) {
+                    console.error('!!! [WHATSAPP SERVICE] ✗ Meta Cloud API Error:', metaErr.response?.data || metaErr.message);
+                }
+            }
+
+            // Priority 2: BotBiz API Fallback
             const payload = {
-                apiToken: this.apiKey,      // Try full key first
-                api_token: this.apiKey,     // Try snake case
+                apiToken: this.apiKey,
+                api_token: this.apiKey,
                 phoneNumberID: this.phoneId,
                 phone_number: normalizedPhone,
                 message: message
@@ -84,15 +114,9 @@ class WhatsAppService {
 
             if (this.userId) payload.user_id = this.userId;
 
-            console.log(`!!! [WHATSAPP SERVICE] Sending to ${normalizedPhone}`);
-
-            // Try sending with full key in body
             let response = await this.client.post('/whatsapp/send', payload);
             
-            // IF result contains "Access denied" or similar, try alternative format
-            if (response.data?.status === 'error' || response.data?.e === 'Access denied.') {
-                console.log(`!!! [WHATSAPP SERVICE] Retry with query-string token...`);
-                // Test 4 format: apiToken in Query
+            if (response.data?.status === 'error' || response.data?.e === 'Access denied.' || response.data?.message === 'Access denied.') {
                 response = await this.client.post(`/whatsapp/send?apiToken=${this.apiKey}`, {
                     phoneNumberID: this.phoneId,
                     phone_number: normalizedPhone,
