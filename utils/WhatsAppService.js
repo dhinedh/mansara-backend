@@ -111,11 +111,33 @@ class WhatsAppService {
     }
 
     /**
-     * Send OTP via WhatsApp
+     * Send OTP via WhatsApp Bot Automation API
      */
-    async sendOTP(phone, otp) {
-        const message = `Your Mansara Foods verification code is: *${otp}*.\n\nValid for 10 minutes. Do not share this code with anyone. 🙏`;
-        return this.sendMessage(phone, message);
+    async sendOTP(phone, otp, type = 'registration') {
+        const normalizedPhone = this._normalizePhone(phone);
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        
+        console.log(`[WHATSAPP SERVICE] Sending ${type} OTP (${otp}) to ${normalizedPhone} via WhatsApp Bot Automation...`);
+
+        try {
+            const response = await axios.post(`${botUrl}/api/send-otp`, {
+                phone: normalizedPhone,
+                otp: otp,
+                type: type
+            }, { timeout: 10000 });
+
+            console.log(`[WHATSAPP SERVICE] ✓ OTP successfully delivered via WhatsApp Bot:`, response.data);
+            return response.data;
+        } catch (error) {
+            console.error('[WHATSAPP SERVICE] ✗ Bot Automation API Error:', error.response?.data || error.message);
+            // Fallback: send via Botbiz if configured
+            if (this.phoneId && this.apiKey) {
+                console.log(`[WHATSAPP SERVICE] Fallback to Botbiz for ${normalizedPhone}...`);
+                const message = `Your Mansara Foods verification code is: *${otp}*.\n\nValid for 10 minutes. 🙏`;
+                return this.sendMessage(phone, message);
+            }
+            throw error;
+        }
     }
 
     /**

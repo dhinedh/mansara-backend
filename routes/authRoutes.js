@@ -44,7 +44,7 @@ const sendOTPAsync = (whatsapp, email, otp) => {
 
         // 1. WhatsApp
         try {
-            await whatsappService.sendOTP(whatsapp, otp);
+            await whatsappService.sendOTP(whatsapp, otp, 'registration');
             console.log(`[WHATSAPP] ✓ Registration OTP sent to ${whatsapp}`);
         } catch (err) {
             console.error(`[WHATSAPP] ✗ Registration OTP failed for ${whatsapp}:`, err.response?.data || err.message);
@@ -620,9 +620,9 @@ router.post('/forgot-password', async (req, res) => {
             console.log(`!!! [AUTH] User Phone from DB: "${user.whatsapp}"`);
             console.log(`!!! [AUTH] Active Phone ID: ${process.env.BOTBIZ_PHONE_ID}`);
 
-            // 1. Send WhatsApp OTP via Botbiz
+            // 1. Send WhatsApp OTP via WhatsApp Bot Automation
             try {
-                const result = await whatsappService.sendOTP(user.whatsapp, otp);
+                const result = await whatsappService.sendOTP(user.whatsapp, otp, 'forgot_password');
                 console.log(`!!! [WHATSAPP] ✓ Success:`, JSON.stringify(result));
             } catch (err) {
                 console.error(`!!! [WHATSAPP] ✗ Fatal Error:`, err.response?.data || err.message);
