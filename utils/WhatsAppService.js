@@ -2,30 +2,9 @@ const axios = require('axios');
 
 class WhatsAppService {
     constructor() {
-        this.apiKey = process.env.BOTBIZ_API_KEY;
-        this.baseUrl = process.env.BOTBIZ_BASE_URL || 'https://dash.botbiz.io/api/v1';
-        this.phoneId = process.env.BOTBIZ_PHONE_ID;
-
-        // BOTBIZ KEY FORMAT HANDLING: user_id|api_token
-        this.userId = null;
-        this.tokenPart = this.apiKey;
-        if (this.apiKey && this.apiKey.includes('|')) {
-            const parts = this.apiKey.split('|');
-            this.userId = parts[0];
-            this.tokenPart = parts[1];
-        }
-
-        console.log(`!!! [WHATSAPP SERVICE] Initializing...`);
-        console.log(`!!! [WHATSAPP SERVICE] User ID: ${this.userId || 'none'}`);
-        console.log(`!!! [WHATSAPP SERVICE] Phone ID: ${this.phoneId || '✗ MISSING'}`);
-
-        this.client = axios.create({
-            baseURL: this.baseUrl,
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        });
+        this.token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
+        this.phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || '1234259863105295';
+        console.log(`[WHATSAPP SERVICE] Initialized with Meta Cloud API (Phone ID: ${this.phoneId})`);
     }
 
     /**
@@ -33,89 +12,19 @@ class WhatsAppService {
      */
     _normalizePhone(phone) {
         if (!phone) return null;
-        // Strip everything but digits
         let clean = phone.toString().replace(/\D/g, '');
         if (clean.length === 10) {
             clean = '91' + clean;
         }
-        // Ensure no '+' prefix which BotBiz sometimes rejects
         return clean;
     }
 
     /**
-     * Create or update a subscriber
-     */
-    async createSubscriber(phone, name, details = {}) {
-        try {
-            const normalizedPhone = this._normalizePhone(phone);
-            const payload = {
-                apiToken: this.tokenPart,
-                phoneNumberID: this.phoneId,
-                phone: normalizedPhone,
-                name: name,
-                ...details
-            };
-            if (this.userId) payload.user_id = this.userId;
-
-            const response = await this.client.post('/whatsapp/subscriber/create', payload);
-            console.log(`[WHATSAPP] Subscriber created: ${normalizedPhone}`);
-            return response.data;
-        } catch (error) {
-            console.error('[WHATSAPP SERVICE] Error creating subscriber:', error.response?.data || error.message);
-            throw error;
-        }
-    }
-
-    /**
-     * Send a WhatsApp message
-     */
-    async sendMessage(phone, message) {
-        try {
-            const normalizedPhone = this._normalizePhone(phone);
-            
-            // Botbiz often requires the FULL KEY (user_id|token) in the payload or query
-            const payload = {
-                apiToken: this.apiKey,      // Try full key first
-                api_token: this.apiKey,     // Try snake case
-                phoneNumberID: this.phoneId,
-                phone_number: normalizedPhone,
-                message: message
-            };
-
-            if (this.userId) payload.user_id = this.userId;
-
-            console.log(`!!! [WHATSAPP SERVICE] Sending to ${normalizedPhone}`);
-
-            // Try sending with full key in body
-            let response = await this.client.post('/whatsapp/send', payload);
-            
-            // IF result contains "Access denied" or similar, try alternative format
-            if (response.data?.status === 'error' || response.data?.e === 'Access denied.') {
-                console.log(`!!! [WHATSAPP SERVICE] Retry with query-string token...`);
-                // Test 4 format: apiToken in Query
-                response = await this.client.post(`/whatsapp/send?apiToken=${this.apiKey}`, {
-                    phoneNumberID: this.phoneId,
-                    phone_number: normalizedPhone,
-                    message: message,
-                    user_id: this.userId
-                });
-            }
-
-            console.log(`!!! [WHATSAPP] ✓ API Response:`, JSON.stringify(response.data));
-            return response.data;
-        } catch (error) {
-            const errorDetails = error.response?.data || error.message;
-            console.error('!!! [WHATSAPP SERVICE] ✗ API Error:', error.response?.status, JSON.stringify(errorDetails));
-            throw error;
-        }
-    }
-
-    /**
-     * Send direct message via Meta WhatsApp Cloud API
+     * Send direct text message via Meta WhatsApp Cloud API
      */
     async sendMetaCloudMessage(phone, text) {
-        const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
-        const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || '1234259863105295';
+        const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN || this.token;
+        const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || this.phoneId;
         const normalizedPhone = this._normalizePhone(phone);
 
         if (!token || !phoneId) {
@@ -144,6 +53,13 @@ class WhatsAppService {
     }
 
     /**
+     * Send a WhatsApp message (Alias for Meta Cloud Message)
+     */
+    async sendMessage(phone, message) {
+        return this.sendMetaCloudMessage(phone, message);
+    }
+
+    /**
      * Send OTP via WhatsApp Bot Automation API (with Direct Meta Cloud API Fallback)
      */
     async sendOTP(phone, otp, type = 'registration') {
@@ -166,7 +82,7 @@ class WhatsAppService {
             console.warn(`[WHATSAPP SERVICE] Bot Automation API unreachable (${error.message}). Falling back to direct Meta Cloud API...`);
         }
 
-        // 2. Direct Meta WhatsApp Cloud API Fallback (Guarantees delivery even if bot server is sleeping/offline)
+        // 2. Direct Meta WhatsApp Cloud API Fallback
         let message = "";
         if (type === 'forgot_password') {
             message = `🔐 *Mansara Foods - Password Reset Code*\n\nNamaste! 🙏\nYour verification code is: *${otp}*\n\nValid for 10 minutes. Do not share this code with anyone.`;
@@ -174,17 +90,7 @@ class WhatsAppService {
             message = `🌿 *Welcome to Mansara Foods!* 🙏\n\nYour account registration verification code is: *${otp}*\n\nValid for 10 minutes. Please enter this code on the website to verify your account.`;
         }
 
-        try {
-            return await this.sendMetaCloudMessage(phone, message);
-        } catch (metaErr) {
-            console.error('[WHATSAPP SERVICE] ✗ Meta Direct Delivery Failed:', metaErr?.response?.data || metaErr.message);
-            // 3. Last-ditch Botbiz fallback
-            if (this.phoneId && this.apiKey) {
-                console.log(`[WHATSAPP SERVICE] Attempting Botbiz fallback for ${normalizedPhone}...`);
-                return this.sendMessage(phone, message);
-            }
-            throw metaErr;
-        }
+        return await this.sendMetaCloudMessage(phone, message);
     }
 
     /**
