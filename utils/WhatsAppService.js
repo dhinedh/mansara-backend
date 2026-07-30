@@ -111,7 +111,40 @@ class WhatsAppService {
     }
 
     /**
-     * Send OTP via WhatsApp Bot Automation API
+     * Send direct message via Meta WhatsApp Cloud API
+     */
+    async sendMetaCloudMessage(phone, text) {
+        const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
+        const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || '1234259863105295';
+        const normalizedPhone = this._normalizePhone(phone);
+
+        if (!token || !phoneId) {
+            throw new Error('Missing Meta API credentials (META_ACCESS_TOKEN / META_PHONE_NUMBER_ID)');
+        }
+
+        console.log(`[WHATSAPP SERVICE] Delivering via Meta Cloud API to ${normalizedPhone}...`);
+        const response = await axios({
+            method: 'POST',
+            url: `https://graph.facebook.com/v20.0/${phoneId}/messages`,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            data: {
+                messaging_product: 'whatsapp',
+                to: normalizedPhone,
+                type: 'text',
+                text: { body: text }
+            },
+            timeout: 8000
+        });
+
+        console.log(`[WHATSAPP SERVICE] ✓ Delivered via Meta Cloud API to ${normalizedPhone}`);
+        return response.data;
+    }
+
+    /**
+     * Send OTP via WhatsApp Bot Automation API (with Direct Meta Cloud API Fallback)
      */
     async sendOTP(phone, otp, type = 'registration') {
         const normalizedPhone = this._normalizePhone(phone);
@@ -119,24 +152,38 @@ class WhatsAppService {
         
         console.log(`[WHATSAPP SERVICE] Sending ${type} OTP (${otp}) to ${normalizedPhone} via WhatsApp Bot Automation...`);
 
+        // 1. Try WhatsApp Bot Automation API (Fast 4s Timeout)
         try {
             const response = await axios.post(`${botUrl}/api/send-otp`, {
                 phone: normalizedPhone,
                 otp: otp,
                 type: type
-            }, { timeout: 10000 });
+            }, { timeout: 4000 });
 
             console.log(`[WHATSAPP SERVICE] ✓ OTP successfully delivered via WhatsApp Bot:`, response.data);
             return response.data;
         } catch (error) {
-            console.error('[WHATSAPP SERVICE] ✗ Bot Automation API Error:', error.response?.data || error.message);
-            // Fallback: send via Botbiz if configured
+            console.warn(`[WHATSAPP SERVICE] Bot Automation API unreachable (${error.message}). Falling back to direct Meta Cloud API...`);
+        }
+
+        // 2. Direct Meta WhatsApp Cloud API Fallback (Guarantees delivery even if bot server is sleeping/offline)
+        let message = "";
+        if (type === 'forgot_password') {
+            message = `🔐 *Mansara Foods - Password Reset Code*\n\nNamaste! 🙏\nYour verification code is: *${otp}*\n\nValid for 10 minutes. Do not share this code with anyone.`;
+        } else {
+            message = `🌿 *Welcome to Mansara Foods!* 🙏\n\nYour account registration verification code is: *${otp}*\n\nValid for 10 minutes. Please enter this code on the website to verify your account.`;
+        }
+
+        try {
+            return await this.sendMetaCloudMessage(phone, message);
+        } catch (metaErr) {
+            console.error('[WHATSAPP SERVICE] ✗ Meta Direct Delivery Failed:', metaErr?.response?.data || metaErr.message);
+            // 3. Last-ditch Botbiz fallback
             if (this.phoneId && this.apiKey) {
-                console.log(`[WHATSAPP SERVICE] Fallback to Botbiz for ${normalizedPhone}...`);
-                const message = `Your Mansara Foods verification code is: *${otp}*.\n\nValid for 10 minutes. 🙏`;
+                console.log(`[WHATSAPP SERVICE] Attempting Botbiz fallback for ${normalizedPhone}...`);
                 return this.sendMessage(phone, message);
             }
-            throw error;
+            throw metaErr;
         }
     }
 
