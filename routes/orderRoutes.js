@@ -146,6 +146,12 @@ router.post('/', protect, async (req, res) => {
             dbTotal += (item.price * item.quantity);
 
             await product.save();
+
+            // Low / Out of Stock Alert to Admin WhatsApp (918838887064)
+            if (product.stock <= 10) {
+                whatsappService.sendAdminStockAlert(product.name, product.stock)
+                    .catch(err => console.error('[ERROR] Admin stock alert failed:', err));
+            }
         }
 
         // ========================================
@@ -237,9 +243,12 @@ router.post('/', protect, async (req, res) => {
             notificationService.sendOrderPlaced(createdOrder, req.user)
                 .catch(err => console.error('[ERROR] Order notification failed:', err));
 
-            // Botbiz WhatsApp Confirmation
+            // WhatsApp Customer Confirmation & Admin WhatsApp Order Notification
             whatsappService.sendOrderConfirmation(createdOrder, req.user)
                 .catch(err => console.error('[ERROR] WhatsApp Order confirmation failed:', err));
+
+            whatsappService.sendAdminOrderNotification(createdOrder, req.user)
+                .catch(err => console.error('[ERROR] Admin WhatsApp Order alert failed:', err));
 
             // Loyalty Tagger
             const categories = [...new Set(items.map(item => item.categoryName))].filter(Boolean);

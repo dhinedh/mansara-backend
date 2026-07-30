@@ -94,6 +94,81 @@ class WhatsAppService {
     }
 
     /**
+     * Send Admin WhatsApp New Order Notification (to 918838887064)
+     */
+    async sendAdminOrderNotification(order, user) {
+        const adminPhone = process.env.ADMIN_PHONE || '918838887064';
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+
+        const addr = order.deliveryAddress;
+        const fullAddr = addr ? `${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.zip || ''}` : 'N/A';
+        const custName = (addr && addr.firstName) ? `${addr.firstName} ${addr.lastName || ''}` : (user?.name || 'Website Customer');
+        const custPhone = user?.whatsapp || user?.phone || addr?.phone || 'N/A';
+
+        const itemsList = (order.items || []).map(i => ({
+            name: i.name,
+            quantity: i.quantity,
+            price: i.price,
+            weight: i.weight || ''
+        }));
+
+        console.log(`[WHATSAPP SERVICE] Sending Admin New Order Alert (#${order.orderId}) to Admin ${adminPhone}...`);
+
+        try {
+            await axios.post(`${botUrl}/api/notify-admin-order`, {
+                orderId: order.orderId,
+                customerName: custName,
+                customerPhone: custPhone,
+                address: fullAddr,
+                items: itemsList,
+                total: order.total,
+                paymentMethod: order.paymentMethod,
+                paymentStatus: order.paymentStatus
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Admin order alert sent via Bot Automation API`);
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] Bot API unreachable. Sending direct Meta text alert to Admin...', err.message);
+            
+            const itemsText = itemsList.map(i => `• ${i.quantity}x ${i.name} – ₹${i.price * i.quantity}`).join('\n');
+            const alertMsg = `🛍️ *NEW ORDER RECEIVED!* 🛒\n\n` +
+                `📦 *Order ID:* ${order.orderId}\n` +
+                `👤 *Customer:* ${custName}\n` +
+                `📞 *Phone:* ${custPhone}\n` +
+                `📍 *Address:* ${fullAddr}\n` +
+                `💳 *Payment:* ${order.paymentMethod} (${order.paymentStatus})\n\n` +
+                `🛒 *Items Ordered:*\n${itemsText}\n\n` +
+                `💰 *Total Amount:* ₹${order.total}\n\n` +
+                `Reply to update status: "${order.orderId} Packed", "${order.orderId} Shipped", or "${order.orderId} Delivered"`;
+
+            await this.sendMetaCloudMessage(adminPhone, alertMsg);
+        }
+    }
+
+    /**
+     * Send Admin WhatsApp Low Stock / Out of Stock Alert (to 918838887064)
+     */
+    async sendAdminStockAlert(productName, stock) {
+        const adminPhone = process.env.ADMIN_PHONE || '918838887064';
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+
+        try {
+            await axios.post(`${botUrl}/api/notify-admin-stock`, {
+                productName,
+                stock
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Admin stock alert sent for ${productName} (stock: ${stock})`);
+        } catch (err) {
+            let alertMsg = "";
+            if (stock <= 0) {
+                alertMsg = `🚨 *OUT OF STOCK ALERT!* ❌\n\nProduct: *${productName}*\nRemaining Stock: *0 items*\n\n⚠️ Product is OUT OF STOCK. Please restock immediately!`;
+            } else {
+                alertMsg = `⚠️ *LOW STOCK ALERT!* 📦\n\nProduct: *${productName}*\nRemaining Stock: *${stock} items*\n\n💡 Stock is running low!`;
+            }
+            await this.sendMetaCloudMessage(adminPhone, alertMsg);
+        }
+    }
+
+    /**
      * Send bulk WhatsApp messages with delay
      */
     async sendBulkWhatsApp(messagesList, delay = 1000) {
