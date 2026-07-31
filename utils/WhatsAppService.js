@@ -2,25 +2,28 @@ const axios = require('axios');
 
 class WhatsAppService {
     constructor() {
-        this.token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN;
-        this.phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || '1234259863105295';
-        console.log(`[WHATSAPP SERVICE] Initialized with Meta Cloud API (Phone ID: ${this.phoneId})`);
+        this.baseURL = process.env.WHATSAPP_API_URL || 'https://api.whatsapp.com';
+        this.token = process.env.WHATSAPP_API_TOKEN;
+        this.phoneId = process.env.WHATSAPP_PHONE_ID;
+        
+        this.client = axios.create({
+            baseURL: this.baseURL,
+            headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
     }
 
-    /**
-     * Helper to normalize phone number (adds 91 for Indian numbers if missing)
-     */
     _normalizePhone(phone) {
-        if (!phone) return null;
+        if (!phone) return '';
         let clean = phone.toString().replace(/\D/g, '');
-        if (clean.length === 10) {
-            clean = '91' + clean;
-        }
+        if (clean.length === 10) return '91' + clean;
         return clean;
     }
 
     /**
-     * Send direct text message via Meta WhatsApp Cloud API
+     * Direct WhatsApp Cloud API delivery via Meta Graph API
      */
     async sendMetaCloudMessage(phone, text) {
         const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN || this.token;
@@ -28,28 +31,34 @@ class WhatsAppService {
         const normalizedPhone = this._normalizePhone(phone);
 
         if (!token || !phoneId) {
-            throw new Error('Missing Meta API credentials (META_ACCESS_TOKEN / META_PHONE_NUMBER_ID)');
+            console.warn('[WHATSAPP SERVICE] Missing Meta API credentials (META_ACCESS_TOKEN / META_PHONE_NUMBER_ID)');
+            return { success: false, error: 'Missing credentials' };
         }
 
-        console.log(`[WHATSAPP SERVICE] Delivering via Meta Cloud API to ${normalizedPhone}...`);
-        const response = await axios({
-            method: 'POST',
-            url: `https://graph.facebook.com/v20.0/${phoneId}/messages`,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            data: {
-                messaging_product: 'whatsapp',
-                to: normalizedPhone,
-                type: 'text',
-                text: { body: text }
-            },
-            timeout: 8000
-        });
+        console.log(`[WHATSAPP SERVICE] Delivering direct Meta Cloud message to ${normalizedPhone}...`);
+        try {
+            const response = await axios({
+                method: 'POST',
+                url: `https://graph.facebook.com/v20.0/${phoneId}/messages`,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    messaging_product: 'whatsapp',
+                    to: normalizedPhone,
+                    type: 'text',
+                    text: { body: text }
+                },
+                timeout: 8000
+            });
 
-        console.log(`[WHATSAPP SERVICE] ✓ Delivered via Meta Cloud API to ${normalizedPhone}`);
-        return response.data;
+            console.log(`[WHATSAPP SERVICE] ✓ Delivered via Meta Cloud API to ${normalizedPhone}`);
+            return response.data;
+        } catch (error) {
+            console.error('[WHATSAPP SERVICE] Meta Cloud API Error:', error.response?.data || error.message);
+            throw error;
+        }
     }
 
     /**
@@ -66,9 +75,8 @@ class WhatsAppService {
         const normalizedPhone = this._normalizePhone(phone);
         const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
         
-        console.log(`[WHATSAPP SERVICE] Sending ${type} OTP (${otp}) to ${normalizedPhone} via WhatsApp Bot Automation...`);
+        console.log(`[WHATSAPP SERVICE] Sending ${type} OTP (${otp}) to ${normalizedPhone}...`);
 
-        // 1. Try WhatsApp Bot Automation API (Fast 4s Timeout)
         try {
             const response = await axios.post(`${botUrl}/api/send-otp`, {
                 phone: normalizedPhone,
@@ -76,13 +84,12 @@ class WhatsAppService {
                 type: type
             }, { timeout: 4000 });
 
-            console.log(`[WHATSAPP SERVICE] ✓ OTP successfully delivered via WhatsApp Bot:`, response.data);
+            console.log(`[WHATSAPP SERVICE] ✓ OTP delivered via WhatsApp Bot:`, response.data);
             return response.data;
         } catch (error) {
             console.warn(`[WHATSAPP SERVICE] Bot Automation API unreachable (${error.message}). Falling back to direct Meta Cloud API...`);
         }
 
-        // 2. Direct Meta WhatsApp Cloud API Fallback
         let message = "";
         if (type === 'forgot_password') {
             message = `🔐 *Mansara Foods - Password Reset Code*\n\nNamaste! 🙏\nYour verification code is: *${otp}*\n\nValid for 10 minutes. Do not share this code with anyone.`;
@@ -91,6 +98,167 @@ class WhatsAppService {
         }
 
         return await this.sendMetaCloudMessage(phone, message);
+    }
+
+    /**
+     * Send Order Confirmation via WhatsApp Bot Automation (with Direct Meta Fallback)
+     */
+    async sendOrderConfirmation(order, user) {
+        const phone = user?.whatsapp || user?.phone || order.deliveryAddress?.phone;
+        if (!phone) return;
+
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        const addr = order.deliveryAddress;
+        const fullAddr = addr ? `${addr.street || ''}, ${addr.city || ''}, ${addr.state || ''} - ${addr.zip || ''}` : 'N/A';
+        const custName = (addr && addr.firstName) ? `${addr.firstName} ${addr.lastName || ''}` : (user?.name || 'Customer');
+
+        const itemsList = (order.items || []).map(i => ({
+            name: i.name,
+            quantity: i.quantity,
+            price: i.price,
+            weight: i.weight || ''
+        }));
+
+        console.log(`[WHATSAPP SERVICE] Sending Order Confirmation (#${order.orderId}) to ${phone}...`);
+
+        try {
+            await axios.post(`${botUrl}/api/notify-customer-order`, {
+                phone,
+                orderId: order.orderId,
+                customerName: custName,
+                items: itemsList,
+                total: order.total,
+                address: fullAddr,
+                paymentMethod: order.paymentMethod || 'COD',
+                paymentStatus: order.paymentStatus || 'Pending',
+                trackingLink: `https://mansarafoods.com/order-tracking/${order.orderId}`
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Customer order confirmation sent via Bot API`);
+            return { success: true };
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] Bot API error on order confirmation. Falling back to direct Meta text...', err.message);
+            const itemsText = itemsList.map(i => `• ${i.quantity}x ${i.name} – ₹${i.price * i.quantity}`).join('\n');
+            const fallbackMsg = `Namaste ${custName}! 🙏\n\n🎉 *Order Confirmed!* 🛍️\n\nOrder ID: *${order.orderId}*\nTotal: *₹${order.total}* (${order.paymentMethod || 'COD'})\n\n🛒 *Items Purchased:*\n${itemsText}\n\n📍 Track status: https://mansarafoods.com/order-tracking/${order.orderId}\n\nWe will notify you when it ships! 🚛`;
+            return await this.sendMetaCloudMessage(phone, fallbackMsg);
+        }
+    }
+
+    /**
+     * Send Order Status Notification via WhatsApp Bot Automation (with Direct Meta Fallback)
+     */
+    async sendStatusNotification(order, user, status) {
+        const phone = user?.whatsapp || user?.phone || order.deliveryAddress?.phone;
+        if (!phone) return;
+
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        const trackingLink = `https://mansarafoods.com/order-tracking/${order.orderId}`;
+
+        console.log(`[WHATSAPP SERVICE] Sending Status Notification (#${order.orderId} -> ${status}) to ${phone}...`);
+
+        try {
+            await axios.post(`${botUrl}/api/notify-customer-status`, {
+                phone,
+                orderId: order.orderId,
+                status: status || order.orderStatus,
+                trackingLink
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Customer status notification sent via Bot API`);
+            return { success: true };
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] Bot API error on status notification. Falling back to direct Meta text...', err.message);
+            let message = `Hi! Your order *#${order.orderId}* status has been updated to: *${status}*.`;
+            if (status === 'Shipped') {
+                message += `\n\nYour healthy goodies are on the way! 🚛💨\nTrack here: ${trackingLink}`;
+            } else if (status === 'Delivered') {
+                message += `\n\nYour order has been delivered! Hope you enjoy your Mansara experience. ✨`;
+            } else if (status === 'Cancelled') {
+                message += `\n\nYour order has been cancelled.`;
+            }
+            return await this.sendMetaCloudMessage(phone, message);
+        }
+    }
+
+    /**
+     * Send Product Review Request via WhatsApp Bot Automation (with Direct Meta Fallback)
+     */
+    async sendReviewRequest(order, user) {
+        const phone = user?.whatsapp || user?.phone || order.deliveryAddress?.phone;
+        if (!phone) return;
+
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        const custName = user?.name || order.deliveryAddress?.firstName || 'Valued Customer';
+        const itemsList = (order.items || []).map(i => i.name);
+
+        console.log(`[WHATSAPP SERVICE] Sending Review Request (#${order.orderId}) to ${phone}...`);
+
+        try {
+            await axios.post(`${botUrl}/api/notify-customer-review`, {
+                phone,
+                orderId: order.orderId,
+                customerName: custName,
+                items: itemsList
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Customer review request sent via Bot API`);
+            return { success: true };
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] Bot API error on review request. Falling back to direct Meta text...', err.message);
+            const fallbackMsg = `Namaste ${custName}! 🙏\n\n⭐ *How was your order #${order.orderId}?*\n\nYour order has been delivered! 🎉 We'd love to know what you think about our organic foods.\n\nPlease write a review: https://mansarafoods.com/account/orders\n\nThank you for your support! 🌿`;
+            return await this.sendMetaCloudMessage(phone, fallbackMsg);
+        }
+    }
+
+    /**
+     * Send Welcome Message via WhatsApp Bot Automation (with Direct Meta Fallback)
+     */
+    async sendWelcomeMessage(user) {
+        const phone = user?.whatsapp || user?.phone;
+        if (!phone) return;
+
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        const custName = user?.name || 'Valued Customer';
+
+        console.log(`[WHATSAPP SERVICE] Sending Welcome Message to ${phone}...`);
+
+        try {
+            await axios.post(`${botUrl}/api/notify-customer-welcome`, {
+                phone,
+                customerName: custName
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Customer welcome message sent via Bot API`);
+            return { success: true };
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] Bot API error on welcome message. Falling back to direct Meta text...', err.message);
+            const fallbackMsg = `Namaste ${custName}! 🙏\n\n🌿 *Welcome to Mansara Foods!* 🌿\n\nWe bring pure, traditional, and healthy food products directly to your doorstep.\n\n🎁 Use code *WELCOME10* for 10% OFF on your first purchase!\n\nShop online: https://mansarafoods.com`;
+            return await this.sendMetaCloudMessage(phone, fallbackMsg);
+        }
+    }
+
+    /**
+     * Send Custom Admin-to-Customer Message via WhatsApp Bot Automation
+     */
+    async sendCustomMessage(order, user, messageContent) {
+        const phone = user?.whatsapp || user?.phone || order?.deliveryAddress?.phone;
+        if (!phone) return;
+
+        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        const custName = user?.name || order?.deliveryAddress?.firstName || 'Customer';
+
+        console.log(`[WHATSAPP SERVICE] Sending Custom Message to ${phone}...`);
+
+        try {
+            await axios.post(`${botUrl}/api/notify-customer-custom`, {
+                phone,
+                customerName: custName,
+                orderId: order?.orderId || '',
+                messageText: messageContent
+            }, { timeout: 5000 });
+            console.log(`[WHATSAPP SERVICE] ✓ Custom customer message sent via Bot API`);
+            return { success: true };
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] Bot API error on custom message. Falling back to direct Meta text...', err.message);
+            const fallbackMsg = `Hi ${custName}! 🌿\n\n${messageContent}\n\nOrder ID: ${order?.orderId || 'N/A'}`;
+            return await this.sendMetaCloudMessage(phone, fallbackMsg);
+        }
     }
 
     /**
@@ -234,37 +402,6 @@ class WhatsAppService {
             console.error('[WHATSAPP SERVICE] Error syncing catalog:', error.response?.data || error.message);
             throw error;
         }
-    }
-
-    /**
-     * Send Order Confirmation
-     */
-    async sendOrderConfirmation(order, user) {
-        const phone = user.whatsapp || user.phone;
-        if (!phone) return;
-
-        const message = `Namaste ${user.name}! 🙏\n\nYour order #${order.orderId} from Mansara Nourish Hub has been placed successfully. 🥳\n\nTotal: ₹${order.total}\nStatus: ${order.orderStatus}\n\nWe will notify you once it's shipped! 🚛`;
-
-        await this.createSubscriber(phone, user.name);
-        return await this.sendMessage(phone, message);
-    }
-
-    /**
-     * Send Status Notification
-     */
-    async sendStatusNotification(order, user, status) {
-        const phone = user.whatsapp || user.phone;
-        if (!phone) return;
-
-        let message = `Hi ${user.name}! Your order #${order.orderId} status has been updated to: *${status}*.`;
-
-        if (status === 'Shipped') {
-            message += `\n\nYour healthy goodies are on the way! 🚛💨`;
-        } else if (status === 'Delivered') {
-            message += `\n\nYour order has been delivered! Hope you enjoy your Mansara experience. ✨ Please leave us a review!`;
-        }
-
-        return await this.sendMessage(phone, message);
     }
 }
 
