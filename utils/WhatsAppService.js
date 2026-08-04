@@ -23,6 +23,72 @@ class WhatsAppService {
     }
 
     /**
+     * Send approved WhatsApp Utility Template to bypass Meta's 24-Hour Messaging Policy
+     */
+    async sendUtilityTemplate(phone, templateName = 'sales_lead_alert', languageCode = 'en', bodyParameters = []) {
+        const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN || this.token;
+        const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || this.phoneId;
+        const normalizedPhone = this._normalizePhone(phone);
+
+        if (!token || !phoneId) {
+            console.warn('[WHATSAPP SERVICE] Missing Meta API credentials for Utility Template');
+            return { success: false, error: 'Missing credentials' };
+        }
+
+        console.log(`[WHATSAPP SERVICE] Sending Utility Template (${templateName}) to ${normalizedPhone} (Bypassing 24h Policy)...`);
+
+        const formattedComponents = [];
+        if (bodyParameters && bodyParameters.length > 0) {
+            formattedComponents.push({
+                type: 'body',
+                parameters: bodyParameters.map(p => typeof p === 'object' ? p : { type: 'text', text: String(p) })
+            });
+        }
+
+        try {
+            const response = await axios({
+                method: 'POST',
+                url: `https://graph.facebook.com/v20.0/${phoneId}/messages`,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    messaging_product: 'whatsapp',
+                    recipient_type: 'individual',
+                    to: normalizedPhone,
+                    type: 'template',
+                    template: {
+                        name: templateName,
+                        language: { code: languageCode },
+                        components: formattedComponents
+                    }
+                },
+                timeout: 10000
+            });
+
+            console.log(`[WHATSAPP SERVICE] ✓ Utility Template (${templateName}) delivered to ${normalizedPhone}`);
+            return response.data;
+        } catch (error) {
+            console.error('[WHATSAPP SERVICE] Utility Template Error:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Specialized Helper: Send Sales Lead Alert via Utility Template (sales_lead_alert)
+     */
+    async sendSalesLeadAlertTemplate(phone, leadData = {}) {
+        const params = [
+            leadData.customerName || 'New Prospect',
+            leadData.phone || phone,
+            leadData.requirement || leadData.message || 'Product Inquiry',
+            leadData.source || 'Website Lead / Bot'
+        ];
+        return await this.sendUtilityTemplate(phone, 'sales_lead_alert', 'en', params);
+    }
+
+    /**
      * Direct WhatsApp Cloud API delivery via Meta Graph API
      */
     async sendMetaCloudMessage(phone, text) {
@@ -56,6 +122,15 @@ class WhatsAppService {
             console.log(`[WHATSAPP SERVICE] ✓ Delivered via Meta Cloud API to ${normalizedPhone}`);
             return response.data;
         } catch (error) {
+            const errCode = error.response?.data?.error?.code;
+            const errMsg = error.response?.data?.error?.message || '';
+
+            // Handle WhatsApp 24-Hour Policy Violation (Error 131047 / Outside 24h Window)
+            if (errCode === 131047 || errMsg.includes('24 hour') || errMsg.includes('template')) {
+                console.warn(`[WHATSAPP SERVICE] 24-Hour Window Expired for ${normalizedPhone}. Automatically falling back to Utility Notification Template (sales_lead_alert)...`);
+                return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en', [text.slice(0, 1000)]);
+            }
+
             console.error('[WHATSAPP SERVICE] Meta Cloud API Error:', error.response?.data || error.message);
             throw error;
         }
