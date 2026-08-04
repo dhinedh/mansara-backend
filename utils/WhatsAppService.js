@@ -127,8 +127,13 @@ class WhatsAppService {
 
             // Handle WhatsApp 24-Hour Policy Violation (Error 131047 / Outside 24h Window)
             if (errCode === 131047 || errMsg.includes('24 hour') || errMsg.includes('template')) {
-                console.warn(`[WHATSAPP SERVICE] 24-Hour Window Expired for ${normalizedPhone}. Automatically falling back to Utility Notification Template (sales_lead_alert)...`);
-                return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en', [text.slice(0, 1000)]);
+                console.warn(`[WHATSAPP SERVICE] 24-Hour Window Expired for ${normalizedPhone}. Automatically falling back to active Utility Notification Template...`);
+                try {
+                    return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en', [text.slice(0, 1000)]);
+                } catch (tempErr) {
+                    console.warn(`[WHATSAPP SERVICE] Custom template not found, trying active Meta Utility template (hello_world)...`);
+                    return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
+                }
             }
 
             console.error('[WHATSAPP SERVICE] Meta Cloud API Error:', error.response?.data || error.message);
