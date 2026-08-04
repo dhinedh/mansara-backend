@@ -89,9 +89,9 @@ class WhatsAppService {
     }
 
     /**
-     * Direct WhatsApp Cloud API delivery via Meta Graph API
+     * Direct WhatsApp Cloud API delivery via Meta Utility Templates (No 'Hi' message required from customer/admin)
      */
-    async sendMetaCloudMessage(phone, text) {
+    async sendMetaCloudMessage(phone, text, templateName = null) {
         const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN || this.token;
         const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || this.phoneId;
         const normalizedPhone = this._normalizePhone(phone);
@@ -101,57 +101,30 @@ class WhatsAppService {
             return { success: false, error: 'Missing credentials' };
         }
 
-        console.log(`[WHATSAPP SERVICE] Delivering direct Meta Cloud message to ${normalizedPhone}...`);
+        console.log(`[WHATSAPP SERVICE] Delivering direct Meta Cloud message to ${normalizedPhone} via Meta Utility Template (No 'Hi' message required)...`);
+
+        // Delivering via Meta Approved Utility Templates bypasses Meta's 24-hour window restriction!
         try {
-            const response = await axios({
-                method: 'POST',
-                url: `https://graph.facebook.com/v20.0/${phoneId}/messages`,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    messaging_product: 'whatsapp',
-                    to: normalizedPhone,
-                    type: 'text',
-                    text: { body: text }
-                },
-                timeout: 8000
-            });
-
-            console.log(`[WHATSAPP SERVICE] ✓ Delivered via Meta Cloud API to ${normalizedPhone}`);
-            return response.data;
-        } catch (error) {
-            const errCode = error.response?.data?.error?.code;
-            const errMsg = error.response?.data?.error?.message || '';
-
-            // Handle WhatsApp 24-Hour Policy Violation (Error 131047 / Outside 24h Window)
-            if (errCode === 131047 || errMsg.includes('24 hour') || errMsg.includes('template')) {
-                console.warn(`[WHATSAPP SERVICE] 24-Hour Window Expired for ${normalizedPhone}. Automatically falling back to universal_notification Utility Template...`);
-                try {
-                    return await this.sendUtilityTemplate(normalizedPhone, 'universal_notification', 'en_US', [
-                        'Valued Member',
-                        'System Alert',
-                        text.slice(0, 500),
-                        'mansarafoods.com'
-                    ]);
-                } catch (tempErr) {
-                    console.warn(`[WHATSAPP SERVICE] Trying sales_lead_alert Utility Template fallback...`);
-                    try {
-                        return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en_US', [
-                            'Member',
-                            'Alert',
-                            text.slice(0, 500),
-                            'System'
-                        ]);
-                    } catch (e) {
-                        return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
-                    }
-                }
+            const targetTemplate = templateName || 'universal_notification';
+            return await this.sendUtilityTemplate(normalizedPhone, targetTemplate, 'en_US', [
+                'Valued Member',
+                'Notification Alert',
+                text.slice(0, 500),
+                'mansarafoods.com'
+            ]);
+        } catch (templateError) {
+            console.warn(`[WHATSAPP SERVICE] Universal template fallback, trying sales_lead_alert...`, templateError.message);
+            try {
+                return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en_US', [
+                    'Member',
+                    'Notification Alert',
+                    text.slice(0, 500),
+                    'System'
+                ]);
+            } catch (e) {
+                console.warn(`[WHATSAPP SERVICE] Falling back to active hello_world utility template...`);
+                return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
             }
-
-            console.error('[WHATSAPP SERVICE] Meta Cloud API Error:', error.response?.data || error.message);
-            throw error;
         }
     }
 
