@@ -127,12 +127,26 @@ class WhatsAppService {
 
             // Handle WhatsApp 24-Hour Policy Violation (Error 131047 / Outside 24h Window)
             if (errCode === 131047 || errMsg.includes('24 hour') || errMsg.includes('template')) {
-                console.warn(`[WHATSAPP SERVICE] 24-Hour Window Expired for ${normalizedPhone}. Automatically falling back to active Utility Notification Template...`);
+                console.warn(`[WHATSAPP SERVICE] 24-Hour Window Expired for ${normalizedPhone}. Automatically falling back to universal_notification Utility Template...`);
                 try {
-                    return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en', [text.slice(0, 1000)]);
+                    return await this.sendUtilityTemplate(normalizedPhone, 'universal_notification', 'en_US', [
+                        'Valued Member',
+                        'System Alert',
+                        text.slice(0, 500),
+                        'mansarafoods.com'
+                    ]);
                 } catch (tempErr) {
-                    console.warn(`[WHATSAPP SERVICE] Custom template not found, trying active Meta Utility template (hello_world)...`);
-                    return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
+                    console.warn(`[WHATSAPP SERVICE] Trying sales_lead_alert Utility Template fallback...`);
+                    try {
+                        return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en_US', [
+                            'Member',
+                            'Alert',
+                            text.slice(0, 500),
+                            'System'
+                        ]);
+                    } catch (e) {
+                        return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
+                    }
                 }
             }
 
