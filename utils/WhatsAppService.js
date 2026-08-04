@@ -104,12 +104,13 @@ class WhatsAppService {
         console.log(`[WHATSAPP SERVICE] Delivering direct Meta Cloud message to ${normalizedPhone} via Meta Utility Template (No 'Hi' message required)...`);
 
         // Delivering via Meta Approved Utility Templates bypasses Meta's 24-hour window restriction!
+        const sanitizedText = text ? text.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500) : 'Notification';
         try {
             const targetTemplate = templateName || 'sales_lead_alert';
             return await this.sendUtilityTemplate(normalizedPhone, targetTemplate, 'en_US', [
                 'Valued Customer / Admin',
                 'System Alert Notification',
-                text.slice(0, 500),
+                sanitizedText,
                 'Mansara System'
             ]);
         } catch (templateError) {
@@ -193,10 +194,18 @@ class WhatsAppService {
             console.log(`[WHATSAPP SERVICE] ✓ Customer order confirmation sent via Bot API`);
             return { success: true };
         } catch (err) {
-            console.warn('[WHATSAPP SERVICE] Bot API error on order confirmation. Falling back to direct Meta text...', err.message);
-            const itemsText = itemsList.map(i => `• ${i.quantity}x ${i.name} – ₹${i.price * i.quantity}`).join('\n');
-            const fallbackMsg = `Namaste ${custName}! 🙏\n\n🎉 *Order Confirmed!* 🛍️\n\nOrder ID: *${order.orderId}*\nTotal: *₹${order.total}* (${order.paymentMethod || 'COD'})\n\n🛒 *Items Purchased:*\n${itemsText}\n\n📍 Track status: https://mansarafoods.com/order-tracking/${order.orderId}\n\nWe will notify you when it ships! 🚛`;
-            return await this.sendMetaCloudMessage(phone, fallbackMsg);
+            console.warn('[WHATSAPP SERVICE] Bot API error on order confirmation. Falling back to direct Meta Utility Template...', err.message);
+            try {
+                return await this.sendUtilityTemplate(phone, 'order_status_utility', 'en_US', [
+                    custName || 'Valued Customer',
+                    order.orderId || 'ORD-2026',
+                    'Confirmed & Processing',
+                    `Total Amount: ₹${order.total} (${order.paymentMethod || 'Online'}). Delivery to ${fullAddr.slice(0, 50)}`
+                ]);
+            } catch (tErr) {
+                console.warn('[WHATSAPP SERVICE] order_status_utility failed, sending sales_lead_alert...', tErr.message);
+                return await this.sendMetaCloudMessage(phone, `Order Confirmed: ${order.orderId}, Total ₹${order.total}`);
+            }
         }
     }
 
@@ -319,10 +328,11 @@ class WhatsAppService {
     }
 
     /**
-     * Send Admin WhatsApp New Order Notification (to 918838887064)
+     * Send Admin & Sales WhatsApp New Order Notification (to 919342400879 and 918838887064)
      */
     async sendAdminOrderNotification(order, user) {
-        const adminPhone = process.env.ADMIN_PHONE || '918838887064';
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
         const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
 
         const addr = order.deliveryAddress;
@@ -337,59 +347,40 @@ class WhatsAppService {
             weight: i.weight || ''
         }));
 
-        console.log(`[WHATSAPP SERVICE] Sending Admin New Order Alert (#${order.orderId}) to Admin ${adminPhone}...`);
+        console.log(`[WHATSAPP SERVICE] Sending Admin & Sales New Order Alert (#${order.orderId}) to ${adminPhones.join(', ')}...`);
 
-        try {
-            await axios.post(`${botUrl}/api/notify-admin-order`, {
-                orderId: order.orderId,
-                customerName: custName,
-                customerPhone: custPhone,
-                address: fullAddr,
-                items: itemsList,
-                total: order.total,
-                paymentMethod: order.paymentMethod,
-                paymentStatus: order.paymentStatus
-            }, { timeout: 5000 });
-            console.log(`[WHATSAPP SERVICE] ✓ Admin order alert sent via Bot Automation API`);
-        } catch (err) {
-            console.warn('[WHATSAPP SERVICE] Bot API unreachable. Sending direct Meta text alert to Admin...', err.message);
-            
-            const itemsText = itemsList.map(i => `• ${i.quantity}x ${i.name} – ₹${i.price * i.quantity}`).join('\n');
-            const alertMsg = `🛍️ *NEW ORDER RECEIVED!* 🛒\n\n` +
-                `📦 *Order ID:* ${order.orderId}\n` +
-                `👤 *Customer:* ${custName}\n` +
-                `📞 *Phone:* ${custPhone}\n` +
-                `📍 *Address:* ${fullAddr}\n` +
-                `💳 *Payment:* ${order.paymentMethod} (${order.paymentStatus})\n\n` +
-                `🛒 *Items Ordered:*\n${itemsText}\n\n` +
-                `💰 *Total Amount:* ₹${order.total}\n\n` +
-                `Reply to update status: "${order.orderId} Packed", "${order.orderId} Shipped", or "${order.orderId} Delivered"`;
+        // Send via direct Meta Cloud Utility Template to all Admin & Sales numbers
+        const itemsText = itemsList.map(i => `${i.quantity}x ${i.name} (₹${i.price * i.quantity})`).join(', ');
+        const alertMsg = `🛍️ NEW ORDER RECEIVED! Order ID: ${order.orderId} | Customer: ${custName} (${custPhone}) | Total: ₹${order.total} (${order.paymentMethod}) | Items: ${itemsText}`;
 
-            await this.sendMetaCloudMessage(adminPhone, alertMsg);
+        for (const phone of adminPhones) {
+            try {
+                await this.sendMetaCloudMessage(phone, alertMsg);
+                console.log(`[WHATSAPP SERVICE] ✓ Order alert delivered to Admin/Sales ${phone}`);
+            } catch (err) {
+                console.error(`[WHATSAPP SERVICE] ❌ Failed to send order alert to ${phone}:`, err.message);
+            }
         }
     }
 
     /**
-     * Send Admin WhatsApp Low Stock / Out of Stock Alert (to 918838887064)
+     * Send Admin WhatsApp Low Stock / Out of Stock Alert (to 919342400879 & 918838887064)
      */
     async sendAdminStockAlert(productName, stock) {
-        const adminPhone = process.env.ADMIN_PHONE || '918838887064';
-        const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
 
-        try {
-            await axios.post(`${botUrl}/api/notify-admin-stock`, {
-                productName,
-                stock
-            }, { timeout: 5000 });
-            console.log(`[WHATSAPP SERVICE] ✓ Admin stock alert sent for ${productName} (stock: ${stock})`);
-        } catch (err) {
-            let alertMsg = "";
-            if (stock <= 0) {
-                alertMsg = `🚨 *OUT OF STOCK ALERT!* ❌\n\nProduct: *${productName}*\nRemaining Stock: *0 items*\n\n⚠️ Product is OUT OF STOCK. Please restock immediately!`;
-            } else {
-                alertMsg = `⚠️ *LOW STOCK ALERT!* 📦\n\nProduct: *${productName}*\nRemaining Stock: *${stock} items*\n\n💡 Stock is running low!`;
+        let alertMsg = stock <= 0
+            ? `🚨 OUT OF STOCK ALERT! Product: ${productName} is 0 items. Restock immediately!`
+            : `⚠️ LOW STOCK ALERT! Product: ${productName} has only ${stock} items left.`;
+
+        for (const phone of adminPhones) {
+            try {
+                await this.sendMetaCloudMessage(phone, alertMsg);
+                console.log(`[WHATSAPP SERVICE] ✓ Stock alert delivered to Admin/Sales ${phone}`);
+            } catch (err) {
+                console.error(`[WHATSAPP SERVICE] ❌ Failed to send stock alert to ${phone}:`, err.message);
             }
-            await this.sendMetaCloudMessage(adminPhone, alertMsg);
         }
     }
 
