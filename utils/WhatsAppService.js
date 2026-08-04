@@ -19,7 +19,8 @@ class WhatsAppService {
         if (!phone) return '';
         let clean = phone.toString().replace(/\D/g, '');
         if (clean.length === 10) return '91' + clean;
-        return clean;
+        if (clean.length > 10 && clean.length <= 15) return clean;
+        return '';
     }
 
     /**
@@ -33,6 +34,11 @@ class WhatsAppService {
         if (!token || !phoneId) {
             console.warn('[WHATSAPP SERVICE] Missing Meta API credentials for Utility Template');
             return { success: false, error: 'Missing credentials' };
+        }
+
+        if (!normalizedPhone || normalizedPhone.length < 10) {
+            console.warn(`[WHATSAPP SERVICE] Aborting send: Phone number '${phone}' is invalid/malformed`);
+            return { success: false, error: 'Malformed phone number' };
         }
 
         console.log(`[WHATSAPP SERVICE] Sending Utility Template (${templateName}) to ${normalizedPhone} (Bypassing 24h Policy)...`);
