@@ -85,7 +85,7 @@ class WhatsAppService {
             leadData.requirement || leadData.message || 'Product Inquiry',
             leadData.source || 'Website Lead / Bot'
         ];
-        return await this.sendUtilityTemplate(phone, 'sales_lead_alert', 'en', params);
+        return await this.sendUtilityTemplate(phone, 'sales_lead_alert', 'en_US', params);
     }
 
     /**
@@ -105,26 +105,16 @@ class WhatsAppService {
 
         // Delivering via Meta Approved Utility Templates bypasses Meta's 24-hour window restriction!
         try {
-            const targetTemplate = templateName || 'universal_notification';
+            const targetTemplate = templateName || 'sales_lead_alert';
             return await this.sendUtilityTemplate(normalizedPhone, targetTemplate, 'en_US', [
-                'Valued Member',
-                'Notification Alert',
+                'Valued Customer / Admin',
+                'System Alert Notification',
                 text.slice(0, 500),
-                'mansarafoods.com'
+                'Mansara System'
             ]);
         } catch (templateError) {
-            console.warn(`[WHATSAPP SERVICE] Universal template fallback, trying sales_lead_alert...`, templateError.message);
-            try {
-                return await this.sendUtilityTemplate(normalizedPhone, 'sales_lead_alert', 'en_US', [
-                    'Member',
-                    'Notification Alert',
-                    text.slice(0, 500),
-                    'System'
-                ]);
-            } catch (e) {
-                console.warn(`[WHATSAPP SERVICE] Falling back to active hello_world utility template...`);
-                return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
-            }
+            console.warn(`[WHATSAPP SERVICE] Custom template error, trying hello_world...`, templateError.message);
+            return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
         }
     }
 
