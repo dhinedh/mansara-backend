@@ -213,17 +213,17 @@ router.post('/', upload.single('image'), async (req, res) => {
             // Provide optimized URLs for different sizes
             thumbnailUrl: !isVideo ? cloudinary.url(result.public_id, {
                 transformation: [
-                    { width: 200, height: 200, crop: 'fill', quality: 'auto:good' }
+                    { width: 200, height: 200, crop: 'fill', quality: 'auto', fetch_format: 'auto' }
                 ]
             }) : null,
             mediumUrl: !isVideo ? cloudinary.url(result.public_id, {
                 transformation: [
-                    { width: 600, height: 600, crop: 'limit', quality: 'auto:good' }
+                    { width: 600, height: 600, crop: 'limit', quality: 'auto', fetch_format: 'auto' }
                 ]
             }) : null,
             largeUrl: !isVideo ? cloudinary.url(result.public_id, {
                 transformation: [
-                    { width: 1200, height: 1200, crop: 'limit', quality: 'auto:good' }
+                    { width: 1200, height: 1200, crop: 'limit', quality: 'auto', fetch_format: 'auto' }
                 ]
             }) : null,
             responsive_breakpoints: result.responsive_breakpoints,
@@ -290,7 +290,7 @@ router.post('/bulk', upload.array('images', 10), async (req, res) => {
                     url: result.secure_url,
                     public_id: result.public_id,
                     thumbnailUrl: !isVideo ? cloudinary.url(result.public_id, {
-                        transformation: [{ width: 200, height: 200, crop: 'fill' }]
+                        transformation: [{ width: 200, height: 200, crop: 'fill', quality: 'auto', fetch_format: 'auto' }]
                     }) : null
                 };
             } catch (error) {

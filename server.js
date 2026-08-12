@@ -116,8 +116,13 @@ app.use('/api/webhooks', require('./routes/webhookRoutes'));
 app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
 
 /* ======================================================
-   HEALTH CHECK
+   HEALTH CHECK & RENDER KEEPALIVE
 ====================================================== */
+
+// Ultra-fast lightweight ping endpoint (0 DB overhead, prevents cold starts)
+app.get('/api/ping', (req, res) => {
+    res.status(200).send('pong');
+});
 
 app.get('/', (req, res) => {
     res.json({
@@ -126,6 +131,23 @@ app.get('/', (req, res) => {
         environment: process.env.NODE_ENV || 'production'
     });
 });
+
+// Self-ping interval to keep Render backend awake (pings every 10 minutes)
+const PING_INTERVAL = 10 * 60 * 1000;
+const EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL;
+
+if (EXTERNAL_URL) {
+    setInterval(async () => {
+        try {
+            const response = await fetch(`${EXTERNAL_URL}/api/ping`);
+            if (response.ok) {
+                console.log(`[KEEPALIVE] Self-ping successful to ${EXTERNAL_URL}/api/ping`);
+            }
+        } catch (err) {
+            console.warn('[KEEPALIVE] Self-ping failed:', err.message);
+        }
+    }, PING_INTERVAL);
+}
 
 /* ======================================================
    ERROR HANDLER
