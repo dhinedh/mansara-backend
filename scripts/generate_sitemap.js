@@ -74,20 +74,29 @@ function parseBlogPostsFile(filePath) {
 async function generateSitemap() {
   console.log('🌐 Generating sitemap.xml …');
 
+  const productsPath = path.join(__dirname, '../../mansara-nourish-hub/src/data/products.ts');
+  const localProducts = parseProductsFile(productsPath);
+  const localProductsMap = new Map(localProducts.map(p => [p.slug, p.lastmod]));
+
+  const blogPath = path.join(__dirname, '../../mansara-nourish-hub/src/data/blogPosts.ts');
+  const localBlogs = parseBlogPostsFile(blogPath);
+  const localBlogsMap = new Map(localBlogs.map(b => [b.slug, b.lastmod]));
+
   // 1. Resolve Products
   let products = [];
   const apiProducts = await fetchFromApi('/products');
   if (apiProducts.length > 0) {
     products = apiProducts
       .filter(p => p.slug && !['urad-porridge-mix', 'black-rice-mix', 'millet-fusion-mix', 'combos', 'idly-podi', 'rice-mixes'].includes(p.slug))
-      .map(p => ({
-        slug: p.slug,
-        lastmod: (p.updatedAt || p.createdAt || '2026-08-12').split('T')[0]
-      }));
+      .map(p => {
+        const apiDate = (p.updatedAt || p.createdAt || '').split('T')[0];
+        const localDate = localProductsMap.get(p.slug);
+        const lastmod = (apiDate && apiDate !== '2026-08-12' && apiDate !== '2026-08-14') ? apiDate : (localDate || '2026-08-01');
+        return { slug: p.slug, lastmod };
+      });
   }
   if (products.length === 0) {
-    const productsPath = path.join(__dirname, '../../mansara-nourish-hub/src/data/products.ts');
-    products = parseProductsFile(productsPath);
+    products = localProducts;
   }
 
   // 2. Resolve Blog Posts
@@ -96,14 +105,15 @@ async function generateSitemap() {
   if (apiBlogs.length > 0) {
     blogPosts = apiBlogs
       .filter(b => b.slug && b.title)
-      .map(b => ({
-        slug: b.slug || b._id,
-        lastmod: (b.updatedAt || b.createdAt || b.publishedAt || '2026-08-10').split('T')[0]
-      }));
+      .map(b => {
+        const apiDate = (b.updatedAt || b.createdAt || b.publishedAt || '').split('T')[0];
+        const localDate = localBlogsMap.get(b.slug);
+        const lastmod = (apiDate && apiDate !== '2026-08-12' && apiDate !== '2026-08-14') ? apiDate : (localDate || '2026-08-10');
+        return { slug: b.slug, lastmod };
+      });
   }
   if (blogPosts.length === 0) {
-    const blogPath = path.join(__dirname, '../../mansara-nourish-hub/src/data/blogPosts.ts');
-    blogPosts = parseBlogPostsFile(blogPath);
+    blogPosts = localBlogs;
   }
 
   console.log(`📦 Sitemap source data: ${staticPages.length} static pages, ${products.length} products, ${blogPosts.length} blog posts`);
