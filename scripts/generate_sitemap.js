@@ -40,14 +40,15 @@ function parseProductsFile(filePath) {
     ? content.slice(content.indexOf('export const products'))
     : content;
 
-  const slugRegex = /"slug":\s*"([^"]+)"/g;
+  const productBlockRegex = /\{[\s\S]*?"slug":\s*"([^"]+)"[\s\S]*?"updatedAt":\s*"([^"]+)"[\s\S]*?\}/g;
   let match;
-  while ((match = slugRegex.exec(productsSection)) !== null) {
+  while ((match = productBlockRegex.exec(productsSection)) !== null) {
     const slug = match[1];
-    // Exclude category slugs if present
+    const rawDate = match[2];
+    const dateStr = rawDate.split('T')[0];
     if (slug && !['urad-porridge-mix', 'black-rice-mix', 'millet-fusion-mix', 'combos', 'idly-podi', 'rice-mixes'].includes(slug)) {
       if (!items.some(i => i.slug === slug)) {
-        items.push({ slug, lastmod: '2026-08-12' });
+        items.push({ slug, lastmod: dateStr });
       }
     }
   }
@@ -58,7 +59,7 @@ function parseBlogPostsFile(filePath) {
   if (!fs.existsSync(filePath)) return [];
   const content = fs.readFileSync(filePath, 'utf-8');
   const posts = [];
-  const postRegex = /_id:\s*["'][^"']+["'][\s\S]*?slug:\s*["']([^"']+)["'][\s\S]*?createdAt:\s*["']([^"']+)["']/g;
+  const postRegex = /_id:\s*["'][^"']+["'][\s\S]*?slug:\s*["']([^"']+)["'][\s\S]*?(?:updatedAt|createdAt):\s*["']([^"']+)["']/g;
   let match;
   while ((match = postRegex.exec(content)) !== null) {
     const slug = match[1];
