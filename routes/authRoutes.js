@@ -578,85 +578,107 @@ router.put('/profile', protect, async (req, res) => {
 // FORGOT PASSWORD (OPTIMIZED)
 // ========================================
 router.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
+    const rawInput = req.body.email || req.body.identifier || req.body.phone || '';
+    const cleanId = rawInput.trim();
 
     try {
-        if (!email) {
-            return res.status(400).json({ message: 'Please provide an email address' });
+        if (!cleanId) {
+            return res.status(400).json({ message: 'Please provide an email address or WhatsApp phone number' });
         }
 
-        // OPTIMIZATION: Only select needed fields + token fields for saving
-        const user = await User.findOne({ email })
-            .select('whatsapp resetPasswordToken resetPasswordExpire name email')
+        let user = null;
+        if (cleanId.includes('@')) {
+            user = await User.findOne({ email: cleanId.toLowerCase() })
+                .select('whatsapp phone resetPasswordToken resetPasswordExpire name email')
+                .maxTimeMS(5000)
+                .exec();
+        } else {
+            const cleanPhone = cleanId.replace(/\D/g, '');
+            user = await User.findOne({
+                $or: [
+                    { whatsapp: cleanId },
+                    { whatsapp: cleanPhone },
+                    { phone: cleanId },
+                    { phone: cleanPhone }
+                ]
+            })
+            .select('whatsapp phone resetPasswordToken resetPasswordExpire name email')
             .maxTimeMS(5000)
             .exec();
-
-        if (!user) {
-            return res.status(404).json({ message: 'No account found with this email address' });
         }
 
-        if (!user.whatsapp) {
+        if (!user) {
+            return res.status(404).json({ message: 'No registered account found with this email or phone number' });
+        }
+
+        const targetPhone = user.whatsapp || user.phone;
+        if (!targetPhone && !user.email) {
             return res.status(400).json({
-                message: 'No WhatsApp number registered with this account. Please contact support.'
+                message: 'No WhatsApp number or email registered with this account. Please contact support.'
             });
         }
 
-        // Generate OTP
+        // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
 
-        // Update user
+        // Update user record
         user.resetPasswordToken = resetPasswordToken;
         user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
         await user.save();
 
-        // Send OTP asynchronously
+        // Send OTP asynchronously via WhatsApp and Email
         const message = `Your Mansara Foods password reset code is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
         setImmediate(async () => {
             const whatsappService = require('../utils/WhatsAppService');
             const sendEmail = require('../utils/sendEmail');
 
-            console.log(`!!! [AUTH] Starting OTP delivery for ${email}`);
-            console.log(`!!! [AUTH] User Phone from DB: "${user.whatsapp}"`);
-            console.log(`!!! [AUTH] Active Phone ID: ${process.env.BOTBIZ_PHONE_ID}`);
+            console.log(`!!! [AUTH] Starting OTP delivery for ${user.email} (${targetPhone})`);
 
-            // 1. Send WhatsApp OTP via WhatsApp Bot Automation
-            try {
-                const result = await whatsappService.sendOTP(user.whatsapp, otp, 'forgot_password');
-                console.log(`!!! [WHATSAPP] ✓ Success:`, JSON.stringify(result));
-            } catch (err) {
-                console.error(`!!! [WHATSAPP] ✗ Fatal Error:`, err.response?.data || err.message);
+            // 1. Send WhatsApp OTP
+            if (targetPhone) {
+                try {
+                    const result = await whatsappService.sendOTP(targetPhone, otp, 'forgot_password');
+                    console.log(`!!! [WHATSAPP] ✓ Success dispatching OTP to ${targetPhone}:`, JSON.stringify(result));
+                } catch (err) {
+                    console.error(`!!! [WHATSAPP] ✗ Fatal Error dispatching OTP:`, err.response?.data || err.message);
+                }
             }
 
-            // 2. Send Email
-            try {
-                await sendEmail({
-                    email: email,
-                    subject: 'Password Reset Code - Mansara Foods',
-                    message: message,
-                    html: `
-                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                            <h2 style="color: #333; text-align: center;">Password Reset</h2>
-                            <p style="font-size: 16px;">Namaste! 🙏</p>
-                            <p style="font-size: 14px; color: #666;">You requested a password reset for your Mansara Foods account. Your verification code is:</p>
-                            <div style="background: #fdf2f8; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-                                <h1 style="color: #db2777; letter-spacing: 8px; margin: 0; font-size: 32px;">${otp}</h1>
+            // 2. Send Email OTP
+            if (user.email) {
+                try {
+                    await sendEmail({
+                        email: user.email,
+                        subject: 'Password Reset Code - Mansara Foods',
+                        message: message,
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                                <h2 style="color: #333; text-align: center;">Password Reset</h2>
+                                <p style="font-size: 16px;">Namaste ${user.name || ''}! 🙏</p>
+                                <p style="font-size: 14px; color: #666;">You requested a password reset for your Mansara Foods account. Your verification code is:</p>
+                                <div style="background: #fdf2f8; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                                    <h1 style="color: #db2777; letter-spacing: 8px; margin: 0; font-size: 32px;">${otp}</h1>
+                                </div>
+                                <p style="font-size: 13px; color: #999;">This code is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+                                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                                <p style="font-size: 12px; color: #bbb; text-align: center;">Mansara Foods - Pure. Authentic. Traditional.</p>
                             </div>
-                            <p style="font-size: 13px; color: #999;">This code is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
-                            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                            <p style="font-size: 12px; color: #bbb; text-align: center;">Mansara Foods - Pure. Authentic. Traditional.</p>
-                        </div>
-                    `
-                });
-                console.log(`[EMAIL] ✓ OTP sent to ${email}`);
-            } catch (err) {
-                console.error(`[EMAIL] ✗ Failed to send to ${email}:`, err.message);
+                        `
+                    });
+                    console.log(`[EMAIL] ✓ OTP sent to ${user.email}`);
+                } catch (err) {
+                    console.error(`[EMAIL] ✗ Failed to send to ${user.email}:`, err.message);
+                }
             }
         });
 
         res.status(200).json({
             success: true,
-            message: 'Password reset OTP has been sent to your registered WhatsApp number and Email'
+            message: 'Password reset OTP has been sent to your registered WhatsApp number and Email',
+            data: {
+                email: user.email
+            }
         });
     } catch (error) {
         console.error('[ERROR] Forgot password:', error);
@@ -668,11 +690,12 @@ router.post('/forgot-password', async (req, res) => {
 // RESET PASSWORD (OPTIMIZED)
 // ========================================
 router.put('/reset-password', async (req, res) => {
-    const { email, otp, password } = req.body;
+    const { email, identifier, phone, otp, password } = req.body;
+    const cleanId = (email || identifier || phone || '').trim();
 
-    if (!email || !otp || !password) {
+    if (!cleanId || !otp || !password) {
         return res.status(400).json({
-            message: 'Please provide email, OTP, and new password'
+            message: 'Please provide email or phone number, OTP, and new password'
         });
     }
 
@@ -685,16 +708,38 @@ router.put('/reset-password', async (req, res) => {
     const resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
 
     try {
-        // OPTIMIZATION: Use maxTimeMS
-        const user = await User.findOne({
-            email,
-            resetPasswordToken,
-            resetPasswordExpire: { $gt: Date.now() },
-        }).maxTimeMS(5000).exec();
+        let user = null;
+        if (cleanId.includes('@')) {
+            user = await User.findOne({
+                email: cleanId.toLowerCase(),
+                resetPasswordToken,
+                resetPasswordExpire: { $gt: Date.now() },
+            }).maxTimeMS(5000).exec();
+        } else {
+            const cleanPhone = cleanId.replace(/\D/g, '');
+            user = await User.findOne({
+                $or: [
+                    { whatsapp: cleanId },
+                    { whatsapp: cleanPhone },
+                    { phone: cleanId },
+                    { phone: cleanPhone }
+                ],
+                resetPasswordToken,
+                resetPasswordExpire: { $gt: Date.now() },
+            }).maxTimeMS(5000).exec();
+        }
+
+        // Fallback search by token alone if identifier query missed
+        if (!user) {
+            user = await User.findOne({
+                resetPasswordToken,
+                resetPasswordExpire: { $gt: Date.now() },
+            }).maxTimeMS(5000).exec();
+        }
 
         if (!user) {
             return res.status(400).json({
-                message: 'Invalid or expired OTP. Please request a new one.'
+                message: 'Invalid or expired 6-digit OTP. Please request a new one.'
             });
         }
 
