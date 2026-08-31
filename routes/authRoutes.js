@@ -690,32 +690,33 @@ router.post('/forgot-password', async (req, res) => {
 // RESET PASSWORD (OPTIMIZED)
 // ========================================
 router.put('/reset-password', async (req, res) => {
-    const { email, identifier, phone, otp, password } = req.body;
-    const cleanId = (email || identifier || phone || '').trim();
-
-    if (!cleanId || !otp || !password) {
-        return res.status(400).json({
-            message: 'Please provide email or phone number, OTP, and new password'
-        });
-    }
-
-    if (password.length < 6) {
-        return res.status(400).json({
-            message: 'Password must be at least 6 characters long'
-        });
-    }
-
-    const resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
-
     try {
+        const { email, identifier, phone, otp, password } = req.body;
+        const cleanId = (email || identifier || phone || '').trim();
+        const cleanOtp = (otp || '').trim();
+
+        if (!cleanOtp || !password) {
+            return res.status(400).json({
+                message: 'Please provide OTP and new password'
+            });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: 'Password must be at least 6 characters long'
+            });
+        }
+
+        const resetPasswordToken = crypto.createHash('sha256').update(cleanOtp).digest('hex');
+
         let user = null;
-        if (cleanId.includes('@')) {
+        if (cleanId && cleanId.includes('@')) {
             user = await User.findOne({
                 email: cleanId.toLowerCase(),
                 resetPasswordToken,
                 resetPasswordExpire: { $gt: Date.now() },
-            }).maxTimeMS(5000).exec();
-        } else {
+            }).select('+password');
+        } else if (cleanId) {
             const cleanPhone = cleanId.replace(/\D/g, '');
             user = await User.findOne({
                 $or: [
@@ -726,15 +727,15 @@ router.put('/reset-password', async (req, res) => {
                 ],
                 resetPasswordToken,
                 resetPasswordExpire: { $gt: Date.now() },
-            }).maxTimeMS(5000).exec();
+            }).select('+password');
         }
 
-        // Fallback search by token alone if identifier query missed
+        // Fallback search by token alone if identifier query missed or not provided
         if (!user) {
             user = await User.findOne({
                 resetPasswordToken,
                 resetPasswordExpire: { $gt: Date.now() },
-            }).maxTimeMS(5000).exec();
+            }).select('+password');
         }
 
         if (!user) {
@@ -743,21 +744,28 @@ router.put('/reset-password', async (req, res) => {
             });
         }
 
-        // Hash and update password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
+        // Set raw password so pre('save') hook in User model handles bcrypt hashing safely
+        user.password = password;
+        user.resetPasswordToken = null;
+        user.resetPasswordExpire = null;
         await user.save();
+
+        const token = generateToken(user._id);
 
         res.status(200).json({
             success: true,
             message: 'Password updated successfully. You can now login with your new password.',
-            token: generateToken(user._id)
+            token,
+            user: {
+                _id: user._id,
+                id: user._id,
+                email: user.email,
+                name: user.name
+            }
         });
     } catch (error) {
         console.error('[ERROR] Reset password:', error);
-        res.status(500).json({ message: 'Server error during password reset. Please try again.' });
+        res.status(500).json({ message: error.message || 'Server error during password reset. Please try again.' });
     }
 });
 
