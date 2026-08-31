@@ -17,8 +17,20 @@ const PORT = process.env.PORT || 5000;
    SECURITY & PERFORMANCE
 ====================================================== */
 
-// Helmet security headers
-app.use(helmet());
+// Helmet security headers (with relaxed media-src & data: URI support)
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'", "https:", "http:", "data:", "blob:"],
+            mediaSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+            imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
+            connectSrc: ["'self'", "https:", "http:", "wss:", "ws:"]
+        }
+    }
+}));
 
 // Trust proxy (Render)
 app.set('trust proxy', 1);
