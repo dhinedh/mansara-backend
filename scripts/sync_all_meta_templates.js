@@ -5,46 +5,20 @@ const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TO
 const WABA_IDS = ['1379129324117602'];
 
 const masterTemplates = [
-  // 1. Dealer Approval Notification (Fixed body parameter placement)
+  // Premium Formatted Dealer Partner Approval Template (v4 - Security compliant)
   {
-    name: 'dealer_partner_approval_v2',
+    name: 'dealer_partner_approval_v4',
     category: 'UTILITY',
     language: 'en_US',
     components: [
       {
         type: 'BODY',
-        text: 'Hello {{1}}, your B2B dealer account for {{2}} has been approved. Registered email: {{3}}. Account tier: {{4}}. Login to your portal at https://crm.mansarafoods.com/login to access your account. Thank you for partnering with Mansara Foods.',
+        text: '🎉 *B2B Dealer Account Approved!* 🙏\n\nHello *{{1}}*, your dealer partner account for *{{2}}* is now active!\n\n📋 *Account Details:*\n• *Registered Email:* {{3}}\n• *Tier & Access Info:* {{4}}\n\n🌐 *Portal Login:* https://crm.mansarafoods.com/login\n\nLog in to your portal to place stock orders and view partner pricing. Thank you for partnering with *Mansara Foods*!',
         example: {
           body_text: [
-            ['Himesh Priyan', 'Himesh Priyan Traders', 'himesh@example.com', 'STARTER (10% Margin)']
+            ['Himesh Priyan', 'Himesh Priyan Traders', 'himesh@example.com', 'STARTER Tier (10% Margin)']
           ]
         }
-      }
-    ]
-  },
-  // 2. Official Authentication OTP Template (Standard Meta Authentication Format)
-  {
-    name: 'mansara_login_otp',
-    category: 'AUTHENTICATION',
-    language: 'en_US',
-    components: [
-      {
-        type: 'BODY',
-        add_security_recommendation: true
-      },
-      {
-        type: 'FOOTER',
-        code_expiration_minutes: 10
-      },
-      {
-        type: 'BUTTONS',
-        buttons: [
-          {
-            type: 'OTP',
-            otp_type: 'COPY_CODE',
-            text: 'Copy Code'
-          }
-        ]
       }
     ]
   }
@@ -56,7 +30,7 @@ async function syncAllTemplates() {
     process.exit(1);
   }
 
-  console.log('🚀 Submitting AUTHENTICATION and Dealer Approval templates to Meta Graph API...');
+  console.log('🚀 Submitting security-compliant formatted template "dealer_partner_approval_v4" to Meta Graph API...');
 
   for (const wabaId of WABA_IDS) {
     console.log(`\n📌 Target WABA ID: ${wabaId}`);
