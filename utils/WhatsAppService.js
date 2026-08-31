@@ -25,8 +25,10 @@ class WhatsAppService {
 
     /**
      * Send approved WhatsApp Utility Template to bypass Meta's 24-Hour Messaging Policy
+    /**
+     * Send approved WhatsApp Utility Template to bypass Meta's 24-Hour Messaging Policy
      */
-    async sendUtilityTemplate(phone, templateName = 'sales_lead_alert', languageCode = 'en', bodyParameters = []) {
+    async sendUtilityTemplate(phone, templateName = 'sales_team_alert', languageCode = 'en_US', bodyParameters = []) {
         const token = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TOKEN || this.token;
         const phoneId = process.env.META_PHONE_NUMBER_ID || process.env.PHONE_NUMBER_ID || this.phoneId;
         const normalizedPhone = this._normalizePhone(phone);
@@ -41,7 +43,7 @@ class WhatsAppService {
             return { success: false, error: 'Malformed phone number' };
         }
 
-        console.log(`[WHATSAPP SERVICE] Sending Utility Template (${templateName}) to ${normalizedPhone} (Bypassing 24h Policy)...`);
+        console.log(`[WHATSAPP SERVICE] Sending Utility Template (${templateName}, ${languageCode}) to ${normalizedPhone}...`);
 
         const formattedComponents = [];
         if (bodyParameters && bodyParameters.length > 0) {
@@ -87,11 +89,11 @@ class WhatsAppService {
     async sendSalesLeadAlertTemplate(phone, leadData = {}) {
         const params = [
             leadData.customerName || 'New Prospect',
+            leadData.companyName || 'Mansara Foods Prospect',
             leadData.phone || phone,
-            leadData.requirement || leadData.message || 'Product Inquiry',
-            leadData.source || 'Website Lead / Bot'
+            leadData.requirement || leadData.message || 'Product Inquiry / Lead'
         ];
-        return await this.sendUtilityTemplate(phone, 'sales_lead_alert', 'en_US', params);
+        return await this.sendUtilityTemplate(phone, 'sales_team_alert', 'en_US', params);
     }
 
     /**
@@ -107,21 +109,20 @@ class WhatsAppService {
             return { success: false, error: 'Missing credentials' };
         }
 
-        console.log(`[WHATSAPP SERVICE] Delivering direct Meta Cloud message to ${normalizedPhone} via Meta Utility Template (No 'Hi' message required)...`);
+        console.log(`[WHATSAPP SERVICE] Delivering direct Meta Cloud message to ${normalizedPhone}...`);
 
-        // Delivering via Meta Approved Utility Templates bypasses Meta's 24-hour window restriction!
-        const sanitizedText = text ? text.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500) : 'Notification';
+        const sanitizedText = text ? text.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500) : 'Notification Alert';
         try {
-            const targetTemplate = templateName || 'sales_lead_alert';
+            const targetTemplate = templateName || 'sales_team_alert';
             return await this.sendUtilityTemplate(normalizedPhone, targetTemplate, 'en_US', [
-                'Valued Customer / Admin',
-                'System Alert Notification',
-                sanitizedText,
-                'Mansara System'
+                'Valued Customer',
+                'Mansara Foods Alert',
+                normalizedPhone,
+                sanitizedText
             ]);
         } catch (templateError) {
-            console.warn(`[WHATSAPP SERVICE] Custom template error, trying hello_world...`, templateError.message);
-            return await this.sendUtilityTemplate(normalizedPhone, 'hello_world', 'en_US', []);
+            console.warn(`[WHATSAPP SERVICE] Custom template error:`, templateError.response?.data || templateError.message);
+            return { success: false, error: templateError.message };
         }
     }
 
@@ -141,27 +142,28 @@ class WhatsAppService {
         
         console.log(`[WHATSAPP SERVICE] Sending ${type} OTP (${otp}) to ${normalizedPhone}...`);
 
+        // 1. Try sending via WhatsApp Bot Automation API (3s timeout)
         try {
             const response = await axios.post(`${botUrl}/api/send-otp`, {
                 phone: normalizedPhone,
                 otp: otp,
                 type: type
-            }, { timeout: 4000 });
+            }, { timeout: 3000 });
 
-            console.log(`[WHATSAPP SERVICE] ✓ OTP delivered via WhatsApp Bot:`, response.data);
+            console.log(`[WHATSAPP SERVICE] ✓ OTP delivered via WhatsApp Bot API:`, response.data);
             return response.data;
         } catch (error) {
-            console.warn(`[WHATSAPP SERVICE] Bot Automation API unreachable (${error.message}). Falling back to direct Meta Cloud API...`);
+            console.warn(`[WHATSAPP SERVICE] Bot API unreachable (${error.message}). Dispatching OTP via Meta Cloud API...`);
         }
 
-        let message = "";
-        if (type === 'forgot_password') {
-            message = `🔐 *Mansara Foods - Password Reset Code*\n\nNamaste! 🙏\nYour verification code is: *${otp}*\n\nValid for 10 minutes. Do not share this code with anyone.`;
-        } else {
-            message = `🌿 *Welcome to Mansara Foods!* 🙏\n\nYour account registration verification code is: *${otp}*\n\nValid for 10 minutes. Please enter this code on the website to verify your account.`;
-        }
-
-        return await this.sendMetaCloudMessage(phone, message);
+        // 2. Direct Meta Cloud API delivery (guaranteed delivery via approved sales_team_alert template)
+        const otpDetails = `Your Mansara Foods password reset OTP is: ${otp}. Valid for 10 minutes. Do not share this code with anyone.`;
+        return await this.sendUtilityTemplate(normalizedPhone, 'sales_team_alert', 'en_US', [
+            'Valued Customer',
+            'Password Reset OTP',
+            normalizedPhone,
+            otpDetails
+        ]);
     }
 
     /**
