@@ -687,9 +687,7 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 // ========================================
-// RESET PASSWORD (OPTIMIZED)
-// ========================================
-router.put('/reset-password', async (req, res) => {
+const handleResetPassword = async (req, res) => {
     try {
         const { email, identifier, phone, otp, password } = req.body;
         const cleanId = (email || identifier || phone || '').trim();
@@ -746,8 +744,8 @@ router.put('/reset-password', async (req, res) => {
 
         // Set raw password so pre('save') hook in User model handles bcrypt hashing safely
         user.password = password;
-        user.resetPasswordToken = null;
-        user.resetPasswordExpire = null;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
         await user.save();
 
         const token = generateToken(user._id);
@@ -767,7 +765,10 @@ router.put('/reset-password', async (req, res) => {
         console.error('[ERROR] Reset password:', error);
         res.status(500).json({ message: error.message || 'Server error during password reset. Please try again.' });
     }
-});
+};
+
+router.put('/reset-password', handleResetPassword);
+router.post('/reset-password', handleResetPassword);
 
 // ========================================
 // GET PROFILE (OPTIMIZED)

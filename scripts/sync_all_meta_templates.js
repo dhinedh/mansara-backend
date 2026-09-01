@@ -5,18 +5,18 @@ const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN || process.env.ACCESS_TO
 const WABA_IDS = ['1379129324117602'];
 
 const masterTemplates = [
-  // Premium Formatted Dealer Partner Approval Template (v4 - Security compliant)
+  // Premium Formatted Order Shipping Update Template (v2)
   {
-    name: 'dealer_partner_approval_v4',
+    name: 'order_shipping_update_v2',
     category: 'UTILITY',
     language: 'en_US',
     components: [
       {
         type: 'BODY',
-        text: '🎉 *B2B Dealer Account Approved!* 🙏\n\nHello *{{1}}*, your dealer partner account for *{{2}}* is now active!\n\n📋 *Account Details:*\n• *Registered Email:* {{3}}\n• *Tier & Access Info:* {{4}}\n\n🌐 *Portal Login:* https://crm.mansarafoods.com/login\n\nLog in to your portal to place stock orders and view partner pricing. Thank you for partnering with *Mansara Foods*!',
+        text: '🚚 *Order Dispatched & In-Transit!* 📦\n\nNamaste *{{1}}*, your order *{{2}}* has been packed and handed over to our courier partner!\n\n📋 *Shipment Details:*\n• *Order ID:* {{2}}\n• *Courier Partner:* {{3}}\n• *Tracking AWB:* {{4}}\n\n🌐 *Track Live Location:* https://mansarafoods.com/order-tracking\n\nThank you for choosing *Mansara Foods* for your healthy traditional staples! 🙏',
         example: {
           body_text: [
-            ['Himesh Priyan', 'Himesh Priyan Traders', 'himesh@example.com', 'STARTER Tier (10% Margin)']
+            ['Valued Customer', 'ORD-10024', 'iCarry Express', 'TRACK987654']
           ]
         }
       }
@@ -30,7 +30,7 @@ async function syncAllTemplates() {
     process.exit(1);
   }
 
-  console.log('🚀 Submitting security-compliant formatted template "dealer_partner_approval_v4" to Meta Graph API...');
+  console.log('🚀 Submitting rich formatted template "order_shipping_update_v2" to Meta Graph API...');
 
   for (const wabaId of WABA_IDS) {
     console.log(`\n📌 Target WABA ID: ${wabaId}`);
