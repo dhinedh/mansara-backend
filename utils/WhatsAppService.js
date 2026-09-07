@@ -113,16 +113,29 @@ class WhatsAppService {
 
         const sanitizedText = text ? text.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500) : 'Notification Alert';
         try {
-            const targetTemplate = templateName || 'sales_team_alert';
+            const targetTemplate = templateName || 'universal_notification';
+            if (targetTemplate === 'universal_notification') {
+                return await this.sendUtilityTemplate(normalizedPhone, 'universal_notification', 'en_US', [
+                    'Customer',
+                    'Mansara Foods Alert',
+                    sanitizedText,
+                    'mansarafoods.com'
+                ]);
+            }
             return await this.sendUtilityTemplate(normalizedPhone, targetTemplate, 'en_US', [
+                'Valued Customer',
+                'ALERT',
+                'Notification',
+                sanitizedText
+            ]);
+        } catch (templateError) {
+            console.warn(`[WHATSAPP SERVICE] Custom template error (${templateError.message}), trying sales_team_alert fallback...`);
+            return await this.sendUtilityTemplate(normalizedPhone, 'sales_team_alert', 'en_US', [
                 'Valued Customer',
                 'Mansara Foods Alert',
                 normalizedPhone,
                 sanitizedText
             ]);
-        } catch (templateError) {
-            console.warn(`[WHATSAPP SERVICE] Custom template error:`, templateError.response?.data || templateError.message);
-            return { success: false, error: templateError.message };
         }
     }
 
@@ -248,7 +261,68 @@ class WhatsAppService {
             } else if (status === 'Cancelled') {
                 message += `\n\nYour order has been cancelled.`;
             }
-            return await this.sendMetaCloudMessage(phone, message);
+            return await this.sendUtilityTemplate(phone, 'order_status_utility', 'en_US', [
+                user?.name || order.deliveryAddress?.firstName || 'Valued Customer',
+                order.orderId || 'ORD-2026',
+                status || 'Processing',
+                `Track live: ${trackingLink}`
+            ]).catch(() => this.sendMetaCloudMessage(phone, message));
+        }
+    }
+
+    /**
+     * Send Order Shipped Notification with Courier & AWB via Meta Utility Template
+     */
+    async sendOrderShippedNotification(order, user, courier = 'iCarry Express', awb = 'AWB-PENDING') {
+        const phone = user?.whatsapp || user?.phone || order.deliveryAddress?.phone;
+        if (!phone) return;
+
+        const trackingLink = `https://mansarafoods.com/order-tracking/${order.orderId}`;
+        const custName = user?.name || order.deliveryAddress?.firstName || 'Valued Customer';
+
+        console.log(`[WHATSAPP SERVICE] Sending Order Shipped Alert (${order.orderId}, AWB: ${awb}) to ${phone}...`);
+
+        try {
+            return await this.sendUtilityTemplate(phone, 'order_shipped_utility', 'en_US', [
+                custName,
+                order.orderId,
+                courier,
+                awb,
+                trackingLink
+            ]);
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] order_shipped_utility failed. Sending status update fallback...', err.message);
+            return await this.sendStatusNotification(order, user, 'Shipped');
+        }
+    }
+
+    /**
+     * Send Cart Recovery Nudge via Meta Utility Template
+     */
+    async sendCartRecoveryNotification(user, cartItemsSummary = 'items', cartTotal = 0) {
+        const phone = user?.whatsapp || user?.phone;
+        if (!phone) return;
+
+        const checkoutUrl = 'https://mansarafoods.com/checkout';
+        const custName = user?.name || 'Valued Customer';
+
+        console.log(`[WHATSAPP SERVICE] Sending Cart Recovery Nudge to ${phone}...`);
+
+        if (cartTotal >= 2000) {
+            this.sendAdminHighValueCartAlert(user, cartTotal, cartItemsSummary)
+                .catch(err => console.error('[ERROR] Admin High-Value Cart Alert failed:', err));
+        }
+
+        try {
+            return await this.sendUtilityTemplate(phone, 'cart_recovery_v2', 'en_US', [
+                custName,
+                cartItemsSummary,
+                checkoutUrl
+            ]);
+        } catch (err) {
+            console.warn('[WHATSAPP SERVICE] cart_recovery_utility failed. Sending text fallback...', err.message);
+            const msg = `Namaste ${custName}! 🌿\n\nYou left ${cartItemsSummary} in your cart!\nResume checkout here: ${checkoutUrl}`;
+            return await this.sendMetaCloudMessage(phone, msg);
         }
     }
 
@@ -261,22 +335,33 @@ class WhatsAppService {
 
         const botUrl = process.env.WHATSAPP_BOT_URL || 'https://whatapp-automation-kxml.onrender.com';
         const custName = user?.name || order.deliveryAddress?.firstName || 'Valued Customer';
-        const itemsList = (order.items || []).map(i => i.name);
+        const reviewUrl = `https://mansarafoods.com/account/orders`;
 
         console.log(`[WHATSAPP SERVICE] Sending Review Request (#${order.orderId}) to ${phone}...`);
+
+        // Try direct Meta review_request_utility template first
+        try {
+            return await this.sendUtilityTemplate(phone, 'review_request_utility', 'en_US', [
+                custName,
+                order.orderId,
+                reviewUrl
+            ]);
+        } catch (metaErr) {
+            console.warn('[WHATSAPP SERVICE] review_request_utility failed, trying Bot API...', metaErr.message);
+        }
 
         try {
             await axios.post(`${botUrl}/api/notify-customer-review`, {
                 phone,
                 orderId: order.orderId,
                 customerName: custName,
-                items: itemsList
+                items: (order.items || []).map(i => i.name)
             }, { timeout: 5000 });
             console.log(`[WHATSAPP SERVICE] ✓ Customer review request sent via Bot API`);
             return { success: true };
         } catch (err) {
             console.warn('[WHATSAPP SERVICE] Bot API error on review request. Falling back to direct Meta text...', err.message);
-            const fallbackMsg = `Namaste ${custName}! 🙏\n\n⭐ *How was your order #${order.orderId}?*\n\nYour order has been delivered! 🎉 We'd love to know what you think about our organic foods.\n\nPlease write a review: https://mansarafoods.com/account/orders\n\nThank you for your support! 🌿`;
+            const fallbackMsg = `Namaste ${custName}! 🙏\n\n⭐ *How was your order #${order.orderId}?*\n\nYour order has been delivered! 🎉 We'd love to know what you think about our organic foods.\n\nPlease write a review: ${reviewUrl}\n\nThank you for your support! 🌿`;
             return await this.sendMetaCloudMessage(phone, fallbackMsg);
         }
     }
@@ -359,14 +444,20 @@ class WhatsAppService {
 
         // Send via direct Meta Cloud Utility Template to all Admin & Sales numbers
         const itemsText = itemsList.map(i => `${i.quantity}x ${i.name} (₹${i.price * i.quantity})`).join(', ');
-        const alertMsg = `🛍️ NEW ORDER RECEIVED! Order ID: ${order.orderId} | Customer: ${custName} (${custPhone}) | Total: ₹${order.total} (${order.paymentMethod}) | Items: ${itemsText}`;
+        const eventDetails = `Order ID: ${order.orderId} | Total: ₹${order.total} (${order.paymentMethod || 'COD'}) | Items: ${itemsText} | Quick Action: Reply 'Ship ${order.orderId} iCarry <AWB>' to ship.`;
 
         for (const phone of adminPhones) {
             try {
-                await this.sendMetaCloudMessage(phone, alertMsg);
-                console.log(`[WHATSAPP SERVICE] ✓ Order alert delivered to Admin/Sales ${phone}`);
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    'NEW WEBSITE ORDER',
+                    `${custName} (${custPhone})`,
+                    'HIGH',
+                    eventDetails
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin Operations Order Alert delivered to ${phone}`);
             } catch (err) {
-                console.error(`[WHATSAPP SERVICE] ❌ Failed to send order alert to ${phone}:`, err.message);
+                console.warn(`[WHATSAPP SERVICE] admin_operations_alert_v1 failed (${err.message}), falling back...`);
+                await this.sendMetaCloudMessage(phone, `Order ${order.orderId} placed by ${custName} (${custPhone}) Total ₹${order.total}`);
             }
         }
     }
@@ -378,16 +469,163 @@ class WhatsAppService {
         const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
         const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
 
-        let alertMsg = stock <= 0
-            ? `🚨 OUT OF STOCK ALERT! Product: ${productName} is 0 items. Restock immediately!`
-            : `⚠️ LOW STOCK ALERT! Product: ${productName} has only ${stock} items left.`;
+        const title = stock <= 0 ? 'OUT OF STOCK CRITICAL ALERT' : 'LOW STOCK ALERT';
+        const priority = stock <= 0 ? 'CRITICAL' : 'HIGH';
+        const details = stock <= 0
+            ? `Stock is 0 items! Restock immediately. Reply 'Restock ${productName} 50' to restock.`
+            : `Only ${stock} items remaining. Reply 'Restock ${productName} 50' to add stock.`;
 
         for (const phone of adminPhones) {
             try {
-                await this.sendMetaCloudMessage(phone, alertMsg);
-                console.log(`[WHATSAPP SERVICE] ✓ Stock alert delivered to Admin/Sales ${phone}`);
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    title,
+                    productName,
+                    priority,
+                    details
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin Stock Alert delivered to ${phone}`);
             } catch (err) {
-                console.error(`[WHATSAPP SERVICE] ❌ Failed to send stock alert to ${phone}:`, err.message);
+                console.warn(`[WHATSAPP SERVICE] Admin stock alert fallback: ${err.message}`);
+                await this.sendMetaCloudMessage(phone, `${title}: ${productName} (${stock} left)`);
+            }
+        }
+    }
+
+    /**
+     * Send Admin WhatsApp Product Review Moderation Alert (to 919342400879 & 918838887064)
+     */
+    async sendAdminReviewAlert(review, product, user) {
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
+
+        const prodName = product?.name || 'Mansara Product';
+        const userName = user?.name || 'Customer';
+        const ratingStars = '⭐'.repeat(review?.rating || 5);
+        const comment = review?.comment || review?.text || 'No comment provided';
+
+        for (const phone of adminPhones) {
+            try {
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    'NEW PRODUCT REVIEW PENDING MODERATION',
+                    `${prodName} (by ${userName})`,
+                    'MEDIUM',
+                    `Rating: ${ratingStars} (${review?.rating || 5}/5) | Comment: "${comment}" | Moderate: https://crm.mansarafoods.com/admin/reviews`
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin Review Moderation Alert delivered to ${phone}`);
+            } catch (err) {
+                console.warn(`[WHATSAPP SERVICE] Admin Review Alert fallback: ${err.message}`);
+                await this.sendMetaCloudMessage(phone, `New Review for ${prodName}: ${ratingStars} - "${comment}"`);
+            }
+        }
+    }
+
+    /**
+     * Send Admin WhatsApp Customer Support Ticket Alert (to 919342400879 & 918838887064)
+     */
+    async sendAdminTicketAlert(ticketId, subject, contact) {
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
+
+        const custName = contact?.name || 'WhatsApp Customer';
+        const custPhone = contact?.phone || 'N/A';
+
+        for (const phone of adminPhones) {
+            try {
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    'NEW CUSTOMER SUPPORT TICKET',
+                    `${custName} (${custPhone})`,
+                    'HIGH',
+                    `Ticket ID: ${ticketId} | Subject: "${subject}" | Action: Review ticket in CRM Help Center`
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin Support Ticket Alert delivered to ${phone}`);
+            } catch (err) {
+                console.warn(`[WHATSAPP SERVICE] Admin Support Ticket Alert fallback: ${err.message}`);
+                await this.sendMetaCloudMessage(phone, `New Support Ticket #${ticketId} from ${custName}: "${subject}"`);
+            }
+        }
+    }
+
+    /**
+     * Send Admin WhatsApp Order Cancellation / Refund Alert (to 919342400879 & 918838887064)
+     */
+    async sendAdminCancellationAlert(order, reason = 'Customer Requested', user = null) {
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
+
+        const custName = user?.name || order?.deliveryAddress?.firstName || 'Customer';
+        const custPhone = user?.whatsapp || user?.phone || order?.deliveryAddress?.phone || 'N/A';
+        const orderId = order?.orderId || 'ORD-UNKNOWN';
+        const total = order?.total || 0;
+
+        for (const phone of adminPhones) {
+            try {
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    'ORDER CANCELLED / REFUND REQUESTED',
+                    `${custName} (${custPhone})`,
+                    'HIGH',
+                    `Order ID: ${orderId} | Refund/Cancel Total: ₹${total} | Reason: "${reason}" | Action: Process refund in Admin Portal`
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin Order Cancellation Alert delivered to ${phone}`);
+            } catch (err) {
+                console.warn(`[WHATSAPP SERVICE] Admin Cancellation Alert fallback: ${err.message}`);
+                await this.sendMetaCloudMessage(phone, `Cancelled Order #${orderId} (₹${total}) by ${custName}. Reason: ${reason}`);
+            }
+        }
+    }
+
+    /**
+     * Send Admin WhatsApp High-Value Abandoned Cart Alert (to 919342400879 & 918838887064)
+     */
+    async sendAdminHighValueCartAlert(user, cartTotal = 0, itemsSummary = 'items') {
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
+
+        const custName = user?.name || 'Customer';
+        const custPhone = user?.whatsapp || user?.phone || 'N/A';
+
+        for (const phone of adminPhones) {
+            try {
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    'HIGH VALUE CART ABANDONED',
+                    `${custName} (${custPhone})`,
+                    'HIGH',
+                    `Cart Total: ₹${cartTotal} | Items: ${itemsSummary} | Action: Contact customer for concierge assistance!`
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin High-Value Cart Alert delivered to ${phone}`);
+            } catch (err) {
+                console.warn(`[WHATSAPP SERVICE] Admin High-Value Cart Alert fallback: ${err.message}`);
+                await this.sendMetaCloudMessage(phone, `High-Value Cart (₹${cartTotal}) abandoned by ${custName} (${custPhone})`);
+            }
+        }
+    }
+
+    /**
+     * Send Admin WhatsApp Daily Business Digest / Summary (to 919342400879 & 918838887064)
+     */
+    async sendAdminDailyDigest(stats = {}) {
+        const rawPhones = process.env.ADMIN_PHONE || '919342400879,918838887064';
+        const adminPhones = rawPhones.split(',').map(p => this._normalizePhone(p.trim())).filter(Boolean);
+
+        const todayRevenue = stats.todayRevenue || 0;
+        const todayOrders = stats.todayOrders || 0;
+        const pendingOrders = stats.pendingOrders || 0;
+        const lowStockCount = stats.lowStockCount || 0;
+        const pendingReviews = stats.pendingReviews || 0;
+
+        const digestDetails = `Today Sales: ₹${todayRevenue} (${todayOrders} orders) | Pending Processing: ${pendingOrders} orders | Low Stock Items: ${lowStockCount} | Pending Reviews: ${pendingReviews}`;
+
+        for (const phone of adminPhones) {
+            try {
+                await this.sendUtilityTemplate(phone, 'admin_operations_alert_v1', 'en_US', [
+                    'DAILY BUSINESS PERFORMANCE DIGEST',
+                    'Mansara Foods Store',
+                    'MEDIUM',
+                    digestDetails
+                ]);
+                console.log(`[WHATSAPP SERVICE] ✓ Admin Daily Digest delivered to ${phone}`);
+            } catch (err) {
+                console.warn(`[WHATSAPP SERVICE] Admin Daily Digest fallback: ${err.message}`);
+                await this.sendMetaCloudMessage(phone, `Daily Digest: Revenue ₹${todayRevenue}, Orders: ${todayOrders}, Pending: ${pendingOrders}, Low Stock: ${lowStockCount}`);
             }
         }
     }

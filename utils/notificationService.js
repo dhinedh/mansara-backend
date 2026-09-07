@@ -557,22 +557,21 @@ Thank you for choosing Mansara Foods! 🙏`;
                 }
 
                 try {
-                    let message = `*Mansara Foods* 🌿\n\n${config.emoji} *Order Status Update*\n\nHi *${user.name}*,\n\nOrder ID: *${order.orderId}*\nNew Status: *${newStatus}*\n\n`;
-
                     if (newStatus === 'Shipped') {
-                        message += `Your order is on its way! 📦\n`;
-                        if (order.trackingNumber) message += `Tracking: ${order.trackingNumber} (${order.courier || 'iCarry'})\n\n`;
-                        else message += `\n`;
-                    } else if (newStatus === 'Out for Delivery') {
-                        message += `Your order will be delivered today! 🚚\n\n`;
+                        await whatsappService.sendOrderShippedNotification(
+                            order,
+                            user,
+                            order.courier || 'iCarry Express',
+                            order.trackingNumber || 'AWB-PENDING'
+                        );
+                        console.log(`[✓] Shipped status WhatsApp sent via Meta order_shipped_utility template`);
                     } else if (newStatus === 'Delivered') {
-                        message += `Your order has been delivered! Thank you for shopping with us! ✅\n\n`;
+                        await whatsappService.sendReviewRequest(order, user);
+                        console.log(`[✓] Delivered status WhatsApp review prompt sent via Meta review_request_utility template`);
+                    } else {
+                        await whatsappService.sendStatusNotification(order, user, newStatus);
+                        console.log(`[✓] Status update WhatsApp sent for status: ${newStatus}`);
                     }
-
-                    message += `📦 Track: ${trackingLink}\n\nThank you! 🙏`;
-
-                    await whatsappService.sendMessage(whatsappNumber, message);
-                    console.log(`[✓] Status update WhatsApp sent via BotBiz: ${newStatus}`);
                 } catch (err) {
                     console.error('[✗] WhatsApp failed:', err.message);
                 }
@@ -760,7 +759,11 @@ We hope to serve you again soon! 🙏`;
                 subject: `New Review for ${product.name} - Rating: ${review.rating}/5`,
                 html: emailMessage
             });
-            console.log('[✓] Review alert sent to admin');
+            console.log('[✓] Review email alert sent to admin');
+
+            // Dispatch Admin WhatsApp Review Moderation Alert
+            whatsappService.sendAdminReviewAlert(review, product, user)
+                .catch(wErr => console.error('[ERROR] Admin WhatsApp Review Alert failed:', wErr.message));
 
         } catch (error) {
             console.error('[ERROR] sendReviewAlert:', error.message);

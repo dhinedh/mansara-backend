@@ -566,10 +566,15 @@ router.put('/:id/status', protect, checkPermission('orders', 'limited'), async (
                     }
                 }
 
-                // Botbiz WhatsApp Status Update (Shipped/Delivered)
+                // Botbiz WhatsApp Status Update (Shipped/Delivered/Cancelled)
                 if (['Shipped', 'Delivered'].includes(status) && order.user) {
                     whatsappService.sendStatusNotification(order, order.user, status)
                         .catch(err => console.error('[ERROR] WhatsApp Status notification failed:', err));
+                }
+
+                if (status === 'Cancelled') {
+                    whatsappService.sendAdminCancellationAlert(order, req.body.notes || 'Status updated to Cancelled', order.user)
+                        .catch(err => console.error('[ERROR] WhatsApp Admin Cancellation notification failed:', err));
                 }
             }
         });
@@ -617,6 +622,8 @@ router.put('/:id/cancel', protect, async (req, res) => {
         process.nextTick(() => {
             notificationService.sendOrderCancelled(order, order.user)
                 .catch(err => console.error('[ERROR] Cancellation notification failed:', err));
+            whatsappService.sendAdminCancellationAlert(order, req.body.reason || 'Customer Requested Cancellation', order.user)
+                .catch(err => console.error('[ERROR] Admin Cancellation WhatsApp Alert failed:', err));
         });
 
         res.json(order);
