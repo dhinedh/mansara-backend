@@ -37,77 +37,45 @@ router.get('/', protect, async (req, res) => {
 // ========================================
 router.post('/add', protect, async (req, res) => {
     try {
-        const { id, type, quantity, price, name, image } = req.body;
+        const { id, type, quantity, price, name, image, weight } = req.body;
 
-        if (!id || !type || !quantity || !price || !name) {
+        if (!id || !type || !quantity || price === undefined || !name) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // ========================================
-        // STOCK MANAGEMENT: CHECK & DEDUCT
-        // ========================================
-        const Model = type === 'combo' ? Combo : Product;
-        const product = await Model.findById(id);
+        const sanitizedItem = {
+            id: String(id),
+            type: type === 'combo' ? 'combo' : 'product',
+            quantity: Math.max(1, Math.min(999, Number(quantity) || 1)),
+            price: Math.max(0, Number(price) || 0),
+            name: String(name),
+            image: image || '',
+            weight: weight ? String(weight) : undefined
+        };
 
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
+        const user = await User.findById(req.user._id).select('cart');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        if (product.variants && product.variants.length > 0) {
-            // Check global stock first (Master Switch)
-            if (product.stock < quantity) {
-                return res.status(400).json({ message: `Insufficient stock for ${name}` });
-            }
+        const cart = user.cart || [];
+        const existingIndex = cart.findIndex(i => i.id === sanitizedItem.id && (i.weight || '') === (sanitizedItem.weight || ''));
 
-            // Variant stock check (validation only)
-            const variant = product.variants.find(v => v.price === price);
-            if (variant && variant.stock < quantity) {
-                return res.status(400).json({ message: `Insufficient stock for ${name}` });
-            }
-
+        if (existingIndex > -1) {
+            cart[existingIndex].quantity = Math.min(999, cart[existingIndex].quantity + sanitizedItem.quantity);
         } else {
-            if (product.stock < quantity) {
-                return res.status(400).json({ message: `Insufficient stock for ${name}` });
-            }
+            cart.push(sanitizedItem);
         }
 
-        // OPTIMIZATION: Use findOneAndUpdate with arrayFilters for atomic operation
-        // Removed premature stock deduction
-
-        const user = await User.findOneAndUpdate(
-            {
-                _id: req.user._id,
-                'cart.id': { $ne: id } // Item not in cart
-            },
-            {
-                $push: {
-                    cart: { id, type, quantity, price, name, image }
-                }
-            },
-            { new: true, select: 'cart' }
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { $set: { cart } },
+            { new: true, select: 'cart', runValidators: true }
         )
             .maxTimeMS(5000)
             .exec();
 
-        // If item already exists, update quantity instead
-        if (!user) {
-            const updatedUser = await User.findOneAndUpdate(
-                {
-                    _id: req.user._id,
-                    'cart.id': id
-                },
-                {
-                    $inc: { 'cart.$.quantity': quantity }
-                },
-                { new: true, select: 'cart' }
-            )
-                .maxTimeMS(5000)
-                .exec();
-
-            return res.json(updatedUser?.cart || []);
-        }
-
-        res.json(user.cart);
+        res.json(updatedUser?.cart || cart);
     } catch (error) {
         console.error('[ERROR] Add to cart:', error);
         res.status(500).json({ message: error.message });
@@ -182,86 +150,26 @@ router.delete('/remove/:itemId', protect, async (req, res) => {
 // ========================================
 router.put('/', protect, async (req, res) => {
     try {
-        const { cart } = req.body;
+        const rawCart = Array.isArray(req.body) ? req.body : req.body?.cart;
 
-        if (!Array.isArray(cart)) {
+        if (!Array.isArray(rawCart)) {
             return res.status(400).json({ message: 'Cart must be an array' });
         }
 
-        // ========================================
-        // STOCK SYNC LOGIC
-        // ========================================
-        const user = await User.findById(req.user._id).select('cart');
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+        // Clean & sanitize cart items
+        const sanitizedCart = rawCart.map(item => ({
+            id: String(item.id || item._id || ''),
+            type: item.type === 'combo' ? 'combo' : 'product',
+            quantity: Math.max(1, Math.min(999, Number(item.quantity) || 1)),
+            price: Math.max(0, Number(item.price) || 0),
+            name: String(item.name || 'Item'),
+            image: item.image || '',
+            weight: item.weight ? String(item.weight) : undefined
+        })).filter(item => item.id);
 
-        const oldCart = user.cart || [];
-        const newCart = cart;
-
-        // 1. Handle increments (Reserve Stock)
-        for (const newItem of newCart) {
-            const oldItem = oldCart.find(i => i.id === newItem.id);
-            let quantityToDeduct = 0;
-
-            if (!oldItem) {
-                // New item added directly to list
-                quantityToDeduct = newItem.quantity;
-            } else if (newItem.quantity > oldItem.quantity) {
-                // Quantity increased
-                quantityToDeduct = newItem.quantity - oldItem.quantity;
-            }
-
-            if (quantityToDeduct > 0) {
-                const Model = newItem.type === 'combo' ? Combo : Product;
-                const product = await Model.findById(newItem.id);
-                if (product) {
-                    if (product.stock >= quantityToDeduct) {
-                        product.stock -= quantityToDeduct;
-                        await product.save();
-                    } else if (product.variants && product.variants.length > 0) {
-                        // If variants exist, root stock might be 0 but variants have stock.
-                        // Trust the frontend/add-to-cart logic for now and just deduct what we can or ignore.
-                        // Ideally we sync specific variants.
-                        // For now, suppress warning for variant products.
-                        product.stock = Math.max(0, product.stock - quantityToDeduct);
-                        await product.save();
-                    } else {
-                        // If insufficient stock, we might need to reject or just cap it.
-                        // For bulk sync, capping is safer to avoid blocking ui.
-                        console.warn(`[WARN] Insufficient stock during sync for ${product.name}`);
-                    }
-                }
-            }
-        }
-
-        // 2. Handle decrements (Restore Stock)
-        for (const oldItem of oldCart) {
-            const newItem = newCart.find(i => i.id === oldItem.id);
-            let quantityToRestore = 0;
-
-            if (!newItem) {
-                // Item removed
-                quantityToRestore = oldItem.quantity;
-            } else if (newItem.quantity < oldItem.quantity) {
-                // Quantity decreased
-                quantityToRestore = oldItem.quantity - newItem.quantity;
-            }
-
-            if (quantityToRestore > 0) {
-                const Model = oldItem.type === 'combo' ? Combo : Product;
-                const product = await Model.findById(oldItem.id);
-                if (product) {
-                    product.stock += quantityToRestore;
-                    await product.save();
-                }
-            }
-        }
-
-        // OPTIMIZATION: Direct update with validation
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
-            { $set: { cart } },
+            { $set: { cart: sanitizedCart } },
             {
                 new: true,
                 select: 'cart',
@@ -270,6 +178,10 @@ router.put('/', protect, async (req, res) => {
         )
             .maxTimeMS(5000)
             .exec();
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
         res.json(updatedUser.cart);
     } catch (error) {
@@ -283,23 +195,6 @@ router.put('/', protect, async (req, res) => {
 // ========================================
 router.delete('/', protect, async (req, res) => {
     try {
-        // ========================================
-        // STOCK RESTORATION FOR ALL ITEMS
-        // ========================================
-        const user = await User.findById(req.user._id).select('cart');
-        if (user && user.cart.length > 0) {
-            for (const item of user.cart) {
-                const Model = item.type === 'combo' ? Combo : Product;
-                const product = await Model.findById(item.id);
-                if (product) {
-                    product.stock += item.quantity;
-                    await product.save();
-                    console.log(`[STOCK] Restored ${item.quantity} for ${product.name} (Cart cleared)`);
-                }
-            }
-        }
-
-        // OPTIMIZATION: Use updateOne for simple operation
         await User.updateOne(
             { _id: req.user._id },
             { $set: { cart: [] } }
@@ -377,46 +272,49 @@ router.post('/merge', protect, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Merge carts (deduplicate by id, sum quantities)
+        // Merge carts (deduplicate by id + weight, sum quantities)
         const cartMap = new Map();
+        const getItemKey = (item) => `${item.id}_${item.weight || ''}`;
 
         // Add existing cart items
-        user.cart.forEach(item => {
-            cartMap.set(item.id, item);
+        (user.cart || []).forEach(item => {
+            const rawItem = item.toObject ? item.toObject() : item;
+            cartMap.set(getItemKey(rawItem), rawItem);
         });
 
-        // ========================================
-        // STOCK DEDUCTION FOR GUEST ITEMS
-        // ========================================
+        // Merge guest items
         for (const guestItem of guestCart) {
-            const Model = guestItem.type === 'combo' ? Combo : Product;
-            const product = await Model.findById(guestItem.id);
+            if (!guestItem || !guestItem.id) continue;
+            const key = getItemKey(guestItem);
+            const sanitizedGuest = {
+                id: String(guestItem.id),
+                type: guestItem.type === 'combo' ? 'combo' : 'product',
+                quantity: Math.max(1, Math.min(999, Number(guestItem.quantity) || 1)),
+                price: Math.max(0, Number(guestItem.price) || 0),
+                name: String(guestItem.name || 'Item'),
+                image: guestItem.image || '',
+                weight: guestItem.weight ? String(guestItem.weight) : undefined
+            };
 
-            if (product) {
-                if (product.stock >= guestItem.quantity) {
-                    product.stock -= guestItem.quantity;
-                    await product.save();
-                } else {
-                    console.warn(`[WARN] Insufficient stock during merge for ${product.name}, merging anyway`);
-                }
-            }
-
-            if (cartMap.has(guestItem.id)) {
-                const existing = cartMap.get(guestItem.id);
-                existing.quantity += guestItem.quantity;
+            if (cartMap.has(key)) {
+                const existing = cartMap.get(key);
+                existing.quantity = Math.min(999, existing.quantity + sanitizedGuest.quantity);
             } else {
-                cartMap.set(guestItem.id, guestItem);
+                cartMap.set(key, sanitizedGuest);
             }
         }
 
-        // Convert map back to array
         const mergedCart = Array.from(cartMap.values());
 
-        // Update user cart
-        user.cart = mergedCart;
-        await user.save();
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { $set: { cart: mergedCart } },
+            { new: true, select: 'cart', runValidators: true }
+        )
+            .maxTimeMS(5000)
+            .exec();
 
-        res.json(user.cart);
+        res.json(updatedUser ? updatedUser.cart : mergedCart);
     } catch (error) {
         console.error('[ERROR] Merge cart:', error);
         res.status(500).json({ message: error.message });

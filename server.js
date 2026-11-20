@@ -6,6 +6,14 @@ const dotenv = require('dotenv');
 const compression = require('compression');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const dns = require('dns');
+
+// On Windows / Node 22, ensure SRV lookups for MongoDB Atlas resolve cleanly
+try {
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch (e) {
+    // Ignore if not supported
+}
 
 dotenv.config();
 console.log('[DEBUG] Environment Config Loaded');

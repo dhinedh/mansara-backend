@@ -101,7 +101,7 @@ router.get('/', cacheMiddleware(600000), async (req, res) => {
         if (search) sortOption = { score: { $meta: 'textScore' } };
 
         const products = await Product.find(query)
-            .select('name slug price offerPrice image images category featured rating numReviews stock isOffer weight description ingredients howToUse storage nutrition compliance highlights sub_category short_description isActive variants isNewArrival')
+            .select('name slug price offerPrice originalPrice image images category featured rating numReviews stock isOffer weight description ingredients howToUse storage nutrition compliance highlights sub_category short_description isActive variants isNewArrival')
             .sort(sortOption)
             .skip(skip)
             .limit(limit)

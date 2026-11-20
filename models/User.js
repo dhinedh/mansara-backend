@@ -56,7 +56,8 @@ const cartItemSchema = new mongoose.Schema({
         min: 0
     },
     name: { type: String, required: true },
-    image: String
+    image: String,
+    weight: { type: String, trim: true }
 }, { _id: false });
 
 // ========================================
