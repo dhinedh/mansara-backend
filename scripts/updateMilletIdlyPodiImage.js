@@ -22,8 +22,7 @@ async function updateImage() {
                     image: "/products/millet-idly-podi-front.jpg",
                     images: [
                         "/products/millet-idly-podi-front.jpg",
-                        "/products/millet-idly-podi-back.jpg",
-                        "/products/millet-idly-podi-side.jpg"
+                        "/products/millet-idly-podi-back.jpg"
                     ]
                 }
             },
