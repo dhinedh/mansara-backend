@@ -42,7 +42,7 @@ router.post('/add', protect, async (req, res) => {
         if (!id || !type || !quantity || price === undefined || !name) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
-
+``
         const sanitizedItem = {
             id: String(id),
             type: type === 'combo' ? 'combo' : 'product',
