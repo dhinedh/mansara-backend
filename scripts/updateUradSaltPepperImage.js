@@ -19,11 +19,11 @@ async function updateImage() {
             { name: "Urad Porridge Mix – Salt & Pepper" },
             {
                 $set: {
-                    image: "/products/urad-salt-pepper-front.jpg",
+                    image: "/products/urad-salt-pepper-250g-front.jpg",
                     images: [
-                        "/products/urad-salt-pepper-front.jpg",
-                        "/products/urad-salt-pepper-back.jpg",
-                        "/products/urad-salt-pepper-side.jpg"
+                        "/products/urad-salt-pepper-250g-front.jpg",
+                        "/products/urad-salt-pepper-250g-back.jpg",
+                        "/products/urad-salt-pepper-250g-side.jpg"
                     ]
                 }
             },

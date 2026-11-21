@@ -19,11 +19,11 @@ async function updateImage() {
             { name: "Urad Porridge Mix – Millet Magic" },
             {
                 $set: {
-                    image: "/products/urad-millet-magic-back.jpg",
+                    image: "/products/urad-millet-magic-250g-front.jpg",
                     images: [
-                        "/products/urad-millet-magic-back.jpg",
-                        "/products/urad-millet-magic-front.jpg",
-                        "/products/urad-millet-magic-side.jpg"
+                        "/products/urad-millet-magic-250g-front.jpg",
+                        "/products/urad-millet-magic-250g-back.jpg",
+                        "/products/urad-millet-magic-250g-side.jpg"
                     ]
                 }
             },

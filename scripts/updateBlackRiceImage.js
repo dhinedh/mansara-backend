@@ -19,11 +19,11 @@ async function updateImage() {
             { name: "Black Rice Delight Porridge Mix" },
             {
                 $set: {
-                    image: "/products/black-rice-delight-front.jpg",
+                    image: "/products/black-rice-delight-250g-front.jpg",
                     images: [
-                        "/products/black-rice-delight-front.jpg",
-                        "/products/black-rice-delight-back.jpg",
-                        "/products/black-rice-delight-side.jpg"
+                        "/products/black-rice-delight-250g-front.jpg",
+                        "/products/black-rice-delight-250g-back.jpg",
+                        "/products/black-rice-delight-250g-side.jpg"
                     ]
                 }
             },

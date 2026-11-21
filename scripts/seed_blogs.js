@@ -8,7 +8,7 @@ const blogPostsData = [
     slug: "health-mix-for-babies-and-kids",
     excerpt: "Discover why traditional sprouted sathu maavu is the best health mix for infants, growing toddlers, and lactating mothers.",
     category: "Mothers & Children",
-    featuredImage: "/products/urad-classic-front.jpg",
+    featuredImage: "/products/urad-classic-250g-front.jpg",
     isPublished: true,
     publishedAt: new Date("2026-08-10"),
     content: `
@@ -45,7 +45,7 @@ const blogPostsData = [
     slug: "health-mix-for-weight-loss",
     excerpt: "Learn how incorporating traditional high-fiber porridge mixes into your morning routine supports metabolism, satiety, and fat loss.",
     category: "Fitness & Weight Loss",
-    featuredImage: "/products/black-rice-delight-front.jpg",
+    featuredImage: "/products/black-rice-delight-250g-front.jpg",
     isPublished: true,
     publishedAt: new Date("2026-08-11"),
     content: `
@@ -79,7 +79,7 @@ const blogPostsData = [
     slug: "millet-mix-for-diabetics",
     excerpt: "Discover how low glycemic index millets and urad porridge mixes help seniors and diabetic individuals manage blood sugar levels naturally.",
     category: "Diabetic & Senior Care",
-    featuredImage: "/products/urad-millet-magic-front.jpg",
+    featuredImage: "/products/urad-millet-magic-250g-front.jpg",
     isPublished: true,
     publishedAt: new Date("2026-08-11"),
     content: `
@@ -113,7 +113,7 @@ const blogPostsData = [
     slug: "international-shipping-south-indian-food",
     excerpt: "Learn how Tamil diaspora and NRI families in the USA, UK, UAE, and Europe can order authentic, export-compliant South Indian health mixes online.",
     category: "NRI & Worldwide Delivery",
-    featuredImage: "/products/SaltnPepperFront.jpg",
+    featuredImage: "/products/urad-salt-pepper-250g-front.jpg",
     isPublished: true,
     publishedAt: new Date("2026-08-12"),
     content: `

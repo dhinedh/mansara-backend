@@ -19,11 +19,11 @@ async function updateImage() {
             { name: "Urad Porridge Mix – Classic" },
             {
                 $set: {
-                    image: "/products/urad-classic-front.jpg",
+                    image: "/products/urad-classic-250g-front.jpg",
                     images: [
-                        "/products/urad-classic-front.jpg",
-                        "/products/urad-classic-back.jpg",
-                        "/products/urad-classic-side.jpg"
+                        "/products/urad-classic-250g-front.jpg",
+                        "/products/urad-classic-250g-back.jpg",
+                        "/products/urad-classic-250g-side.jpg"
                     ]
                 }
             },

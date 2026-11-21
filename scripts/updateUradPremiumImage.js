@@ -19,11 +19,11 @@ async function updateImage() {
             { name: "Urad Porridge Mix – Premium" },
             {
                 $set: {
-                    image: "/products/urad-premium-front.jpg",
+                    image: "/products/urad-premium-250g-front.jpg",
                     images: [
-                        "/products/urad-premium-front.jpg",
-                        "/products/urad-premium-back.jpg",
-                        "/products/urad-premium-side.jpg"
+                        "/products/urad-premium-250g-front.jpg",
+                        "/products/urad-premium-250g-back.jpg",
+                        "/products/urad-premium-250g-side.jpg"
                     ]
                 }
             },
